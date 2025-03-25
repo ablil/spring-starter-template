@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    username: test-dbadmin
+    password:
+    url: jdbc:h2:mem:mytestdb

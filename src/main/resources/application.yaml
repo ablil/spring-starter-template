@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: spring-starter-template
+  output:
+    ansi:
+      enabled: always
+  datasource:
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:supersecurepassword}
+    url: jdbc:postgresql://0.0.0.0:${POSTGRES_PORT:5432}/${POSTGRES_DB:mydb}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    generate-ddl: true

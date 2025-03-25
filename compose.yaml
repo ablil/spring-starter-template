@@ -1,0 +1,10 @@
+name: spring-starter-template
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_PASSWORD: supersecurepassword
+      POSTGRES_DB: mydb
+    ports:
+      - 5432:5432
