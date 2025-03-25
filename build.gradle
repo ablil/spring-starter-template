@@ -6,6 +6,7 @@ plugins {
 	id 'org.jetbrains.kotlin.plugin.jpa' version '1.9.23'
 	id 'com.diffplug.spotless' version '7.0.2'
 	id 'io.gitlab.arturbosch.detekt' version '1.23.6'
+	id 'com.google.cloud.tools.jib' version '3.4.5'
 }
 
 group = 'com.example'
@@ -48,6 +49,22 @@ spotless {
 		toggleOffOn()
 		ktfmt('0.54').kotlinlangStyle()
 	}
+}
+
+build {
+	if (isCI) {
+		dependsOn(tasks.jib)
+	}
+}
+
+jib {
+	to {
+		image = isCI ? "ghcr.io/ablil/spring-starter-template" : "spring-starter-template"
+	}
+    container {
+        creationTime = 'USE_CURRENT_TIMESTAMP'
+        ports = ['8080']
+    }
 }
 
 allOpen {
