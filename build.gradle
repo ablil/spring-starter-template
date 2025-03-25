@@ -21,18 +21,6 @@ java {
 	}
 }
 
-repositories {
-	mavenCentral()
-	maven {
-		name = "GithubPackage"
-		url = uri("https://maven.pkg.github.com/ablil/detekt-extension")
-		credentials {
-			username = project.findProperty("gpr.username") as String ?: System.getenv('GITHUB_ACTOR')
-			password = project.findProperty("gpr.password") as String ?: System.getenv('GITHUB_TOKEN')
-		}
-	}
-}
-
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -54,7 +42,7 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testRuntimeOnly 'com.h2database:h2'
-	detektPlugins('com.github.ablil.detekt:detekt-custom-rule:0.1.0')
+	detektPlugins('com.github.ablil:detekt-extension:v0.1.0')
 }
 
 kotlin {
