@@ -4,6 +4,7 @@ plugins {
 	id 'org.springframework.boot' version '3.4.4'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'org.jetbrains.kotlin.plugin.jpa' version '1.9.25'
+	id 'com.diffplug.spotless' version '7.0.2'
 }
 
 group = 'com.example'
@@ -35,6 +36,13 @@ dependencies {
 kotlin {
 	compilerOptions {
 		freeCompilerArgs.addAll '-Xjsr305=strict'
+	}
+}
+
+spotless {
+	kotlin {
+		toggleOffOn()
+		ktfmt('0.54').kotlinlangStyle()
 	}
 }
 
