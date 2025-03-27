@@ -7,6 +7,7 @@ plugins {
 	id 'com.diffplug.spotless' version '7.0.2'
 	id 'io.gitlab.arturbosch.detekt' version '1.23.6'
 	id 'com.google.cloud.tools.jib' version '3.4.5'
+	id 'com.gorylenko.gradle-git-properties' version '2.5.0'
 }
 
 group = 'com.example'
@@ -28,6 +29,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
 	implementation 'org.jetbrains.kotlin:kotlin-reflect'
 	runtimeOnly 'org.postgresql:postgresql'
@@ -75,4 +77,8 @@ allOpen {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+springBoot {
+	buildInfo()
 }

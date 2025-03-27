@@ -11,3 +11,16 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     generate-ddl: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+    loggers:
+      enabled: true
+  info:
+    git:
+      enabled: true
+      mode: full
