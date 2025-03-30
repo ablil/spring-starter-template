@@ -1,6 +1,8 @@
 package com.example.users
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import java.time.Duration
+import java.time.Instant
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
@@ -26,6 +28,8 @@ const val DEFAULT_TEST_EMAIL = "johndoe@example.com"
 const val DEFAULT_TEST_PASSWORD = "supersecurepassword"
 
 const val DEFAULT_ACTIVATION_KEY = "activationkey"
+
+private const val DEFAULT_RESET_KEY = "resetKey"
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -119,6 +123,108 @@ class AccountsResourceTest {
             status { is4xxClientError() }
         }
     }
+
+    @Test
+    fun `init password reset given email of existing user`() {
+        userRepository.saveAndFlush(User.defaultTestUser(disabled = false))
+
+        mockMvc
+            .post("/api/account/password-reset/init") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(EmailWrapper(DEFAULT_TEST_EMAIL))
+            }
+            .andExpect { status { isNoContent() } }
+
+        val user =
+            userRepository.findByEmailIgnoreCase(DEFAULT_TEST_EMAIL) ?: fail("user not persisted")
+        assertThat(user.resetKey).isNotBlank()
+        assertThat(user.resetKey).isNotNull()
+    }
+
+    @Test
+    fun `init password reset given email of non existing user`() {
+        mockMvc
+            .post("/api/account/password-reset/init") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(EmailWrapper("invalidemail@example.com"))
+            }
+            .andExpect { status { isConflict() } }
+    }
+
+    @Test
+    fun `finish password reset given same old password`() {
+        userRepository.saveAndFlush(
+            User.defaultTestUser(disabled = false)
+                .copy(resetKey = DEFAULT_RESET_KEY, resetDate = Instant.now())
+        )
+
+        mockMvc
+            .post("/api/account/password-reset/finish") {
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    objectMapper.writeValueAsString(
+                        KeyAndPassword(DEFAULT_RESET_KEY, DEFAULT_TEST_PASSWORD)
+                    )
+            }
+            .andExpect { status { isBadRequest() } }
+    }
+
+    @Test
+    fun `finish password reset given expired reset key`() {
+        userRepository.saveAndFlush(
+            User.defaultTestUser(disabled = false)
+                .copy(
+                    resetKey = DEFAULT_RESET_KEY,
+                    resetDate = Instant.now().minus(Duration.ofDays(7)),
+                )
+        )
+
+        mockMvc
+            .post("/api/account/password-reset/finish") {
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    objectMapper.writeValueAsString(
+                        KeyAndPassword(DEFAULT_RESET_KEY, "newsuperpassword")
+                    )
+            }
+            .andExpect { status { isConflict() } }
+    }
+
+    @Test
+    fun `finish password reset given invalid reset key`() {
+        mockMvc
+            .post("/api/account/password-reset/finish") {
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    objectMapper.writeValueAsString(
+                        KeyAndPassword("invalidKey", DEFAULT_TEST_PASSWORD)
+                    )
+            }
+            .andExpect { status { isConflict() } }
+    }
+
+    @Test
+    fun `finish password reset successfully`() {
+        userRepository.saveAndFlush(
+            User.defaultTestUser(disabled = false)
+                .copy(resetKey = DEFAULT_RESET_KEY, resetDate = Instant.now())
+        )
+
+        mockMvc
+            .post("/api/account/password-reset/finish") {
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    objectMapper.writeValueAsString(
+                        KeyAndPassword(DEFAULT_RESET_KEY, "newsecurepassword")
+                    )
+            }
+            .andExpect { status { isNoContent() } }
+
+        val user =
+            userRepository.findByEmailIgnoreCase(DEFAULT_TEST_EMAIL) ?: fail("user not persisted")
+        assertThat(user.resetKey).isNull()
+        assertThat(user.resetDate).isNull()
+    }
 }
 
 fun User.Companion.defaultTestUser(disabled: Boolean = true): User =
@@ -131,4 +237,6 @@ fun User.Companion.defaultTestUser(disabled: Boolean = true): User =
         firstName = "john",
         lastName = "doe",
         activationKey = DEFAULT_ACTIVATION_KEY.takeIf { disabled },
+        resetKey = null,
+        resetDate = null,
     )

@@ -26,6 +26,8 @@ data class User(
     val firstName: String?,
     val lastName: String?,
     val activationKey: String?,
+    val resetKey: String?,
+    val resetDate: Instant?,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) override var id: Long? = null,
     override var createdAt: Instant = Instant.now(),
     override var updatedAt: Instant = Instant.now(),

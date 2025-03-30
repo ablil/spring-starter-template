@@ -19,6 +19,20 @@ class AccountsResource(val userService: UserService) {
     @GetMapping("activate")
     fun activateAccount(@RequestParam("key") key: String): ResponseEntity<Void> =
         userService.activateAccount(key).let { ResponseEntity.noContent().build() }
+
+    @PostMapping("password-reset/init")
+    fun requestResetPassword(@RequestBody email: EmailWrapper): ResponseEntity<Void> =
+        userService.requestPasswordReset(email.email).let { ResponseEntity.noContent().build() }
+
+    @PostMapping("password-reset/finish")
+    fun finishPasswordReset(@RequestBody body: KeyAndPassword): ResponseEntity<Void> =
+        userService.finishPasswordReset(body.resetKey, body.password).let {
+            ResponseEntity.noContent().build()
+        }
 }
 
 data class RegistrationDTO(val username: String, val email: String, val password: String)
+
+data class EmailWrapper(val email: String)
+
+data class KeyAndPassword(val resetKey: String, val password: String)

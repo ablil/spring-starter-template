@@ -2,6 +2,7 @@ package com.example.users
 
 import com.example.common.AuthorityConstants
 import com.example.common.JpaConfiguration
+import java.time.Instant
 import kotlin.test.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -27,12 +28,14 @@ class UsersRepositoryTest {
                 User(
                     username = "johndoe",
                     email = "johndoe@example.com",
-                    roles = setOf(AuthorityConstants.ADMIN),
-                    disabled = false,
                     password = "supersecurepassword",
+                    disabled = false,
+                    roles = setOf(AuthorityConstants.ADMIN),
                     firstName = null,
                     lastName = null,
                     activationKey = null,
+                    resetKey = null,
+                    resetDate = Instant.now(),
                 )
             )
         assertNotNull(user.id)

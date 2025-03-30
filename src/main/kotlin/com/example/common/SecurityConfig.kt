@@ -28,6 +28,8 @@ class SecurityConfig {
                 authorize("/api/account/register", permitAll)
                 authorize("/api/account/activate", permitAll)
                 authorize("/api/authenticate", permitAll)
+                authorize("/api/account/password-reset/init", permitAll)
+                authorize("/api/account/password-reset/finish", permitAll)
                 authorize("/actuator/**", hasAuthority(AuthorityConstants.ADMIN.name))
                 authorize(anyRequest, authenticated)
             }
