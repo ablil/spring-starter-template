@@ -6,6 +6,8 @@ interface UserRepository : JpaRepository<User, Long> {
 
     fun existsByUsernameOrEmailIgnoreCase(username: String, email: String): Boolean
 
+    fun findByUsernameOrEmailIgnoreCase(username: String, email: String): User?
+
     fun findByUsernameIgnoreCase(username: String): User?
 
     fun findOneByActivationKey(key: String): User?

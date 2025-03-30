@@ -19,13 +19,13 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 
-private const val DEFAULT_TEST_USERNAME = "johndoe"
+const val DEFAULT_TEST_USERNAME = "johndoe"
 
-private const val DEFAULT_TEST_EMAIL = "johndoe@example.com"
+const val DEFAULT_TEST_EMAIL = "johndoe@example.com"
 
-private const val DEFAULT_TEST_PASSWORD = "supersecurepassword"
+const val DEFAULT_TEST_PASSWORD = "supersecurepassword"
 
-private const val DEFAULT_ACTIVATION_KEY = "activationkey"
+const val DEFAULT_ACTIVATION_KEY = "activationkey"
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -121,7 +121,7 @@ class AccountsResourceTest {
     }
 }
 
-private fun User.Companion.defaultTestUser(disabled: Boolean = true): User =
+fun User.Companion.defaultTestUser(disabled: Boolean = true): User =
     User(
         username = DEFAULT_TEST_USERNAME,
         email = DEFAULT_TEST_EMAIL,
