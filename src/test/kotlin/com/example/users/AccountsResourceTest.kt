@@ -84,8 +84,8 @@ class AccountsResourceTest {
     }
 
     @Test
-    fun `register user given an existing account with same email or password`() {
-        userRepository.saveAndFlush(User.defaultTestUser())
+    fun `register user given an existing account with same email or username`() {
+        userRepository.saveAndFlush(User.defaultTestUser(disabled = false))
 
         mockMvc
             .post("/api/account/register") {

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.ResponseStatus
 
 private const val ACTIVATION_KEY_LENGTH = 10
@@ -17,9 +18,13 @@ class UserService(val userRepository: UserRepository, val passwordEncoder: Passw
 
     val logger = getLogger()
 
+    @Transactional
     fun registerUser(dto: RegistrationDTO) {
-        check(!userRepository.existsByUsernameOrEmailIgnoreCase(dto.username, dto.email)) {
-            "user already exists"
+        val existingUser = userRepository.findByUsernameOrEmailIgnoreCase(dto.username, dto.email)
+        if (existingUser != null) {
+            check(existingUser.disabled) { "user already exists" }
+            userRepository.delete(existingUser)
+            userRepository.flush()
         }
 
         userRepository.saveAndFlush(
@@ -54,13 +59,15 @@ class UserService(val userRepository: UserRepository, val passwordEncoder: Passw
     fun requestPasswordReset(email: String) {
         userRepository
             .findByEmailIgnoreCase(email)
+            ?.takeUnless { it.disabled }
             ?.copy(resetKey = generateActivationKey(), resetDate = Instant.now())
             ?.let { userRepository.saveAndFlush(it) } ?: error("user account for $email NOT found")
     }
 
     fun finishPasswordReset(resetKey: String, newRawPassword: String) {
         val user =
-            userRepository.findOneByResetKey(resetKey) ?: error("no account with reset key found")
+            userRepository.findOneByResetKey(resetKey)?.takeUnless { it.disabled }
+                ?: error("no account with reset key found")
         checkOrThrow(!passwordEncoder.matches(newRawPassword, user.password)) {
             AccountResourceException("should NOT use old password")
         }
