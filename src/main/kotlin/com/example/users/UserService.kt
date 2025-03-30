@@ -35,6 +35,15 @@ class UserService(val userRepository: UserRepository, val passwordEncoder: Passw
 
     private fun generateActivationKey(): String =
         RandomStringUtils.secure().nextAlphanumeric(ACTIVATION_KEY_LENGTH)
+
+    fun activateAccount(key: String) {
+        userRepository
+            .findOneByActivationKey(key)
+            ?.copy(activationKey = null, disabled = false)
+            ?.let { userRepository.saveAndFlush(it) }
+            ?.also { logger.info("user account {} activated", it.email) }
+            ?: error("no user account associated with activation key")
+    }
 }
 
 fun Any.getLogger(): Logger = LoggerFactory.getLogger(this::class.java)

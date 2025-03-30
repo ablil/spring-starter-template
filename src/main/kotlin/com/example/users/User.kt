@@ -35,4 +35,6 @@ data class User(
 
     val fullName: String?
         get() = "%s %s".format(firstName, lastName)
+
+    companion object
 }

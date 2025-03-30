@@ -16,7 +16,8 @@ class SecurityConfig {
         http.invoke {
             authorizeHttpRequests {
                 authorize("/actuator/health", permitAll)
-                authorize("/api/v1/account/register", permitAll)
+                authorize("/api/account/register", permitAll)
+                authorize("/api/account/activate", permitAll)
                 authorize("/actuator/**", hasAuthority(AuthorityConstants.ADMIN.name))
                 authorize(anyRequest, authenticated)
             }
