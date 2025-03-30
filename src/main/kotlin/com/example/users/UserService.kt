@@ -1,8 +1,10 @@
 package com.example.users
 
+import com.example.common.SecurityUtils
 import java.time.Duration
 import java.time.Instant
 import org.apache.commons.lang3.RandomStringUtils
+import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -84,6 +86,24 @@ class UserService(val userRepository: UserRepository, val passwordEncoder: Passw
             )
         )
         logger.info("password reset completed for user {}", user.username)
+    }
+
+    fun changePassword(currentPassword: String, newPassword: String) {
+        val user =
+            userRepository.findByUsernameOrEmailIgnoreCase(
+                SecurityUtils.currentUserLogin(),
+                SecurityUtils.currentUserLogin(),
+            ) ?: error("user not found")
+
+        check(passwordEncoder.matches(currentPassword, user.password)) {
+            "current password is invalid"
+        }
+        check(!StringUtils.equals(currentPassword, newPassword)) {
+            "new password should be different from old one"
+        }
+
+        userRepository.saveAndFlush(user.copy(password = passwordEncoder.encode(newPassword)))
+        logger.info("user password updated successfully")
     }
 }
 

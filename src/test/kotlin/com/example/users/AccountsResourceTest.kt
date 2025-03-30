@@ -17,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
@@ -224,6 +225,58 @@ class AccountsResourceTest {
             userRepository.findByEmailIgnoreCase(DEFAULT_TEST_EMAIL) ?: fail("user not persisted")
         assertThat(user.resetKey).isNull()
         assertThat(user.resetDate).isNull()
+    }
+
+    @Test
+    @WithMockUser(username = DEFAULT_TEST_USERNAME)
+    fun `change user password successfully`() {
+        userRepository.saveAndFlush(User.defaultTestUser(disabled = false))
+
+        mockMvc
+            .post("/api/account/change-password") {
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    objectMapper.writeValueAsString(
+                        ChangePasswordDTO(DEFAULT_TEST_PASSWORD, "newpassword")
+                    )
+            }
+            .andExpect { status { isNoContent() } }
+
+        val user =
+            userRepository.findByEmailIgnoreCase(DEFAULT_TEST_EMAIL) ?: fail("user not persisted")
+        assertThat(passwordEncoder.matches("newpassword", user.password)).isTrue()
+    }
+
+    @Test
+    @WithMockUser(username = DEFAULT_TEST_USERNAME)
+    fun `change user password given same old password`() {
+        userRepository.saveAndFlush(User.defaultTestUser(disabled = false))
+
+        mockMvc
+            .post("/api/account/change-password") {
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    objectMapper.writeValueAsString(
+                        ChangePasswordDTO(DEFAULT_TEST_PASSWORD, DEFAULT_TEST_PASSWORD)
+                    )
+            }
+            .andExpect { status { isConflict() } }
+    }
+
+    @Test
+    @WithMockUser(username = DEFAULT_TEST_USERNAME)
+    fun `change user password given invalid current password`() {
+        userRepository.saveAndFlush(User.defaultTestUser(disabled = false))
+
+        mockMvc
+            .post("/api/account/change-password") {
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    objectMapper.writeValueAsString(
+                        ChangePasswordDTO("invalidcurrentpass", DEFAULT_TEST_PASSWORD)
+                    )
+            }
+            .andExpect { status { isConflict() } }
     }
 }
 
