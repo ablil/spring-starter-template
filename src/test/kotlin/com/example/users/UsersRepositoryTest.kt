@@ -23,9 +23,9 @@ class UsersRepositoryTest {
 
     @Test
     fun `auditing fields are set by JPA`() {
-        val user =
+        val domainUser =
             repository.saveAndFlush(
-                User(
+                DomainUser(
                     username = "johndoe",
                     email = "johndoe@example.com",
                     password = "supersecurepassword",
@@ -38,10 +38,10 @@ class UsersRepositoryTest {
                     resetDate = Instant.now(),
                 )
             )
-        assertNotNull(user.id)
-        assertNotNull(user.createdAt)
-        assertNotNull(user.createdBy)
-        assertNotNull(user.updatedAt)
-        assertNotNull(user.updatedBy)
+        assertNotNull(domainUser.id)
+        assertNotNull(domainUser.createdAt)
+        assertNotNull(domainUser.createdBy)
+        assertNotNull(domainUser.updatedAt)
+        assertNotNull(domainUser.updatedBy)
     }
 }

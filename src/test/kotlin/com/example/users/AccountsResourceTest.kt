@@ -86,7 +86,7 @@ class AccountsResourceTest {
 
     @Test
     fun `register user given an existing account with same email or username`() {
-        userRepository.saveAndFlush(User.defaultTestUser(disabled = false))
+        userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
             .post("/api/account/register") {
@@ -105,7 +105,7 @@ class AccountsResourceTest {
 
     @Test
     fun `activate user account successfully`() {
-        userRepository.saveAndFlush(User.defaultTestUser())
+        userRepository.saveAndFlush(DomainUser.defaultTestUser())
 
         mockMvc.get("/api/account/activate?key=$DEFAULT_ACTIVATION_KEY").andExpect {
             status { is2xxSuccessful() }
@@ -127,7 +127,7 @@ class AccountsResourceTest {
 
     @Test
     fun `init password reset given email of existing user`() {
-        userRepository.saveAndFlush(User.defaultTestUser(disabled = false))
+        userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
             .post("/api/account/password-reset/init") {
@@ -155,7 +155,7 @@ class AccountsResourceTest {
     @Test
     fun `finish password reset given same old password`() {
         userRepository.saveAndFlush(
-            User.defaultTestUser(disabled = false)
+            DomainUser.defaultTestUser(disabled = false)
                 .copy(resetKey = DEFAULT_RESET_KEY, resetDate = Instant.now())
         )
 
@@ -173,7 +173,7 @@ class AccountsResourceTest {
     @Test
     fun `finish password reset given expired reset key`() {
         userRepository.saveAndFlush(
-            User.defaultTestUser(disabled = false)
+            DomainUser.defaultTestUser(disabled = false)
                 .copy(
                     resetKey = DEFAULT_RESET_KEY,
                     resetDate = Instant.now().minus(Duration.ofDays(7)),
@@ -207,7 +207,7 @@ class AccountsResourceTest {
     @Test
     fun `finish password reset successfully`() {
         userRepository.saveAndFlush(
-            User.defaultTestUser(disabled = false)
+            DomainUser.defaultTestUser(disabled = false)
                 .copy(resetKey = DEFAULT_RESET_KEY, resetDate = Instant.now())
         )
 
@@ -230,7 +230,7 @@ class AccountsResourceTest {
     @Test
     @WithMockUser(username = DEFAULT_TEST_USERNAME)
     fun `change user password successfully`() {
-        userRepository.saveAndFlush(User.defaultTestUser(disabled = false))
+        userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
             .post("/api/account/change-password") {
@@ -250,7 +250,7 @@ class AccountsResourceTest {
     @Test
     @WithMockUser(username = DEFAULT_TEST_USERNAME)
     fun `change user password given same old password`() {
-        userRepository.saveAndFlush(User.defaultTestUser(disabled = false))
+        userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
             .post("/api/account/change-password") {
@@ -266,7 +266,7 @@ class AccountsResourceTest {
     @Test
     @WithMockUser(username = DEFAULT_TEST_USERNAME)
     fun `change user password given invalid current password`() {
-        userRepository.saveAndFlush(User.defaultTestUser(disabled = false))
+        userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
             .post("/api/account/change-password") {
@@ -282,7 +282,7 @@ class AccountsResourceTest {
     @Test
     @WithMockUser(username = DEFAULT_TEST_USERNAME)
     fun `update user info successfully`() {
-        userRepository.saveAndFlush(User.defaultTestUser(disabled = false))
+        userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
             .post("/api/account") {
@@ -311,8 +311,8 @@ class AccountsResourceTest {
     fun `update user info given existing email`() {
         userRepository.saveAllAndFlush(
             listOf(
-                User.defaultTestUser(disabled = false),
-                User.defaultTestUser(disabled = false)
+                DomainUser.defaultTestUser(disabled = false),
+                DomainUser.defaultTestUser(disabled = false)
                     .copy(username = "restedturkey", email = "turkye@example.com"),
             )
         )
@@ -335,7 +335,7 @@ class AccountsResourceTest {
     @Test
     @WithMockUser(username = DEFAULT_TEST_USERNAME)
     fun `get currently authenticated user`() {
-        userRepository.saveAndFlush(User.defaultTestUser(disabled = false))
+        userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc.get("/api/account").andExpectAll {
             status { isOk() }
@@ -347,8 +347,8 @@ class AccountsResourceTest {
     }
 }
 
-fun User.Companion.defaultTestUser(disabled: Boolean = true): User =
-    User(
+fun DomainUser.Companion.defaultTestUser(disabled: Boolean = true): DomainUser =
+    DomainUser(
         username = DEFAULT_TEST_USERNAME,
         email = DEFAULT_TEST_EMAIL,
         password = "{noop}$DEFAULT_TEST_PASSWORD",

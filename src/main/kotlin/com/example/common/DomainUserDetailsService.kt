@@ -18,10 +18,10 @@ class DomainUserDetailsService(val userRepository: UserRepository) : UserDetails
             ?.let { createSpringSecurityUser(it) }
             ?: throw UsernameNotFoundException("user account $username NOT found OR disabled")
 
-    private fun createSpringSecurityUser(user: com.example.users.User): User =
+    private fun createSpringSecurityUser(domainUser: com.example.users.DomainUser): User =
         User(
-            user.username,
-            user.password,
-            user.roles.map { role -> SimpleGrantedAuthority(role.name) },
+            domainUser.username,
+            domainUser.password,
+            domainUser.roles.map { role -> SimpleGrantedAuthority(role.name) },
         )
 }

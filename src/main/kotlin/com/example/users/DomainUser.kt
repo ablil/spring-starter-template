@@ -15,8 +15,8 @@ import jakarta.persistence.Table
 import java.time.Instant
 
 @Entity
-@Table(name = "users")
-data class User(
+@Table(name = "domain_users")
+data class DomainUser(
     @Column(unique = true) val username: String,
     @Column(unique = true) val email: String,
     @JsonIgnore val password: String,

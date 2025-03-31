@@ -30,7 +30,7 @@ class AuthenticationControllerTest {
     @ParameterizedTest
     @CsvSource(*[DEFAULT_TEST_USERNAME, DEFAULT_TEST_EMAIL])
     fun `authenticate user given valid credentials`(login: String) {
-        userRepository.saveAndFlush(User.defaultTestUser(disabled = false))
+        userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
             .post("/api/authenticate") {

@@ -30,7 +30,7 @@ class UserService(val userRepository: UserRepository, val passwordEncoder: Passw
         }
 
         userRepository.saveAndFlush(
-            User(
+            DomainUser(
                 username = dto.username,
                 email = dto.email,
                 password = passwordEncoder.encode(dto.password),
@@ -128,7 +128,7 @@ class UserService(val userRepository: UserRepository, val passwordEncoder: Passw
         logger.info("user '{}' info updated successfully", currentLogin)
     }
 
-    fun getCurrentUser(): User =
+    fun getCurrentUser(): DomainUser =
         userRepository.findByUsernameOrEmailIgnoreCase(
             SecurityUtils.currentUserLogin(),
             SecurityUtils.currentUserLogin(),

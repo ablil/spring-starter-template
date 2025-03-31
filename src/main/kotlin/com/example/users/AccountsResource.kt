@@ -37,7 +37,8 @@ class AccountsResource(val userService: UserService) {
         }
 
     @GetMapping
-    fun getCurrentUser(): ResponseEntity<User> = ResponseEntity.ok(userService.getCurrentUser())
+    fun getCurrentUser(): ResponseEntity<DomainUser> =
+        ResponseEntity.ok(userService.getCurrentUser())
 
     @PostMapping
     fun updateUserInformation(@RequestBody body: UserInfoDTO): ResponseEntity<Void> =

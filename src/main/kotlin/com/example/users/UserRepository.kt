@@ -2,19 +2,19 @@ package com.example.users
 
 import org.springframework.data.jpa.repository.JpaRepository
 
-interface UserRepository : JpaRepository<User, Long> {
+interface UserRepository : JpaRepository<DomainUser, Long> {
 
     fun existsByUsernameOrEmailIgnoreCase(username: String, email: String): Boolean
 
-    fun findByUsernameOrEmailIgnoreCase(username: String, email: String): User?
+    fun findByUsernameOrEmailIgnoreCase(username: String, email: String): DomainUser?
 
-    fun findByUsernameIgnoreCase(username: String): User?
+    fun findByUsernameIgnoreCase(username: String): DomainUser?
 
-    fun findByEmailIgnoreCase(email: String): User?
+    fun findByEmailIgnoreCase(email: String): DomainUser?
 
     fun existsByEmailIgnoreCase(email: String): Boolean
 
-    fun findOneByActivationKey(key: String): User?
+    fun findOneByActivationKey(key: String): DomainUser?
 
-    fun findOneByResetKey(key: String): User?
+    fun findOneByResetKey(key: String): DomainUser?
 }
