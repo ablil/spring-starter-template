@@ -278,6 +278,59 @@ class AccountsResourceTest {
             }
             .andExpect { status { isConflict() } }
     }
+
+    @Test
+    @WithMockUser(username = DEFAULT_TEST_USERNAME)
+    fun `update user info successfully`() {
+        userRepository.saveAndFlush(User.defaultTestUser(disabled = false))
+
+        mockMvc
+            .post("/api/account") {
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    objectMapper.writeValueAsString(
+                        UserInfoDTO(
+                            firstName = "rested",
+                            lastName = "turkey",
+                            email = "proper-sequerel@example.com",
+                        )
+                    )
+            }
+            .andExpect { status { isNoContent() } }
+
+        val user =
+            userRepository.findByUsernameIgnoreCase(DEFAULT_TEST_USERNAME)
+                ?: fail("user not persisted")
+        assertThat(user.firstName).isEqualTo("rested")
+        assertThat(user.lastName).isEqualTo("turkey")
+        assertThat(user.email).isEqualTo("proper-sequerel@example.com")
+    }
+
+    @Test
+    @WithMockUser(username = DEFAULT_TEST_USERNAME)
+    fun `update user info given existing email`() {
+        userRepository.saveAllAndFlush(
+            listOf(
+                User.defaultTestUser(disabled = false),
+                User.defaultTestUser(disabled = false)
+                    .copy(username = "restedturkey", email = "turkye@example.com"),
+            )
+        )
+
+        mockMvc
+            .post("/api/account") {
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    objectMapper.writeValueAsString(
+                        UserInfoDTO(
+                            firstName = "rested",
+                            lastName = "turkey",
+                            email = DEFAULT_TEST_EMAIL,
+                        )
+                    )
+            }
+            .andExpect { status { isConflict() } }
+    }
 }
 
 fun User.Companion.defaultTestUser(disabled: Boolean = true): User =

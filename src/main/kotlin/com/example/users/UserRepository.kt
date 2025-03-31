@@ -12,6 +12,8 @@ interface UserRepository : JpaRepository<User, Long> {
 
     fun findByEmailIgnoreCase(email: String): User?
 
+    fun existsByEmailIgnoreCase(email: String): Boolean
+
     fun findOneByActivationKey(key: String): User?
 
     fun findOneByResetKey(key: String): User?

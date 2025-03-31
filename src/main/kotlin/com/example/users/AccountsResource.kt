@@ -35,6 +35,10 @@ class AccountsResource(val userService: UserService) {
         userService.changePassword(body.currentPassword, body.newPassword).let {
             ResponseEntity.noContent().build()
         }
+
+    @PostMapping
+    fun updateUserInformation(@RequestBody body: UserInfoDTO): ResponseEntity<Void> =
+        userService.updateUserInfo(body).let { ResponseEntity.noContent().build() }
 }
 
 data class RegistrationDTO(val username: String, val email: String, val password: String)
@@ -44,3 +48,5 @@ data class EmailWrapper(val email: String)
 data class KeyAndPassword(val resetKey: String, val password: String)
 
 data class ChangePasswordDTO(val currentPassword: String, val newPassword: String)
+
+data class UserInfoDTO(val firstName: String?, val lastName: String?, val email: String)
