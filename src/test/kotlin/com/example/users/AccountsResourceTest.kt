@@ -331,6 +331,20 @@ class AccountsResourceTest {
             }
             .andExpect { status { isConflict() } }
     }
+
+    @Test
+    @WithMockUser(username = DEFAULT_TEST_USERNAME)
+    fun `get currently authenticated user`() {
+        userRepository.saveAndFlush(User.defaultTestUser(disabled = false))
+
+        mockMvc.get("/api/account").andExpectAll {
+            status { isOk() }
+            jsonPath("$.username") { value(DEFAULT_TEST_USERNAME) }
+            jsonPath("$.password") { doesNotExist() }
+            jsonPath("$.activationKey") { doesNotExist() }
+            jsonPath("$.resetKey") { doesNotExist() }
+        }
+    }
 }
 
 fun User.Companion.defaultTestUser(disabled: Boolean = true): User =

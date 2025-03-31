@@ -127,6 +127,15 @@ class UserService(val userRepository: UserRepository, val passwordEncoder: Passw
         )
         logger.info("user '{}' info updated successfully", currentLogin)
     }
+
+    fun getCurrentUser(): User =
+        userRepository.findByUsernameOrEmailIgnoreCase(
+            SecurityUtils.currentUserLogin(),
+            SecurityUtils.currentUserLogin(),
+        )
+            ?: logger.error("user is authenticated, but NO entity is found").run {
+                error("user not found")
+            }
 }
 
 fun Any.getLogger(): Logger = LoggerFactory.getLogger(this::class.java)

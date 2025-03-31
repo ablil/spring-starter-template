@@ -1,6 +1,7 @@
 package com.example.users
 
 import com.example.common.AuthorityConstants
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
@@ -18,16 +19,16 @@ import java.time.Instant
 data class User(
     @Column(unique = true) val username: String,
     @Column(unique = true) val email: String,
-    val password: String,
+    @JsonIgnore val password: String,
     val disabled: Boolean,
     @Enumerated(EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)
     val roles: Set<AuthorityConstants>,
     val firstName: String?,
     val lastName: String?,
-    val activationKey: String?,
-    val resetKey: String?,
-    val resetDate: Instant?,
+    @JsonIgnore val activationKey: String?,
+    @JsonIgnore val resetKey: String?,
+    @JsonIgnore val resetDate: Instant?,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) override var id: Long? = null,
     override var createdAt: Instant = Instant.now(),
     override var updatedAt: Instant = Instant.now(),
