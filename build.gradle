@@ -49,7 +49,7 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testRuntimeOnly 'com.h2database:h2'
-	detektPlugins('com.github.ablil.detekt:detekt-custom-rule:0.0.1')
+	detektPlugins('com.github.ablil.detekt:detekt-custom-rule:0.1.0')
 }
 
 kotlin {
