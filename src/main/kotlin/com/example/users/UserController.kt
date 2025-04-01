@@ -5,6 +5,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -39,6 +40,10 @@ class UserController(val userService: UserService) {
                 )
                 .let { PageableResult(it.content, it.number, it.size, it.totalElements) }
         )
+
+    @GetMapping("{username}")
+    fun getUser(@PathVariable("username") username: String): ResponseEntity<DomainUser> =
+        ResponseEntity.ofNullable(userService.getUser(username))
 }
 
 data class PageableResult<T>(val content: List<T>, val page: Int, val size: Int, val total: Long)

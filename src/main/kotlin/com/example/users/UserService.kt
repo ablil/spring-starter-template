@@ -140,6 +140,8 @@ class UserService(val userRepository: UserRepository, val passwordEncoder: Passw
             }
 
     fun getAllUsers(request: Pageable): Page<DomainUser> = userRepository.findAll(request)
+
+    fun getUser(username: String): DomainUser? = userRepository.findByUsernameIgnoreCase(username)
 }
 
 fun Any.getLogger(): Logger = LoggerFactory.getLogger(this::class.java)

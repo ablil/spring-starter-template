@@ -86,6 +86,18 @@ class UserControllerTest {
                 }
             }
     }
+
+    @Test
+    @WithMockAdmin
+    fun `fetch user by username`() {
+        userRepository.saveAndFlush(DomainUser.defaultTestUser())
+
+        mockMvc.get("/api/users/$DEFAULT_TEST_USERNAME").andExpectAll {
+            status { isOk() }
+            jsonPath("$.password") { doesNotHaveJsonPath() }
+            jsonPath("$.username") { value(DEFAULT_TEST_USERNAME) }
+        }
+    }
 }
 
 @Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
