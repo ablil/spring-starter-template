@@ -4,6 +4,7 @@ import com.example.common.AuthorityConstants
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
@@ -53,6 +54,10 @@ class UserController(val userService: UserService) {
         @RequestBody body: UpdateUserDTO,
     ): ResponseEntity<DomainUser> =
         ResponseEntity.ofNullable(userService.updateUserInfo(username, body))
+
+    @DeleteMapping("{username}")
+    fun deleteUser(@PathVariable("username") username: String): ResponseEntity<Void> =
+        userService.deleteUser(username).let { ResponseEntity.noContent().build() }
 }
 
 data class PageableResult<T>(val content: List<T>, val page: Int, val size: Int, val total: Long)

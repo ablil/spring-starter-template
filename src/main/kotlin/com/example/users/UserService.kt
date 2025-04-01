@@ -15,7 +15,6 @@ class UserService(val userRepository: UserRepository) {
 
     fun getUser(username: String): DomainUser? = userRepository.findByUsernameIgnoreCase(username)
 
-    @AdminOnly
     fun updateUserInfo(username: String, info: UpdateUserDTO): DomainUser? {
         val user = userRepository.findByUsernameIgnoreCase(username) ?: return null
 
@@ -30,6 +29,11 @@ class UserService(val userRepository: UserRepository) {
                 )
             )
             .also { logger.info("user info updated successfully") }
+    }
+
+    fun deleteUser(username: String) {
+        val count = userRepository.deleteByUsernameIgnoreCase(username)
+        if (count == 0) error("user not found")
     }
 }
 

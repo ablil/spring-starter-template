@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.put
 
@@ -130,6 +131,20 @@ class UserControllerTest {
         assertThat(user.email).isEqualTo("robert-morgan@example.com")
         assertThat(user.username).isEqualTo("robert_morgan")
         assertThat(user.roles).isEmpty()
+    }
+
+    @Test
+    @WithMockAdmin
+    fun `delete user by username`() {
+        userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
+
+        mockMvc.delete("/api/users/$DEFAULT_TEST_USERNAME").andExpect { status { isNoContent() } }
+    }
+
+    @Test
+    @WithMockAdmin
+    fun `delete non existing user`() {
+        mockMvc.delete("/api/users/$DEFAULT_TEST_USERNAME").andExpect { status { isConflict() } }
     }
 }
 
