@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import java.lang.annotation.Inherited
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.fail
 import org.hamcrest.Description
 import org.hamcrest.TypeSafeMatcher
 import org.junit.jupiter.api.BeforeEach
@@ -18,6 +19,7 @@ import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
 
 @SpringBootTest
@@ -115,7 +117,7 @@ class UserControllerTest {
             contentType = MediaType.APPLICATION_JSON
             content =
                 objectMapper.writeValueAsString(
-                    UpdateUserDTO(
+                    CreateOrUpdateUserDTO(
                         firstName = "robert",
                         lastName = "morgan",
                         email = "robert-morgan@example.com",
@@ -145,6 +147,32 @@ class UserControllerTest {
     @WithMockAdmin
     fun `delete non existing user`() {
         mockMvc.delete("/api/users/$DEFAULT_TEST_USERNAME").andExpect { status { isConflict() } }
+    }
+
+    @Test
+    @WithMockAdmin
+    fun `create user`() {
+        mockMvc
+            .post("/api/users") {
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    objectMapper.writeValueAsString(
+                        CreateOrUpdateUserDTO(
+                            firstName = "robert",
+                            lastName = "morgan",
+                            email = "robert-morgan@example.com",
+                            username = "robert_morgan",
+                            roles = emptySet(),
+                        )
+                    )
+            }
+            .andExpect { status { isCreated() } }
+
+        val user =
+            userRepository.findByUsernameIgnoreCase("robert_morgan") ?: fail("user not persisted")
+        assertThat(user.disabled).isTrue()
+        assertThat(user.resetDate).isNotNull()
+        assertThat(user.resetKey).isNotBlank()
     }
 }
 

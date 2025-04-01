@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.ResponseStatus
 
-private const val ACTIVATION_KEY_LENGTH = 10
+private const val DEFAULT_KEY_LENGTH = 10
 
 @Service
 class AccountService(val userRepository: UserRepository, val passwordEncoder: PasswordEncoder) {
@@ -38,16 +38,13 @@ class AccountService(val userRepository: UserRepository, val passwordEncoder: Pa
                 roles = emptySet(),
                 firstName = null,
                 lastName = null,
-                activationKey = generateActivationKey(),
+                activationKey = generateRandomKey(),
                 resetKey = null,
                 resetDate = Instant.now(),
             )
         )
         logger.info("created new user successfully")
     }
-
-    private fun generateActivationKey(): String =
-        RandomStringUtils.secure().nextAlphanumeric(ACTIVATION_KEY_LENGTH)
 
     fun activateAccount(key: String) {
         userRepository
@@ -62,7 +59,7 @@ class AccountService(val userRepository: UserRepository, val passwordEncoder: Pa
         userRepository
             .findByEmailIgnoreCase(email)
             ?.takeUnless { it.disabled }
-            ?.copy(resetKey = generateActivationKey(), resetDate = Instant.now())
+            ?.copy(resetKey = generateRandomKey(), resetDate = Instant.now())
             ?.let { userRepository.saveAndFlush(it) } ?: error("user account for $email NOT found")
     }
 
@@ -148,3 +145,5 @@ fun checkOrThrow(condition: Boolean, lazyException: () -> RuntimeException) {
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 class AccountResourceException(override val message: String) : RuntimeException(message)
+
+fun generateRandomKey(): String = RandomStringUtils.secure().nextAlphanumeric(DEFAULT_KEY_LENGTH)

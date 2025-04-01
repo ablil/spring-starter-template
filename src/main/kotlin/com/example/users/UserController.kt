@@ -1,12 +1,14 @@
 package com.example.users
 
 import com.example.common.AuthorityConstants
+import java.net.URI
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -48,10 +50,16 @@ class UserController(val userService: UserService) {
     fun getUser(@PathVariable("username") username: String): ResponseEntity<DomainUser> =
         ResponseEntity.ofNullable(userService.getUser(username))
 
+    @PostMapping
+    fun createUser(@RequestBody body: CreateOrUpdateUserDTO): ResponseEntity<DomainUser> =
+        userService.createUser(body).let {
+            ResponseEntity.created(URI("/api/users/${it.username}")).body(it)
+        }
+
     @PutMapping("{username}")
     fun updateUser(
         @PathVariable("username") username: String,
-        @RequestBody body: UpdateUserDTO,
+        @RequestBody body: CreateOrUpdateUserDTO,
     ): ResponseEntity<DomainUser> =
         ResponseEntity.ofNullable(userService.updateUserInfo(username, body))
 
@@ -62,7 +70,7 @@ class UserController(val userService: UserService) {
 
 data class PageableResult<T>(val content: List<T>, val page: Int, val size: Int, val total: Long)
 
-data class UpdateUserDTO(
+data class CreateOrUpdateUserDTO(
     val firstName: String?,
     val lastName: String?,
     val roles: Set<AuthorityConstants>?,
