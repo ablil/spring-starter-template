@@ -3,14 +3,10 @@ package com.example.users
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.time.Duration
 import java.time.Instant
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
-import kotlin.test.assertTrue
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.fail
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -68,14 +64,14 @@ class AccountsResourceTest {
         val user =
             userRepository.findByUsernameIgnoreCase(DEFAULT_TEST_USERNAME)
                 ?: fail("user not persisted")
-        assertAll(
-            { assertEquals(DEFAULT_TEST_USERNAME, user.username) },
-            { assertEquals(DEFAULT_TEST_EMAIL, user.email) },
-            { assertNotEquals(DEFAULT_TEST_PASSWORD, user.password) },
-            { assertTrue(passwordEncoder.matches(DEFAULT_TEST_PASSWORD, user.password)) },
-            { assertThat(user.disabled).isTrue() },
-            { assertThat(user.activationKey).isNotBlank() },
-        )
+        assertThat(user.username).isEqualTo(DEFAULT_TEST_USERNAME)
+        assertThat(user.email).isEqualTo(DEFAULT_TEST_EMAIL)
+        assertThat(user.password).isNotEqualTo(DEFAULT_TEST_PASSWORD)
+        assertThat(passwordEncoder.matches(DEFAULT_TEST_PASSWORD, user.password))
+            .`as`("user password is encrypted")
+            .isTrue()
+        assertThat(user.disabled).`as`("user account is disabled").isTrue()
+        assertThat(user.activationKey).isNotBlank()
     }
 
     @Test

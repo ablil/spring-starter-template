@@ -3,7 +3,7 @@ package com.example.users
 import com.example.common.AuthorityConstants
 import com.example.common.JpaConfiguration
 import java.time.Instant
-import kotlin.test.assertNotNull
+import org.assertj.core.api.Java6Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -38,10 +38,8 @@ class UsersRepositoryTest {
                     resetDate = Instant.now(),
                 )
             )
-        assertNotNull(domainUser.id)
-        assertNotNull(domainUser.createdAt)
-        assertNotNull(domainUser.createdBy)
-        assertNotNull(domainUser.updatedAt)
-        assertNotNull(domainUser.updatedBy)
+        assertThat(domainUser)
+            .extracting("id", "createdAt", "createdBy", "updatedAt", "updatedBy")
+            .doesNotContainNull()
     }
 }
