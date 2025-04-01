@@ -22,7 +22,7 @@ class UsersRepositoryTest {
     }
 
     @Test
-    fun `auditing fields are set by JPA`() {
+    fun `should set auditing fields`() {
         val domainUser =
             repository.saveAndFlush(
                 DomainUser(

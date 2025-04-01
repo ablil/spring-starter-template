@@ -29,7 +29,7 @@ class AuthenticationControllerTest {
 
     @ParameterizedTest
     @CsvSource(*[DEFAULT_TEST_USERNAME, DEFAULT_TEST_EMAIL])
-    fun `authenticate user given valid credentials`(login: String) {
+    fun `should get jwt given valid credentials`(login: String) {
         userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
@@ -44,7 +44,7 @@ class AuthenticationControllerTest {
     }
 
     @Test
-    fun `authenticate user given invalid credentials`() {
+    fun `should NOT authenticate user given invalid credentials`() {
         mockMvc
             .post("/api/authenticate") {
                 contentType = MediaType.APPLICATION_JSON

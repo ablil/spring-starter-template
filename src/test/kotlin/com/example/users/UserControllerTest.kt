@@ -39,13 +39,13 @@ class UserControllerTest {
 
     @Test
     @WithMockUser
-    fun `list all user as non-admin`() {
+    fun `should list all user given non-admin consumer`() {
         mockMvc.get("/api/users").andExpect { status { isForbidden() } }
     }
 
     @Test
     @WithMockAdmin
-    fun `list all users with no query params`() {
+    fun `should list all users given no query params`() {
         mockMvc.get("/api/users").andExpectAll {
             status { isOk() }
             jsonPath("$.page") { value(DEFAULT_PAGE_NUMBER) }
@@ -57,7 +57,7 @@ class UserControllerTest {
 
     @Test
     @WithMockAdmin
-    fun `list all users given page and size`() {
+    fun `should list all users given page and size`() {
         userRepository.saveAll(List(20) { DomainUser.randomUser() })
         mockMvc
             .get("/api/users") {
@@ -76,7 +76,7 @@ class UserControllerTest {
     @ParameterizedTest
     @ValueSource(strings = ["id", "username", "email", "createdBy", "updatedBy"])
     @WithMockAdmin
-    fun `list all users given sorting queries`(property: String) {
+    fun `should list all users given different sorting queries`(property: String) {
         userRepository.saveAll(List(20) { DomainUser.randomUser() })
 
         mockMvc
@@ -98,7 +98,7 @@ class UserControllerTest {
 
     @Test
     @WithMockAdmin
-    fun `fetch user by username`() {
+    fun `should return user given username`() {
         userRepository.saveAndFlush(DomainUser.defaultTestUser())
 
         mockMvc.get("/api/users/$DEFAULT_TEST_USERNAME").andExpectAll {
@@ -110,7 +110,7 @@ class UserControllerTest {
 
     @Test
     @WithMockAdmin
-    fun `update user successfully`() {
+    fun `should update user info given valid request body`() {
         val userId = userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false)).id
 
         mockMvc.put("/api/users/$DEFAULT_TEST_USERNAME") {
@@ -137,7 +137,7 @@ class UserControllerTest {
 
     @Test
     @WithMockAdmin
-    fun `delete user by username`() {
+    fun `should delete user given username`() {
         userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc.delete("/api/users/$DEFAULT_TEST_USERNAME").andExpect { status { isNoContent() } }
@@ -145,13 +145,13 @@ class UserControllerTest {
 
     @Test
     @WithMockAdmin
-    fun `delete non existing user`() {
+    fun `given non existing username when deleting a user then return return 409`() {
         mockMvc.delete("/api/users/$DEFAULT_TEST_USERNAME").andExpect { status { isConflict() } }
     }
 
     @Test
     @WithMockAdmin
-    fun `create user`() {
+    fun `should create user given valid request body`() {
         mockMvc
             .post("/api/users") {
                 contentType = MediaType.APPLICATION_JSON

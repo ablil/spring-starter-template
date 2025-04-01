@@ -46,7 +46,7 @@ class AccountsResourceTest {
     }
 
     @Test
-    fun `register user successfully`() {
+    fun `should create user given valid registration request`() {
         mockMvc
             .post("/api/account/register") {
                 contentType = MediaType.APPLICATION_JSON
@@ -76,12 +76,12 @@ class AccountsResourceTest {
 
     @Test
     @Disabled
-    fun `register user given short password or blank username`() {
+    fun `should NOT create user given short password or blank username`() {
         TODO()
     }
 
     @Test
-    fun `register user given an existing account with same email or username`() {
+    fun `should register user given an existing account with same email or username`() {
         userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
@@ -100,7 +100,7 @@ class AccountsResourceTest {
     }
 
     @Test
-    fun `activate user account successfully`() {
+    fun `should activate user account successfully given valid activation key`() {
         userRepository.saveAndFlush(DomainUser.defaultTestUser())
 
         mockMvc.get("/api/account/activate?key=$DEFAULT_ACTIVATION_KEY").andExpect {
@@ -115,14 +115,14 @@ class AccountsResourceTest {
     }
 
     @Test
-    fun `activate user account given invalid or missing activation key`() {
+    fun `should NOT activate user account given invalid or missing activation key`() {
         mockMvc.get("/api/account/activate?key=doesnotexists").andExpect {
             status { is4xxClientError() }
         }
     }
 
     @Test
-    fun `init password reset given email of existing user`() {
+    fun `should init password reset given email of existing user`() {
         userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
@@ -139,7 +139,7 @@ class AccountsResourceTest {
     }
 
     @Test
-    fun `init password reset given email of non existing user`() {
+    fun `should not init password reset given email of non existing user`() {
         mockMvc
             .post("/api/account/password-reset/init") {
                 contentType = MediaType.APPLICATION_JSON
@@ -149,7 +149,7 @@ class AccountsResourceTest {
     }
 
     @Test
-    fun `finish password reset given same old password`() {
+    fun `should finish password reset given same old password`() {
         userRepository.saveAndFlush(
             DomainUser.defaultTestUser(disabled = false)
                 .copy(resetKey = DEFAULT_RESET_KEY, resetDate = Instant.now())
@@ -167,7 +167,7 @@ class AccountsResourceTest {
     }
 
     @Test
-    fun `finish password reset given expired reset key`() {
+    fun `should finish password reset given expired reset key`() {
         userRepository.saveAndFlush(
             DomainUser.defaultTestUser(disabled = false)
                 .copy(
@@ -188,7 +188,7 @@ class AccountsResourceTest {
     }
 
     @Test
-    fun `finish password reset given invalid reset key`() {
+    fun `should finish password reset given invalid reset key`() {
         mockMvc
             .post("/api/account/password-reset/finish") {
                 contentType = MediaType.APPLICATION_JSON
@@ -201,7 +201,7 @@ class AccountsResourceTest {
     }
 
     @Test
-    fun `finish password reset successfully`() {
+    fun `should finish password reset given valid password and reset key`() {
         userRepository.saveAndFlush(
             DomainUser.defaultTestUser(disabled = false)
                 .copy(resetKey = DEFAULT_RESET_KEY, resetDate = Instant.now())
@@ -225,7 +225,7 @@ class AccountsResourceTest {
 
     @Test
     @WithMockUser(username = DEFAULT_TEST_USERNAME)
-    fun `change user password successfully`() {
+    fun `should change user password given valid password`() {
         userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
@@ -245,7 +245,7 @@ class AccountsResourceTest {
 
     @Test
     @WithMockUser(username = DEFAULT_TEST_USERNAME)
-    fun `change user password given same old password`() {
+    fun `should not  change user password given same old password`() {
         userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
@@ -261,7 +261,7 @@ class AccountsResourceTest {
 
     @Test
     @WithMockUser(username = DEFAULT_TEST_USERNAME)
-    fun `change user password given invalid current password`() {
+    fun `should not change user password given invalid current password`() {
         userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
@@ -277,7 +277,7 @@ class AccountsResourceTest {
 
     @Test
     @WithMockUser(username = DEFAULT_TEST_USERNAME)
-    fun `update user info successfully`() {
+    fun `should update user info`() {
         userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
@@ -304,7 +304,7 @@ class AccountsResourceTest {
 
     @Test
     @WithMockUser(username = DEFAULT_TEST_USERNAME)
-    fun `update user info given existing email`() {
+    fun `should not update user info given existing email`() {
         userRepository.saveAllAndFlush(
             listOf(
                 DomainUser.defaultTestUser(disabled = false),
@@ -330,7 +330,7 @@ class AccountsResourceTest {
 
     @Test
     @WithMockUser(username = DEFAULT_TEST_USERNAME)
-    fun `get currently authenticated user`() {
+    fun `should get currently authenticated user`() {
         userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc.get("/api/account").andExpectAll {

@@ -6,5 +6,5 @@ import org.springframework.boot.test.context.SpringBootTest
 @SpringBootTest
 class SpringStarterTemplateApplicationTests {
 
-    @Suppress("EmptyFunctionBlock") @Test fun contextLoads() {}
+    @Suppress("EmptyFunctionBlock") @Test fun `should load context`() {}
 }

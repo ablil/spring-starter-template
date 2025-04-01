@@ -13,6 +13,8 @@ naming:
     minimumVariableNameLength: 2
 
 complexity:
+  NestedScopeFunctions:
+    active: true
   NamedArguments:
     active: true
   StringLiteralDuplication:

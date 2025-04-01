@@ -15,19 +15,19 @@ class ActuatorIT {
     @Autowired lateinit var mockMvc: MockMvc
 
     @Test
-    fun `actuator health endpoint is accessible`() {
+    fun `should access health endpoint given no credentials`() {
         mockMvc.get("/actuator/health").andExpect { status { isOk() } }
     }
 
     @Test
     @WithMockUser(authorities = ["ADMIN"])
-    fun `loggers endpoint is accessible given an admin role`() {
+    fun `should access loggers endpoint given an admin user`() {
         mockMvc.get("/actuator/loggers").andExpect { status { isOk() } }
     }
 
     @Test
     @WithMockUser
-    fun `loggers endpoint is NOT accessible given non-admin user`() {
+    fun `should not access loggers endpoint given non-admin users`() {
         mockMvc.get("/actuator/loggers").andExpect { status { isForbidden() } }
     }
 }
