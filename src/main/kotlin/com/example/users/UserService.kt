@@ -7,6 +7,8 @@ import org.apache.commons.lang3.RandomStringUtils
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -136,6 +138,8 @@ class UserService(val userRepository: UserRepository, val passwordEncoder: Passw
             ?: logger.error("user is authenticated, but NO entity is found").run {
                 error("user not found")
             }
+
+    fun getAllUsers(request: Pageable): Page<DomainUser> = userRepository.findAll(request)
 }
 
 fun Any.getLogger(): Logger = LoggerFactory.getLogger(this::class.java)
