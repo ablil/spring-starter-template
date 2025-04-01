@@ -1,0 +1,20 @@
+# Detekt config
+style:
+  PreferToOverPairSyntax:
+    active: true
+  SafeCast:
+    active: true
+  UnusedImports:
+    active: true
+
+naming:
+  VariableMinLength:
+    active: true
+    minimumVariableNameLength: 2
+
+complexity:
+  NamedArguments:
+    active: true
+  StringLiteralDuplication:
+    active: true
+

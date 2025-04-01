@@ -95,3 +95,8 @@ test {
 springBoot {
 	buildInfo()
 }
+
+detekt {
+	config.setFrom("src/main/resources/config/config.yml")
+	buildUponDefaultConfig = true
+}

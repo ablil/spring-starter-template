@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.ResponseStatus
 
 private const val DEFAULT_KEY_LENGTH = 10
 
+private const val USER_NOT_FOUND_ERROR_MSG = "user not found"
+
 @Service
 class AccountService(val userRepository: UserRepository, val passwordEncoder: PasswordEncoder) {
 
@@ -90,7 +92,7 @@ class AccountService(val userRepository: UserRepository, val passwordEncoder: Pa
             userRepository.findByUsernameOrEmailIgnoreCase(
                 SecurityUtils.currentUserLogin(),
                 SecurityUtils.currentUserLogin(),
-            ) ?: error("user not found")
+            ) ?: error(USER_NOT_FOUND_ERROR_MSG)
 
         check(passwordEncoder.matches(currentPassword, user.password)) {
             "current password is invalid"
@@ -108,7 +110,7 @@ class AccountService(val userRepository: UserRepository, val passwordEncoder: Pa
         val user =
             userRepository.findByUsernameOrEmailIgnoreCase(currentLogin, currentLogin)
                 ?: logger.error("authenticated user '{}' is not persisted", currentLogin).run {
-                    error("user not found")
+                    error(USER_NOT_FOUND_ERROR_MSG)
                 }
 
         check(!userRepository.existsByEmailIgnoreCase(info.email)) {
@@ -131,7 +133,7 @@ class AccountService(val userRepository: UserRepository, val passwordEncoder: Pa
             SecurityUtils.currentUserLogin(),
         )
             ?: logger.error("user is authenticated, but NO entity is found").run {
-                error("user not found")
+                error(USER_NOT_FOUND_ERROR_MSG)
             }
 }
 
