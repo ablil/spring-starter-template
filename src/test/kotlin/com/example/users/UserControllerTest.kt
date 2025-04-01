@@ -1,7 +1,9 @@
 package com.example.users
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import java.lang.annotation.Inherited
 import org.apache.commons.lang3.RandomStringUtils
+import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Description
 import org.hamcrest.TypeSafeMatcher
 import org.junit.jupiter.api.BeforeEach
@@ -11,9 +13,11 @@ import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.put
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -22,6 +26,8 @@ class UserControllerTest {
     @Autowired lateinit var mockMvc: MockMvc
 
     @Autowired lateinit var userRepository: UserRepository
+
+    @Autowired lateinit var objectMapper: ObjectMapper
 
     @BeforeEach
     fun setup() {
@@ -97,6 +103,33 @@ class UserControllerTest {
             jsonPath("$.password") { doesNotHaveJsonPath() }
             jsonPath("$.username") { value(DEFAULT_TEST_USERNAME) }
         }
+    }
+
+    @Test
+    @WithMockAdmin
+    fun `update user successfully`() {
+        val userId = userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false)).id
+
+        mockMvc.put("/api/users/$DEFAULT_TEST_USERNAME") {
+            contentType = MediaType.APPLICATION_JSON
+            content =
+                objectMapper.writeValueAsString(
+                    UpdateUserDTO(
+                        firstName = "robert",
+                        lastName = "morgan",
+                        email = "robert-morgan@example.com",
+                        username = "robert_morgan",
+                        roles = emptySet(),
+                    )
+                )
+        }
+
+        val user = userRepository.findById(requireNotNull(userId)).orElseThrow()
+        assertThat(user.firstName).isEqualTo("robert")
+        assertThat(user.lastName).isEqualTo("morgan")
+        assertThat(user.email).isEqualTo("robert-morgan@example.com")
+        assertThat(user.username).isEqualTo("robert_morgan")
+        assertThat(user.roles).isEmpty()
     }
 }
 

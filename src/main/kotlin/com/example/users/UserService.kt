@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -130,6 +131,23 @@ class UserService(val userRepository: UserRepository, val passwordEncoder: Passw
         logger.info("user '{}' info updated successfully", currentLogin)
     }
 
+    @AdminOnly
+    fun updateUserInfo(username: String, info: UpdateUserDTO): DomainUser? {
+        val user = userRepository.findByUsernameIgnoreCase(username) ?: return null
+
+        return userRepository
+            .saveAndFlush(
+                user.copy(
+                    username = info.username,
+                    email = info.email,
+                    firstName = info.firstName,
+                    lastName = info.lastName,
+                    roles = info.roles ?: emptySet(),
+                )
+            )
+            .also { logger.info("user info updated successfully") }
+    }
+
     fun getCurrentUser(): DomainUser =
         userRepository.findByUsernameOrEmailIgnoreCase(
             SecurityUtils.currentUserLogin(),
@@ -154,3 +172,8 @@ fun checkOrThrow(condition: Boolean, lazyException: () -> RuntimeException) {
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 class AccountResourceException(override val message: String) : RuntimeException(message)
+
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+@PreAuthorize("hasAuthority('ADMIN')")
+annotation class AdminOnly
