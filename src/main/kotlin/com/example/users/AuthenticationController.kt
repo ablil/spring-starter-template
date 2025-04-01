@@ -23,7 +23,7 @@ class AuthenticationController(
     val authenticationManagerBuilder: AuthenticationManagerBuilder,
 ) {
 
-    @Value("\${example.security.jwt.validity:0}") lateinit var jwtValidity: String
+    @Value("\${example.security.jwt.validity-in-seconds:3600}") lateinit var jwtValidity: String
 
     @PostMapping("authenticate")
     fun authenticate(@RequestBody login: LoginDTO): ResponseEntity<Token> {

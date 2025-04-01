@@ -7,6 +7,7 @@ import org.apache.commons.lang3.RandomStringUtils
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -19,6 +20,9 @@ private const val USER_NOT_FOUND_ERROR_MSG = "user not found"
 
 @Service
 class AccountService(val userRepository: UserRepository, val passwordEncoder: PasswordEncoder) {
+
+    @Value("\${example.authentication.reset-password-key-validity-in-seconds:86400}")
+    lateinit var resetKeyValidity: String
 
     val logger = getLogger()
 
@@ -73,7 +77,11 @@ class AccountService(val userRepository: UserRepository, val passwordEncoder: Pa
             AccountResourceException("should NOT use old password")
         }
 
-        check(user.resetDate?.plus(Duration.ofDays(1))?.isAfter(Instant.now()) == true) {
+        check(
+            user.resetDate
+                ?.plus(Duration.ofSeconds(resetKeyValidity.toLong()))
+                ?.isAfter(Instant.now()) == true
+        ) {
             "reset key expired"
         }
 

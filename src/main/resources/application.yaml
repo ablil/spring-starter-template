@@ -29,5 +29,7 @@ example:
     jwt:
       # generate with: openssl rand -base64 64
       base64-secret: lL3+Fm14g9hw2d0H6G9wjI3t65DN00ZHPE//2i0byBfjblUePaW56lJvV/ya9yDQP2MZ2In727G7BvvkpPCPpQ==
-      validity: 3600 # in seconds
+      validity-in-seconds: 86400
+  authentication:
+    reset-password-key-validity-in-seconds: 86400
 
