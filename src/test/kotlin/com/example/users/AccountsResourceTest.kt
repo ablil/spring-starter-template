@@ -5,7 +5,6 @@ import java.time.Duration
 import java.time.Instant
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import org.springframework.beans.factory.annotation.Autowired
@@ -75,9 +74,20 @@ class AccountsResourceTest {
     }
 
     @Test
-    @Disabled
     fun `should NOT create user given short password or blank username`() {
-        TODO()
+        mockMvc
+            .post("/api/account/register") {
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    objectMapper.writeValueAsString(
+                        RegistrationDTO(
+                            username = "",
+                            email = DEFAULT_TEST_EMAIL,
+                            password = DEFAULT_TEST_PASSWORD,
+                        )
+                    )
+            }
+            .andExpect { status { isBadRequest() } }
     }
 
     @Test

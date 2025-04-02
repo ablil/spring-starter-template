@@ -1,6 +1,8 @@
 package com.example.users
 
 import com.example.common.SecurityUtils
+import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.NotBlank
 import java.time.Duration
 import java.time.Instant
 import org.apache.commons.lang3.RandomStringUtils
@@ -52,7 +54,7 @@ class AccountService(val userRepository: UserRepository, val passwordEncoder: Pa
         logger.info("created new user successfully")
     }
 
-    fun activateAccount(key: String) {
+    fun activateAccount(@NotBlank key: String) {
         userRepository
             .findOneByActivationKey(key)
             ?.copy(activationKey = null, disabled = false)
@@ -61,7 +63,7 @@ class AccountService(val userRepository: UserRepository, val passwordEncoder: Pa
             ?: error("no user account associated with activation key")
     }
 
-    fun requestPasswordReset(email: String) {
+    fun requestPasswordReset(@Email email: String) {
         userRepository
             .findByEmailIgnoreCase(email)
             ?.takeUnless { it.disabled }
@@ -69,7 +71,7 @@ class AccountService(val userRepository: UserRepository, val passwordEncoder: Pa
             ?.let { userRepository.saveAndFlush(it) } ?: error("user account for $email NOT found")
     }
 
-    fun finishPasswordReset(resetKey: String, newRawPassword: String) {
+    fun finishPasswordReset(@NotBlank resetKey: String, @NotBlank newRawPassword: String) {
         val user =
             userRepository.findOneByResetKey(resetKey)?.takeUnless { it.disabled }
                 ?: error("no account with reset key found")
@@ -95,7 +97,7 @@ class AccountService(val userRepository: UserRepository, val passwordEncoder: Pa
         logger.info("password reset completed for user {}", user.username)
     }
 
-    fun changePassword(currentPassword: String, newPassword: String) {
+    fun changePassword(@NotBlank currentPassword: String, @NotBlank newPassword: String) {
         val user =
             userRepository.findByUsernameOrEmailIgnoreCase(
                 SecurityUtils.currentUserLogin(),
