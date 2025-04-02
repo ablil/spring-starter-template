@@ -74,7 +74,7 @@ class UserControllerTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["id", "username", "email", "createdBy", "updatedBy"])
+    @ValueSource(strings = ["id", "username", "email", "createdAt", "updatedAt"])
     @WithMockAdmin
     fun `should list all users given different sorting queries`(property: String) {
         userRepository.saveAll(List(20) { DomainUser.randomUser() })

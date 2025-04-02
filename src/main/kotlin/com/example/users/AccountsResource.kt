@@ -1,5 +1,9 @@
 package com.example.users
 
+import jakarta.validation.Valid
+import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -13,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 class AccountsResource(val accountService: AccountService) {
 
     @PostMapping("register")
-    fun registerUser(@RequestBody dto: RegistrationDTO): ResponseEntity<Void> =
+    fun registerUser(@RequestBody @Valid dto: RegistrationDTO): ResponseEntity<Void> =
         accountService.registerUser(dto).let { ResponseEntity.noContent().build() }
 
     @GetMapping("activate")
@@ -21,17 +25,17 @@ class AccountsResource(val accountService: AccountService) {
         accountService.activateAccount(key).let { ResponseEntity.noContent().build() }
 
     @PostMapping("password-reset/init")
-    fun requestResetPassword(@RequestBody email: EmailWrapper): ResponseEntity<Void> =
+    fun requestResetPassword(@RequestBody @Valid email: EmailWrapper): ResponseEntity<Void> =
         accountService.requestPasswordReset(email.email).let { ResponseEntity.noContent().build() }
 
     @PostMapping("password-reset/finish")
-    fun finishPasswordReset(@RequestBody body: KeyAndPassword): ResponseEntity<Void> =
+    fun finishPasswordReset(@RequestBody @Valid body: KeyAndPassword): ResponseEntity<Void> =
         accountService.finishPasswordReset(body.resetKey, body.password).let {
             ResponseEntity.noContent().build()
         }
 
     @PostMapping("change-password")
-    fun changePassword(@RequestBody body: ChangePasswordDTO): ResponseEntity<Void> =
+    fun changePassword(@RequestBody @Valid body: ChangePasswordDTO): ResponseEntity<Void> =
         accountService.changePassword(body.currentPassword, body.newPassword).let {
             ResponseEntity.noContent().build()
         }
@@ -41,16 +45,30 @@ class AccountsResource(val accountService: AccountService) {
         ResponseEntity.ok(accountService.getCurrentUser())
 
     @PostMapping
-    fun updateUserInformation(@RequestBody body: UserInfoDTO): ResponseEntity<Void> =
+    fun updateUserInformation(@RequestBody @Valid body: UserInfoDTO): ResponseEntity<Void> =
         accountService.updateUserInfo(body).let { ResponseEntity.noContent().build() }
 }
 
-data class RegistrationDTO(val username: String, val email: String, val password: String)
+data class RegistrationDTO(
+    @field:Size(min = 6) val username: String,
+    @field:Email val email: String,
+    @field:Size(min = 10) val password: String,
+)
 
-data class EmailWrapper(val email: String)
+data class EmailWrapper(@field:Email val email: String)
 
-data class KeyAndPassword(val resetKey: String, val password: String)
+data class KeyAndPassword(
+    @field:NotBlank val resetKey: String,
+    @field:Size(min = 10) val password: String,
+)
 
-data class ChangePasswordDTO(val currentPassword: String, val newPassword: String)
+data class ChangePasswordDTO(
+    @field:NotBlank val currentPassword: String,
+    @field:Size(min = 10) val newPassword: String,
+)
 
-data class UserInfoDTO(val firstName: String?, val lastName: String?, val email: String)
+data class UserInfoDTO(
+    val firstName: String?,
+    val lastName: String?,
+    @field:Email val email: String,
+)

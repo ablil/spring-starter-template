@@ -1,6 +1,12 @@
 package com.example.users
 
 import com.example.common.AuthorityConstants
+import jakarta.validation.Valid
+import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Pattern.Flag
+import jakarta.validation.constraints.Size
 import java.net.URI
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -26,11 +32,20 @@ class UserController(val userService: UserService) {
     @GetMapping
     fun getAllUsers(
         @RequestParam("page", defaultValue = DEFAULT_PAGE_NUMBER.toString())
+        @Min(0)
         page: Int = DEFAULT_PAGE_NUMBER,
         @RequestParam("size", defaultValue = DEFAULT_PAGE_SIZE.toString())
+        @Min(0)
         size: Int = DEFAULT_PAGE_SIZE,
-        @RequestParam("sort", defaultValue = "asc") sort: String = "asc",
-        @RequestParam("by", defaultValue = "id") by: String = "id",
+        @RequestParam("sort", defaultValue = "asc")
+        @Pattern(regexp = "(asc|desc)", flags = [Pattern.Flag.CASE_INSENSITIVE])
+        sort: String = "asc",
+        @RequestParam("by", defaultValue = "id")
+        @Pattern(
+            regexp = "(id|username|email|createdAt|updatedAt)",
+            flags = [Flag.CASE_INSENSITIVE],
+        )
+        by: String = "id",
     ): ResponseEntity<PageableResult<DomainUser>> =
         ResponseEntity.ok(
             userService
@@ -51,7 +66,7 @@ class UserController(val userService: UserService) {
         ResponseEntity.ofNullable(userService.getUser(username))
 
     @PostMapping
-    fun createUser(@RequestBody body: CreateOrUpdateUserDTO): ResponseEntity<DomainUser> =
+    fun createUser(@RequestBody @Valid body: CreateOrUpdateUserDTO): ResponseEntity<DomainUser> =
         userService.createUser(body).let {
             ResponseEntity.created(URI("/api/users/${it.username}")).body(it)
         }
@@ -59,7 +74,7 @@ class UserController(val userService: UserService) {
     @PutMapping("{username}")
     fun updateUser(
         @PathVariable("username") username: String,
-        @RequestBody body: CreateOrUpdateUserDTO,
+        @RequestBody @Valid body: CreateOrUpdateUserDTO,
     ): ResponseEntity<DomainUser> =
         ResponseEntity.ofNullable(userService.updateUserInfo(username, body))
 
@@ -74,6 +89,6 @@ data class CreateOrUpdateUserDTO(
     val firstName: String?,
     val lastName: String?,
     val roles: Set<AuthorityConstants>?,
-    val email: String,
-    val username: String,
+    @field:Email val email: String,
+    @field:Size(min = 6) val username: String,
 )

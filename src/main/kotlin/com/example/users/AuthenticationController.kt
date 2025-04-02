@@ -1,5 +1,7 @@
 package com.example.users
 
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
 import java.time.Instant
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
@@ -26,7 +28,7 @@ class AuthenticationController(
     @Value("\${example.security.jwt.validity-in-seconds:3600}") lateinit var jwtValidity: String
 
     @PostMapping("authenticate")
-    fun authenticate(@RequestBody login: LoginDTO): ResponseEntity<Token> {
+    fun authenticate(@RequestBody @Valid login: LoginDTO): ResponseEntity<Token> {
         val credentials = UsernamePasswordAuthenticationToken(login.login, login.password)
         val authentication = authenticationManagerBuilder.`object`.authenticate(credentials)
         return ResponseEntity.ok(Token(requireNotNull(generateToken(authentication))))
@@ -48,6 +50,6 @@ class AuthenticationController(
     }
 }
 
-data class LoginDTO(val login: String, val password: String)
+data class LoginDTO(@field:NotBlank val login: String, @field:NotBlank val password: String)
 
 data class Token(val token: String)

@@ -1,5 +1,6 @@
 package com.example.users
 
+import jakarta.validation.constraints.NotBlank
 import java.time.Instant
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -14,9 +15,10 @@ class UserService(val userRepository: UserRepository) {
 
     fun getAllUsers(request: Pageable): Page<DomainUser> = userRepository.findAll(request)
 
-    fun getUser(username: String): DomainUser? = userRepository.findByUsernameIgnoreCase(username)
+    fun getUser(@NotBlank username: String): DomainUser? =
+        userRepository.findByUsernameIgnoreCase(username)
 
-    fun updateUserInfo(username: String, info: CreateOrUpdateUserDTO): DomainUser? {
+    fun updateUserInfo(@NotBlank username: String, info: CreateOrUpdateUserDTO): DomainUser? {
         val user = userRepository.findByUsernameIgnoreCase(username) ?: return null
 
         return userRepository
@@ -32,7 +34,7 @@ class UserService(val userRepository: UserRepository) {
             .also { logger.info("user info updated successfully") }
     }
 
-    fun deleteUser(username: String) {
+    fun deleteUser(@NotBlank username: String) {
         val count = userRepository.deleteByUsernameIgnoreCase(username)
         if (count == 0) error("user not found")
     }
