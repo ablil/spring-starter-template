@@ -5,3 +5,5 @@ spring:
     url: jdbc:h2:mem:mytestdb
   jpa:
     show-sql: true
+  cache:
+    type: none
