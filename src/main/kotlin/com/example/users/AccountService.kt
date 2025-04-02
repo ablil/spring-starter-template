@@ -1,5 +1,6 @@
 package com.example.users
 
+import com.example.common.MailService
 import com.example.common.SecurityUtils
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
@@ -21,7 +22,11 @@ private const val DEFAULT_KEY_LENGTH = 10
 private const val USER_NOT_FOUND_ERROR_MSG = "user not found"
 
 @Service
-class AccountService(val userRepository: UserRepository, val passwordEncoder: PasswordEncoder) {
+class AccountService(
+    val userRepository: UserRepository,
+    val passwordEncoder: PasswordEncoder,
+    val mailService: MailService,
+) {
 
     @Value("\${example.authentication.reset-password-key-validity-in-seconds:86400}")
     lateinit var resetKeyValidity: String
@@ -37,20 +42,22 @@ class AccountService(val userRepository: UserRepository, val passwordEncoder: Pa
             userRepository.flush()
         }
 
-        userRepository.saveAndFlush(
-            DomainUser(
-                username = dto.username,
-                email = dto.email,
-                password = passwordEncoder.encode(dto.password),
-                disabled = true,
-                roles = emptySet(),
-                firstName = null,
-                lastName = null,
-                activationKey = generateRandomKey(),
-                resetKey = null,
-                resetDate = Instant.now(),
+        userRepository
+            .saveAndFlush(
+                DomainUser(
+                    username = dto.username,
+                    email = dto.email,
+                    password = passwordEncoder.encode(dto.password),
+                    disabled = true,
+                    roles = emptySet(),
+                    firstName = null,
+                    lastName = null,
+                    activationKey = generateRandomKey(),
+                    resetKey = null,
+                    resetDate = Instant.now(),
+                )
             )
-        )
+            .also { mailService.sendAccountRegistrationEmail(it) }
         logger.info("created new user successfully")
     }
 
@@ -60,6 +67,7 @@ class AccountService(val userRepository: UserRepository, val passwordEncoder: Pa
             ?.copy(activationKey = null, disabled = false)
             ?.let { userRepository.saveAndFlush(it) }
             ?.also { logger.info("user account {} activated", it.email) }
+            ?.also { mailService.sendAccountActivationEmail(it) }
             ?: error("no user account associated with activation key")
     }
 
@@ -68,7 +76,9 @@ class AccountService(val userRepository: UserRepository, val passwordEncoder: Pa
             .findByEmailIgnoreCase(email)
             ?.takeUnless { it.disabled }
             ?.copy(resetKey = generateRandomKey(), resetDate = Instant.now())
-            ?.let { userRepository.saveAndFlush(it) } ?: error("user account for $email NOT found")
+            ?.let { userRepository.saveAndFlush(it) }
+            ?.also { mailService.sendPasswordResetLinkEmail(it) }
+            ?: error("user account for $email NOT found")
     }
 
     fun finishPasswordReset(@NotBlank resetKey: String, @NotBlank newRawPassword: String) {
@@ -87,13 +97,15 @@ class AccountService(val userRepository: UserRepository, val passwordEncoder: Pa
             "reset key expired"
         }
 
-        userRepository.saveAndFlush(
-            user.copy(
-                resetKey = null,
-                resetDate = null,
-                password = passwordEncoder.encode(newRawPassword),
+        userRepository
+            .saveAndFlush(
+                user.copy(
+                    resetKey = null,
+                    resetDate = null,
+                    password = passwordEncoder.encode(newRawPassword),
+                )
             )
-        )
+            .also { mailService.sendPasswordChangedEmail(it) }
         logger.info("password reset completed for user {}", user.username)
     }
 
@@ -111,7 +123,9 @@ class AccountService(val userRepository: UserRepository, val passwordEncoder: Pa
             "new password should be different from old one"
         }
 
-        userRepository.saveAndFlush(user.copy(password = passwordEncoder.encode(newPassword)))
+        userRepository
+            .saveAndFlush(user.copy(password = passwordEncoder.encode(newPassword)))
+            .also { mailService.sendPasswordChangedEmail(user) }
         logger.info("user password updated successfully")
     }
 

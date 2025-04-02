@@ -1,5 +1,6 @@
 package com.example.users
 
+import com.example.common.IntegrationTest
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -14,6 +15,7 @@ import org.springframework.test.web.servlet.post
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@IntegrationTest
 class AuthenticationControllerTest {
 
     @Autowired lateinit var mockMvc: MockMvc
