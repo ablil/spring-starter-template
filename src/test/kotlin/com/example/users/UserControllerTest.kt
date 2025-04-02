@@ -1,5 +1,6 @@
 package com.example.users
 
+import com.example.common.IntegrationTest
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.lang.annotation.Inherited
 import org.apache.commons.lang3.RandomStringUtils
@@ -24,6 +25,7 @@ import org.springframework.test.web.servlet.put
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@IntegrationTest
 class UserControllerTest {
 
     @Autowired lateinit var mockMvc: MockMvc

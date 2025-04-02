@@ -10,6 +10,11 @@ spring:
     url: jdbc:postgresql://0.0.0.0:${POSTGRES_PORT:5432}/${POSTGRES_DB:mydb}
   jpa:
     generate-ddl: true
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 25
+    username: 66ea0838a793da
+    password: 4d95117ab68a16
 
 management:
   endpoints:
@@ -25,6 +30,12 @@ management:
       mode: full
 
 example:
+  application:
+    base-url: https://example.com
+    urls:
+      activation-link: ${example.application.base-url}/api/account/activate
+      reset-password-link: ${example.application.base-url}/reset
+
   security:
     jwt:
       # generate with: openssl rand -base64 64
@@ -32,4 +43,9 @@ example:
       validity-in-seconds: 86400
   authentication:
     reset-password-key-validity-in-seconds: 86400
+
+logging:
+  level:
+    com.example: debug
+    org.springframework.mail: debug
 

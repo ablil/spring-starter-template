@@ -1,5 +1,6 @@
 package com.example.users
 
+import com.example.common.IntegrationTest
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.time.Duration
 import java.time.Instant
@@ -29,6 +30,7 @@ private const val DEFAULT_RESET_KEY = "resetKey"
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@IntegrationTest
 class AccountsResourceTest {
 
     @Autowired lateinit var mockMvc: MockMvc
