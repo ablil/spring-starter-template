@@ -27,11 +27,16 @@ class SecurityConfig {
         http.invoke {
             authorizeHttpRequests {
                 authorize("/actuator/health", permitAll)
+
                 authorize("/api/account/register", permitAll)
                 authorize("/api/account/activate", permitAll)
                 authorize("/api/authenticate", permitAll)
                 authorize("/api/account/password-reset/init", permitAll)
                 authorize("/api/account/password-reset/finish", permitAll)
+
+                authorize("/swagger-ui/**", permitAll)
+                authorize("/v3/api-docs/**", permitAll)
+
                 authorize("/actuator/**", hasAuthority(AuthorityConstants.ADMIN.name))
                 authorize(anyRequest, authenticated)
             }

@@ -49,3 +49,6 @@ logging:
     com.example: debug
     org.springframework.mail: debug
 
+springdoc:
+  auto-tag-classes: false
+  show-login-endpoint: true
