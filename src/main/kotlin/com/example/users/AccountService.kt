@@ -25,7 +25,7 @@ private const val USER_NOT_FOUND_ERROR_MSG = "user not found"
 class AccountService(
     val userRepository: UserRepository,
     val passwordEncoder: PasswordEncoder,
-    val mailService: MailService,
+    val mailService: MailService?,
 ) {
 
     @Value("\${example.authentication.reset-password-key-validity-in-seconds:86400}")
@@ -57,7 +57,7 @@ class AccountService(
                     resetDate = Instant.now(),
                 )
             )
-            .also { mailService.sendAccountRegistrationEmail(it) }
+            .also { mailService?.sendAccountRegistrationEmail(it) }
         logger.info("created new user successfully")
     }
 
@@ -67,7 +67,7 @@ class AccountService(
             ?.copy(activationKey = null, disabled = false)
             ?.let { userRepository.saveAndFlush(it) }
             ?.also { logger.info("user account {} activated", it.email) }
-            ?.also { mailService.sendAccountActivationEmail(it) }
+            ?.also { mailService?.sendAccountActivationEmail(it) }
             ?: error("no user account associated with activation key")
     }
 
@@ -77,7 +77,7 @@ class AccountService(
             ?.takeUnless { it.disabled }
             ?.copy(resetKey = generateRandomKey(), resetDate = Instant.now())
             ?.let { userRepository.saveAndFlush(it) }
-            ?.also { mailService.sendPasswordResetLinkEmail(it) }
+            ?.also { mailService?.sendPasswordResetLinkEmail(it) }
             ?: error("user account for $email NOT found")
     }
 
@@ -105,7 +105,7 @@ class AccountService(
                     password = passwordEncoder.encode(newRawPassword),
                 )
             )
-            .also { mailService.sendPasswordChangedEmail(it) }
+            .also { mailService?.sendPasswordChangedEmail(it) }
         logger.info("password reset completed for user {}", user.username)
     }
 
@@ -125,7 +125,7 @@ class AccountService(
 
         userRepository
             .saveAndFlush(user.copy(password = passwordEncoder.encode(newPassword)))
-            .also { mailService.sendPasswordChangedEmail(user) }
+            .also { mailService?.sendPasswordChangedEmail(user) }
         logger.info("user password updated successfully")
     }
 

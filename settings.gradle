@@ -5,4 +5,4 @@ dependencyResolutionManagement {
         maven { url 'https://jitpack.io' }
     }
 }
-rootProject.name = 'Spring-starter-template'
+rootProject.name = 'spring-starter-template'

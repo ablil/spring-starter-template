@@ -4,6 +4,7 @@ import com.example.users.DomainUser
 import com.example.users.getLogger
 import jakarta.mail.MessagingException
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.mail.MailException
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
@@ -13,6 +14,7 @@ import org.thymeleaf.context.Context
 import org.thymeleaf.spring6.SpringTemplateEngine
 
 @Service
+@ConditionalOnProperty("spring.mail.host")
 class MailService(val javaMailSender: JavaMailSender, val templateEngine: SpringTemplateEngine) {
 
     val logger = getLogger()

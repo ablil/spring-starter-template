@@ -10,11 +10,11 @@ spring:
     url: jdbc:postgresql://0.0.0.0:${POSTGRES_PORT:5432}/${POSTGRES_DB:mydb}
   jpa:
     generate-ddl: true
-  mail:
-    host: ${MAIL_HOST}
-    port: 25
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+#  mail:
+#    host: ${MAIL_HOST}
+#    port: 25
+#    username: ${MAIL_USERNAME}
+#    password: ${MAIL_PASSWORD}
 
 management:
   endpoints:
@@ -47,7 +47,6 @@ example:
 logging:
   level:
     com.example: debug
-    org.springframework.mail: debug
 
 springdoc:
   auto-tag-classes: false
