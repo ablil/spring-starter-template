@@ -11,7 +11,7 @@ directory=$(echo $package_name | tr "." "/")
 
 sed -i -e "s/com.example/$group/g" -e "s/spring-starter-template/$REPOSITORY/g" -e "s/ghcr.io\/ablil/ghcr.io\/$AUTHOR/g" build.gradle
 sed -i "s/spring-starter-template/$REPOSITORY/g" settings.gradle
-sed -i "s/ablil/$AUTHOR/g" .github/CODEOWNERS
+sed -i "s/ablil/$AUTHOR/g" .github/CODEOWNERS LICENSE
 
 # rename packages
 mkdir -p src/main/kotlin/$directory
