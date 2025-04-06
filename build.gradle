@@ -66,8 +66,9 @@ build {
 
 jib {
 	to {
-		image = isCI ? "ghcr.io/ablil/spring-starter-template" : "spring-starter-template"
-	}
+		def _tag = project.getProperty('tag')
+        image = isCI ? "ghcr.io/ablil/spring-starter-template:$_tag" : "spring-starter-template:$_tag"
+    }
     container {
         creationTime = 'USE_CURRENT_TIMESTAMP'
         ports = ['8080']
