@@ -1,5 +1,7 @@
 # Spring starter template
 
+[![CI](https://github.com/ablil/spring-starter-template/actions/workflows/ci.yaml/badge.svg)](https://github.com/ablil/spring-starter-template/actions/workflows/ci.yaml)
+
 Use this template as a baseline for spinning up rest API with Spring boot / Kotlin.
 
 ## Features
