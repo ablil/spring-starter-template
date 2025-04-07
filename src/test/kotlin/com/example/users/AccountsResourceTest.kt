@@ -163,8 +163,10 @@ class AccountsResourceTest {
     @Test
     fun `should finish password reset given same old password`() {
         userRepository.saveAndFlush(
-            DomainUser.defaultTestUser(disabled = false)
-                .copy(resetKey = DEFAULT_RESET_KEY, resetDate = Instant.now())
+            DomainUser.defaultTestUser(disabled = false).apply {
+                resetKey = DEFAULT_RESET_KEY
+                resetDate = Instant.now()
+            }
         )
 
         mockMvc
@@ -181,11 +183,10 @@ class AccountsResourceTest {
     @Test
     fun `should finish password reset given expired reset key`() {
         userRepository.saveAndFlush(
-            DomainUser.defaultTestUser(disabled = false)
-                .copy(
-                    resetKey = DEFAULT_RESET_KEY,
-                    resetDate = Instant.now().minus(Duration.ofDays(7)),
-                )
+            DomainUser.defaultTestUser(disabled = false).apply {
+                resetKey = DEFAULT_RESET_KEY
+                resetDate = Instant.now().minus(Duration.ofDays(7))
+            }
         )
 
         mockMvc
@@ -215,8 +216,10 @@ class AccountsResourceTest {
     @Test
     fun `should finish password reset given valid password and reset key`() {
         userRepository.saveAndFlush(
-            DomainUser.defaultTestUser(disabled = false)
-                .copy(resetKey = DEFAULT_RESET_KEY, resetDate = Instant.now())
+            DomainUser.defaultTestUser(disabled = false).apply {
+                resetKey = DEFAULT_RESET_KEY
+                resetDate = Instant.now()
+            }
         )
 
         mockMvc
@@ -320,8 +323,10 @@ class AccountsResourceTest {
         userRepository.saveAllAndFlush(
             listOf(
                 DomainUser.defaultTestUser(disabled = false),
-                DomainUser.defaultTestUser(disabled = false)
-                    .copy(username = "restedturkey", email = "turkye@example.com"),
+                DomainUser.defaultTestUser(disabled = false).apply {
+                    username = "restedturkey"
+                    email = "turkye@example.com"
+                },
             )
         )
 

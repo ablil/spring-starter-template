@@ -48,13 +48,7 @@ class AccountService(
                     username = dto.username,
                     email = dto.email,
                     password = passwordEncoder.encode(dto.password),
-                    disabled = true,
-                    roles = emptySet(),
-                    firstName = null,
-                    lastName = null,
                     activationKey = generateRandomKey(),
-                    resetKey = null,
-                    resetDate = Instant.now(),
                 )
             )
             .also { mailService?.sendAccountRegistrationEmail(it) }
@@ -64,7 +58,7 @@ class AccountService(
     fun activateAccount(@NotBlank key: String) {
         userRepository
             .findOneByActivationKey(key)
-            ?.copy(activationKey = null, disabled = false)
+            ?.also { it.activate() }
             ?.let { userRepository.saveAndFlush(it) }
             ?.also { logger.info("user account {} activated", it.email) }
             ?.also { mailService?.sendAccountActivationEmail(it) }
@@ -75,7 +69,7 @@ class AccountService(
         userRepository
             .findByEmailIgnoreCase(email)
             ?.takeUnless { it.disabled }
-            ?.copy(resetKey = generateRandomKey(), resetDate = Instant.now())
+            ?.also { it.initPasswordReset(generateRandomKey()) }
             ?.let { userRepository.saveAndFlush(it) }
             ?.also { mailService?.sendPasswordResetLinkEmail(it) }
             ?: error("user account for $email NOT found")
@@ -99,11 +93,7 @@ class AccountService(
 
         userRepository
             .saveAndFlush(
-                user.copy(
-                    resetKey = null,
-                    resetDate = null,
-                    password = passwordEncoder.encode(newRawPassword),
-                )
+                user.also { it.finishResetPassword(passwordEncoder.encode(newRawPassword)) }
             )
             .also { mailService?.sendPasswordChangedEmail(it) }
         logger.info("password reset completed for user {}", user.username)
@@ -124,7 +114,7 @@ class AccountService(
         }
 
         userRepository
-            .saveAndFlush(user.copy(password = passwordEncoder.encode(newPassword)))
+            .saveAndFlush(user.apply { password = passwordEncoder.encode(newPassword) })
             .also { mailService?.sendPasswordChangedEmail(user) }
         logger.info("user password updated successfully")
     }
@@ -142,11 +132,11 @@ class AccountService(
         }
 
         userRepository.saveAndFlush(
-            user.copy(
-                firstName = info.firstName,
-                lastName = info.lastName,
-                email = requireNotNull(info.email),
-            )
+            user.apply {
+                firstName = info.firstName
+                lastName = info.lastName
+                email = requireNotNull(info.email)
+            }
         )
         logger.info("user '{}' info updated successfully", currentLogin)
     }

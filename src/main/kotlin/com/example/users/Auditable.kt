@@ -12,22 +12,19 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener::class)
-abstract class Auditable<T> {
-    abstract var id: T?
+abstract class Auditable(
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    var createdAt: Instant,
+    @CreatedBy
+    @Column(name = "created_by", nullable = false, updatable = false)
+    var createdBy: String,
+    @LastModifiedDate @Column(name = "updated_at", nullable = false) var updatedAt: Instant,
+    @LastModifiedBy @Column(name = "updated_by", nullable = false) var updatedBy: String,
+) {
+    constructor() : this(Instant.now(), "unknown", Instant.now(), "unknown")
+}
 
-    @set:CreatedDate
-    @set:Column(name = "created_at", nullable = false, updatable = false)
-    abstract var createdAt: Instant
-
-    @set:CreatedBy
-    @set:Column(name = "created_by", nullable = false, updatable = false)
-    abstract var createdBy: String
-
-    @set:LastModifiedDate
-    @set:Column(name = "updated_at", nullable = false)
-    abstract var updatedAt: Instant
-
-    @set:LastModifiedBy
-    @set:Column(name = "updated_by", nullable = false)
-    abstract var updatedBy: String
+interface Identifiable<T> {
+    var id: T
 }

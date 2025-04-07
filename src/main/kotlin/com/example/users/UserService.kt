@@ -23,13 +23,13 @@ class UserService(val userRepository: UserRepository) {
 
         return userRepository
             .saveAndFlush(
-                user.copy(
-                    username = info.username,
-                    email = info.email,
-                    firstName = info.firstName,
-                    lastName = info.lastName,
-                    roles = info.roles ?: emptySet(),
-                )
+                user.apply {
+                    this.username = info.username
+                    email = info.email
+                    firstName = info.firstName
+                    lastName = info.lastName
+                    roles = info.roles ?: emptySet()
+                }
             )
             .also { logger.info("user info updated successfully") }
     }

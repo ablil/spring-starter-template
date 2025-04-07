@@ -22,6 +22,6 @@ class DomainUserDetailsService(val userRepository: UserRepository) : UserDetails
         User(
             domainUser.username,
             domainUser.password,
-            domainUser.roles.map { role -> SimpleGrantedAuthority(role.name) },
+            domainUser.roles?.map { role -> SimpleGrantedAuthority(role.name) },
         )
 }
