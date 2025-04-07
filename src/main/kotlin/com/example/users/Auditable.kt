@@ -10,6 +10,8 @@ import org.springframework.data.annotation.LastModifiedBy
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
+const val UNKNOWN_AUDITOR = "unknown"
+
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener::class)
 abstract class Auditable(
@@ -22,7 +24,7 @@ abstract class Auditable(
     @LastModifiedDate @Column(name = "updated_at", nullable = false) var updatedAt: Instant,
     @LastModifiedBy @Column(name = "updated_by", nullable = false) var updatedBy: String,
 ) {
-    constructor() : this(Instant.now(), "unknown", Instant.now(), "unknown")
+    constructor() : this(Instant.now(), UNKNOWN_AUDITOR, Instant.now(), UNKNOWN_AUDITOR)
 }
 
 interface Identifiable<T> {

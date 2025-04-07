@@ -38,8 +38,7 @@ class UsersRepositoryTest {
                     resetDate = Instant.now(),
                 )
             )
-        assertThat(domainUser)
-            .extracting("id", "createdAt", "createdBy", "updatedAt", "updatedBy")
-            .doesNotContainNull()
+        assertThat(domainUser).extracting("createdBy", "updatedAt").doesNotContain(UNKNOWN_AUDITOR)
+        assertThat(domainUser.id).isNotEqualTo(0)
     }
 }
