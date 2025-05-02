@@ -20,6 +20,7 @@ jobs:
       - name: checkout repo
         uses: actions/checkout@v4
 
+
       - run: docker login ghcr.io -u USERNAME -p ${{ github.token }}
         name: Authenticate to Github container registry
 
@@ -39,3 +40,7 @@ jobs:
 
       - name: build
         run: ./gradlew build -Ptag=${{ github.ref == 'refs/heads/main' && 'latest' || github.sha }}
+
+      - name: Upload reports to job summary
+        if: always()
+        uses: ./.github/actions/reports-converter

@@ -1,0 +1,24 @@
+name: reports-converter
+description: convert Junit5 reports from XML to Markdown
+
+inputs:
+  tests_directory:
+    required: false
+    default: build/test-results/test
+    description: target directory where test reports are generated (xml)
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5.6.0
+      with:
+        python-version: 3.12
+    - name: convert reports to markdown
+      shell: bash
+      run: |
+        if [[ -d ${{ inputs.tests_directory }} ]]; then
+          python ${{ github.action_path }}/converter.py ${{ inputs.tests_directory }}
+          cat output.md >> $GITHUB_STEP_SUMMARY
+        else
+          echo "${{ inputs.tests_directory }} NOT found, skipping"
+        fi
