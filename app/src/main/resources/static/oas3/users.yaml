@@ -1,0 +1,203 @@
+openapi: 3.0.4
+info:
+  title: users management
+  description: collection of APIs intended for managing resources by admins
+  version: 0.0.1
+
+servers:
+  - url: /
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/users:
+    get:
+      operationId: getAllUsers
+      summary: get all users
+      parameters:
+        - in: query
+          name: page
+          description: page number
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            minimum: 0
+            default: 50
+          description: control the number of returned users on each page
+        - in: query
+          name: sort
+          description: sort order
+          schema:
+            type: string
+            enum: [asc, desc]
+            example: asc
+        - in: query
+          name: by
+          description: sorting field
+          schema:
+            type: string
+            enum: [id, username,email,createdAt,updatedAt]
+            example: id
+      responses:
+        200:
+          description: paginated list of users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/UserInfo'
+                        - $ref: '#/components/schemas/AuditingFields'
+                  page:
+                    type: number
+                    description: page number
+                    example: 1
+                  size:
+                    type: number
+                    description: page size
+                    default: 50
+                  total:
+                    type: number
+                    description: total number of users
+                    example: 100
+    post:
+      operationId: createUser
+      summary: create user
+      requestBody:
+        $ref: '#/components/requestBodies/CreateOrUpdateUser'
+      responses:
+        201:
+          $ref: '#/components/responses/FullUserInfo'
+  /api/users/{username}:
+    get:
+      operationId: getUser
+      summary: get user
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+            example: johndoe
+      responses:
+        200:
+          $ref: '#/components/responses/FullUserInfo'
+    put:
+      operationId: updateUser
+      summary: update user
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+            example: johndoe
+      requestBody:
+        $ref: '#/components/requestBodies/CreateOrUpdateUser'
+      responses:
+        200:
+          $ref: '#/components/responses/FullUserInfo'
+    delete:
+      operationId: deleteUser
+      summary: delete user account
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+            example: johndoe
+      responses:
+        204:
+          description: user account deleted successfully
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    AuditingFields:
+      type: object
+      properties:
+        createdBy:
+          type: string
+          example: admin
+        updatedBy:
+          type: string
+          example: admin
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    UserInfo:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        disabled:
+          type: boolean
+        roles:
+          type: array
+          items:
+            type: string
+            example: ADMIN
+        firstName:
+          type: string
+        lastName:
+          type: string
+        fullName:
+          type: string
+
+  requestBodies:
+    CreateOrUpdateUser:
+      description: user info
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [username, email]
+            properties:
+              username:
+                type: string
+                minLength: 6
+              email:
+                type: string
+                format: email
+              firstName:
+                type: string
+              lastName:
+                type: string
+              roles:
+                type: string
+                enum: [ADMIN]
+                example: []
+  responses:
+    FullUserInfo:
+      description: extended user info with extra fields (eg, auditing fields ...)
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/UserInfo'
+              - $ref: '#/components/schemas/AuditingFields'
