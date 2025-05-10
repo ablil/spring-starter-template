@@ -36,6 +36,7 @@ class SecurityConfig {
 
                 authorize("/swagger-ui/**", permitAll)
                 authorize("/v3/api-docs/**", permitAll)
+                authorize("/oas3/**", permitAll)
 
                 authorize("/actuator/**", hasAuthority(AuthorityConstants.ADMIN.name))
                 authorize(anyRequest, authenticated)
