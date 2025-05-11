@@ -1,0 +1,27 @@
+---
+servers:
+- url: "http://localhost:8080"
+openapi: "3.0.4"
+paths:
+  /api/users/{username}:
+    $ref: "./users.yaml#/paths/~1api~1users~1{username}"
+  /api/users:
+    $ref: "./users.yaml#/paths/~1api~1users"
+  /api/account/password-reset/init:
+    $ref: "./authentication-and-registration.yaml#/paths/~1api~1account~1password-reset~1init"
+  /api/authenticate:
+    $ref: "./authentication-and-registration.yaml#/paths/~1api~1authenticate"
+  /api/account/change-password:
+    $ref: "./account.yaml#/paths/~1api~1account~1change-password"
+  /api/account:
+    $ref: "./account.yaml#/paths/~1api~1account"
+  /api/account/register:
+    $ref: "./authentication-and-registration.yaml#/paths/~1api~1account~1register"
+  /api/account/activate:
+    $ref: "./authentication-and-registration.yaml#/paths/~1api~1account~1activate"
+  /api/account/password-reset/finish:
+    $ref: "./authentication-and-registration.yaml#/paths/~1api~1account~1password-reset~1finish"
+info:
+  title: "merged spec"
+  description: "merged spec"
+  version: "1.0.0"

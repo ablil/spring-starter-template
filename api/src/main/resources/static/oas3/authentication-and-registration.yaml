@@ -1,0 +1,120 @@
+openapi: 3.1.0
+info:
+  title: authentication and registration
+  description: authenticate or create new account
+  version: 0.0.1
+
+servers:
+  - url: /
+
+paths:
+  /api/authenticate:
+    post:
+      operationId: authenticate
+      summary: authenticate with credentials
+      requestBody:
+        required: true
+        description: user credentials
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                login:
+                  type: string
+                  description: username or email
+                password:
+                  type: string
+              required: [login, password]
+      responses:
+        200:
+          description: json web token (jwt)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
+  /api/account/register:
+    post:
+      operationId: registerUser
+      summary: create new account
+      description: user will be notified via email to activate his account
+      requestBody:
+        required: true
+        description: user info
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  minLength: 6
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 10
+              required: [username, email, password]
+      responses:
+        204:
+          description: account created successfully
+  /api/account/activate:
+    get:
+      operationId: activateAccount
+      summary: activate user account
+      parameters:
+        - in: query
+          name: key
+          required: true
+          description: activation key sent via email upon registration
+          schema:
+            type: string
+      responses:
+        204:
+          description: user account activate successfully
+
+  /api/account/password-reset/init:
+    post:
+      operationId: requestResetPassword
+      summary: init the process to reset password
+      description: reset link will be sent via email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+              required: [email]
+      responses:
+        204:
+          description: reset link sent via email successfully
+  /api/account/password-reset/finish:
+    post:
+      operationId: finishPasswordReset
+      summary: reset password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resetKey:
+                  type: string
+                  description: reset key sent via email
+                password:
+                  type: string
+                  description: new password
+              required: [resetKey, password]
+      responses:
+        204:
+          description: password reset successfully
