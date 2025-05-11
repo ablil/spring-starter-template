@@ -58,6 +58,14 @@ springdoc:
   show-login-endpoint: true
   swagger-ui:
     urlsPrimaryName: authentication and registration
+    operationsSorter: alpha
+    tagsSorter: alpha
+    displayRequestDuration: true
+    defaultModelsExpandDepth: 3
+    defaultModelExpandDepth: 3
+    showExtensions: true
+    showCommonExtensions: true
+    filter: true
     urls:
       - url: oas3/users.yaml
         name: users management (admin)
