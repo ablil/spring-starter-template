@@ -1,0 +1,75 @@
+openapi: 3.1.0
+
+info:
+  title: account
+  description: manage authenticated user account
+  version: 0.0.1
+
+servers:
+  - url: /
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/account:
+    get:
+      operationId: getCurrentUser
+      summary: get authenticated user info
+      responses:
+        200:
+          $ref: '#/components/responses/UserInfo'
+    post:
+      operationId: updateUserInformation
+      summary: update account info
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                  format: email
+              required: [email]
+      responses:
+        204:
+          description: usef info updated successfully
+  /api/account/change-password:
+    post:
+      operationId: changePassword
+      summary: change password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                currentPassword:
+                  type: string
+                newPassword:
+                  type: string
+              required: [currentPassword, newPassword]
+      responses:
+        204:
+          description: password updated successfully
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    UserInfo:
+      description: user info
+      content:
+        application/json:
+          schema:
+            $ref: './users.yaml#/components/schemas/UserInfo'

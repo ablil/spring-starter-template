@@ -7,4 +7,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "spring-starter-template"
-include("app")
+include("app", "api")

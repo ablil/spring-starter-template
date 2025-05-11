@@ -1,5 +1,5 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.9.23"
+    id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.23"
     id("org.springframework.boot") version "3.4.5"
     id("io.spring.dependency-management")
@@ -19,6 +19,7 @@ java {
 }
 
 dependencies {
+    implementation(project(":api"))
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")

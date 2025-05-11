@@ -56,3 +56,12 @@ logging:
 springdoc:
   auto-tag-classes: false
   show-login-endpoint: true
+  swagger-ui:
+    urlsPrimaryName: authentication and registration
+    urls:
+      - url: oas3/users.yaml
+        name: users management (admin)
+      - url: oas3/account.yaml
+        name: user account
+      - url: oas3/authentication-and-registration.yaml
+        name: authentication and registration
