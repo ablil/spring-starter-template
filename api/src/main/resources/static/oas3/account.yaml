@@ -11,17 +11,22 @@ servers:
 security:
   - bearerAuth: []
 
+tags:
+  - name: account
+
 paths:
   /api/account:
     get:
       operationId: getCurrentUser
       summary: get authenticated user info
+      tags: [account]
       responses:
         200:
           $ref: '#/components/responses/UserInfo'
     post:
       operationId: updateUserInformation
       summary: update account info
+      tags: [account]
       requestBody:
         required: true
         content:
@@ -44,6 +49,7 @@ paths:
     post:
       operationId: changePassword
       summary: change password
+      tags: [account]
       requestBody:
         required: true
         content:

@@ -7,10 +7,15 @@ info:
 servers:
   - url: /
 
+tags:
+  - name: authentication
+  - name: account
+
 paths:
   /api/authenticate:
     post:
       operationId: authenticate
+      tags: [authentication]
       summary: authenticate with credentials
       requestBody:
         required: true
@@ -41,6 +46,7 @@ paths:
     post:
       operationId: registerUser
       summary: create new account
+      tags: [account]
       description: user will be notified via email to activate his account
       requestBody:
         required: true
@@ -67,6 +73,7 @@ paths:
     get:
       operationId: activateAccount
       summary: activate user account
+      tags: [account]
       parameters:
         - in: query
           name: key
@@ -83,6 +90,7 @@ paths:
       operationId: requestResetPassword
       summary: init the process to reset password
       description: reset link will be sent via email
+      tags: [account]
       requestBody:
         required: true
         content:
@@ -101,6 +109,7 @@ paths:
     post:
       operationId: finishPasswordReset
       summary: reset password
+      tags: [account]
       requestBody:
         required: true
         content:
