@@ -34,13 +34,13 @@ management:
       enabled: true
       mode: full
 
+# custom application properties
 example:
   application:
     base-url: https://example.com
     urls:
       activation-link: ${example.application.base-url}/api/account/activate
       reset-password-link: ${example.application.base-url}/reset
-
   security:
     jwt:
       # generate with: openssl rand -base64 64
@@ -48,6 +48,9 @@ example:
       validity-in-seconds: 86400
   authentication:
     reset-password-key-validity-in-seconds: 86400
+  admin-management:
+    username: admin
+    password: ${ADMIN_PASSWORD:supersecurepassword}
 
 logging:
   level:
