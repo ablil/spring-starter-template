@@ -39,7 +39,7 @@ jobs:
           build-scan-terms-of-use-agree: "yes"
 
       - name: build
-        run: ./gradlew build -Ptag=${{ github.ref == 'refs/heads/main' && 'latest' || github.sha }}
+        run: ./gradlew build -Ptag=${{ github.ref == 'refs/heads/main' && 'latest' || github.sha }} --no-daemon
 
       - name: Upload reports to job summary
         if: always()
