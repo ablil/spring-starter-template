@@ -10,40 +10,42 @@ servers:
 security:
   - bearerAuth: []
 
+tags:
+  - name: users
+
 paths:
   /api/users:
     get:
       operationId: getAllUsers
       summary: get all users
+      tags: [users]
       parameters:
         - in: query
           name: page
-          description: page number
+          description: page number (count start from 0)
           schema:
             type: integer
             minimum: 0
-            default: 0
+            example: 0
         - in: query
           name: size
           schema:
             type: integer
             minimum: 0
-            default: 50
-          description: control the number of returned users on each page
+            example: 10
+          description: control the number of returned users on each page (default is 10)
         - in: query
           name: sort
-          description: sort order
+          description: sort order (default is asc)
           schema:
             type: string
             enum: [asc, desc]
-            example: asc
         - in: query
           name: by
-          description: sorting field
+          description: sorting field (default is id)
           schema:
             type: string
             enum: [id, username,email,createdAt,updatedAt]
-            example: id
       responses:
         200:
           description: paginated list of users
@@ -59,20 +61,21 @@ paths:
                         - $ref: '#/components/schemas/UserInfo'
                         - $ref: '#/components/schemas/AuditingFields'
                   page:
-                    type: number
+                    type: integer
                     description: page number
                     example: 1
                   size:
-                    type: number
+                    type: integer
                     description: page size
                     default: 50
                   total:
-                    type: number
+                    type: integer
                     description: total number of users
                     example: 100
     post:
       operationId: createUser
       summary: create user
+      tags: [users]
       requestBody:
         $ref: '#/components/requestBodies/CreateOrUpdateUser'
       responses:
@@ -82,6 +85,7 @@ paths:
     get:
       operationId: getUser
       summary: get user
+      tags: [users]
       parameters:
         - in: path
           name: username
@@ -95,6 +99,7 @@ paths:
     put:
       operationId: updateUser
       summary: update user
+      tags: [users]
       parameters:
         - in: path
           name: username
@@ -110,6 +115,7 @@ paths:
     delete:
       operationId: deleteUser
       summary: delete user account
+      tags: [users]
       parameters:
         - in: path
           name: username
@@ -143,11 +149,13 @@ components:
         updatedAt:
           type: string
           format: date-time
+      required: [createdBy, createdAt, updatedBy, updatedAt]
     UserInfo:
       type: object
       properties:
         id:
-          type: number
+          type: integer
+          format: int64
           example: 1
         username:
           type: string
@@ -167,7 +175,7 @@ components:
           type: string
         fullName:
           type: string
-
+      required: [id, username, email, disabled, roles]
   requestBodies:
     CreateOrUpdateUser:
       description: user info
@@ -189,9 +197,10 @@ components:
               lastName:
                 type: string
               roles:
-                type: string
-                enum: [ADMIN]
-                example: []
+                type: array
+                items:
+                  type: string
+                  example: ADMIN
   responses:
     FullUserInfo:
       description: extended user info with extra fields (eg, auditing fields ...)

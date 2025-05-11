@@ -1,59 +1,81 @@
 package com.example.users
 
-import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
+import org.openapitools.api.AccountApi
+import org.openapitools.model.ChangePasswordRequest
+import org.openapitools.model.FinishPasswordResetRequest
+import org.openapitools.model.RegisterUserRequest
+import org.openapitools.model.RequestResetPasswordRequest
+import org.openapitools.model.UpdateUserInformationRequest
+import org.openapitools.model.UserInfo
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/account")
-class AccountsResource(val accountService: AccountService) {
+class AccountsResource(val accountService: AccountService) : AccountApi {
 
-    @PostMapping("register")
-    fun registerUser(@RequestBody @Valid dto: RegistrationDTO): ResponseEntity<Void> =
-        accountService.registerUser(dto).let { ResponseEntity.noContent().build() }
+    override fun registerUser(registerUserRequest: RegisterUserRequest): ResponseEntity<Unit> =
+        accountService.registerUser(RegistrationDTO.from(registerUserRequest)).let {
+            ResponseEntity.noContent().build()
+        }
 
-    @GetMapping("activate")
-    fun activateAccount(@RequestParam("key") key: String): ResponseEntity<Void> =
+    override fun activateAccount(key: String): ResponseEntity<Unit> =
         accountService.activateAccount(key).let { ResponseEntity.noContent().build() }
 
-    @PostMapping("password-reset/init")
-    fun requestResetPassword(@RequestBody @Valid email: EmailWrapper): ResponseEntity<Void> =
-        accountService.requestPasswordReset(email.email).let { ResponseEntity.noContent().build() }
-
-    @PostMapping("password-reset/finish")
-    fun finishPasswordReset(@RequestBody @Valid body: KeyAndPassword): ResponseEntity<Void> =
-        accountService.finishPasswordReset(body.resetKey, body.password).let {
+    override fun requestResetPassword(
+        requestResetPasswordRequest: RequestResetPasswordRequest
+    ): ResponseEntity<Unit> =
+        accountService.requestPasswordReset(requestResetPasswordRequest.email).let {
             ResponseEntity.noContent().build()
         }
 
-    @PostMapping("change-password")
-    fun changePassword(@RequestBody @Valid body: ChangePasswordDTO): ResponseEntity<Void> =
-        accountService.changePassword(body.currentPassword, body.newPassword).let {
+    override fun finishPasswordReset(
+        finishPasswordResetRequest: FinishPasswordResetRequest
+    ): ResponseEntity<Unit> =
+        accountService
+            .finishPasswordReset(
+                finishPasswordResetRequest.resetKey,
+                finishPasswordResetRequest.password,
+            )
+            .let { ResponseEntity.noContent().build() }
+
+    override fun changePassword(
+        changePasswordRequest: ChangePasswordRequest
+    ): ResponseEntity<Unit> =
+        accountService
+            .changePassword(
+                changePasswordRequest.currentPassword,
+                changePasswordRequest.newPassword,
+            )
+            .let { ResponseEntity.noContent().build() }
+
+    override fun getCurrentUser(): ResponseEntity<UserInfo> =
+        ResponseEntity.ok(accountService.getCurrentUser().toUserInfo())
+
+    override fun updateUserInformation(
+        updateUserInformationRequest: UpdateUserInformationRequest
+    ): ResponseEntity<Unit> =
+        accountService.updateUserInfo(UserInfoDTO.from(updateUserInformationRequest)).let {
             ResponseEntity.noContent().build()
         }
-
-    @GetMapping
-    fun getCurrentUser(): ResponseEntity<DomainUser> =
-        ResponseEntity.ok(accountService.getCurrentUser())
-
-    @PostMapping
-    fun updateUserInformation(@RequestBody @Valid body: UserInfoDTO): ResponseEntity<Void> =
-        accountService.updateUserInfo(body).let { ResponseEntity.noContent().build() }
 }
 
 data class RegistrationDTO(
     @field:Size(min = 6) val username: String,
     @field:Email val email: String,
     @field:Size(min = 10) val password: String,
-)
+) {
+    companion object {
+        fun from(request: RegisterUserRequest): RegistrationDTO =
+            RegistrationDTO(
+                username = request.username,
+                email = request.email,
+                password = request.password,
+            )
+    }
+}
 
 data class EmailWrapper(@field:Email val email: String)
 
@@ -71,4 +93,25 @@ data class UserInfoDTO(
     val firstName: String?,
     val lastName: String?,
     @field:Email val email: String,
-)
+) {
+    companion object {
+        fun from(request: UpdateUserInformationRequest): UserInfoDTO =
+            UserInfoDTO(
+                firstName = request.firstName,
+                lastName = request.lastName,
+                email = request.email,
+            )
+    }
+}
+
+fun DomainUser.toUserInfo(): UserInfo =
+    UserInfo(
+        id = this.id,
+        username = this.username,
+        email = this.email,
+        disabled = this.disabled,
+        roles = this.roles.map { it.name }.toMutableList(),
+        firstName = this.firstName,
+        lastName = this.lastName,
+        fullName = this.fullName,
+    )

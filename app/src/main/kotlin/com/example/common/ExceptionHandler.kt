@@ -19,6 +19,12 @@ class ExceptionHandler {
             logger.warn(ex.stackTraceToString())
         }
 
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleIllegalArguments(ex: IllegalArgumentException) =
+        ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.message).also {
+            logger.warn(ex.stackTraceToString())
+        }
+
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidationExceptions(ex: MethodArgumentNotValidException) =
         ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.body.detail)

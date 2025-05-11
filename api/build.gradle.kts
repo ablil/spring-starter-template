@@ -1,3 +1,5 @@
+import java.time.Instant
+import java.time.OffsetDateTime
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
@@ -22,6 +24,9 @@ openApiGenerate {
     inputSpecRootDirectory = "$projectDir/src/main/resources/static/oas3"
     generatorName = "kotlin-spring"
     configFile = "$projectDir/src/main/resources/config/openapi.yaml"
+    typeMappings = mapOf(
+        "string+date-time" to Instant::class.java.name,
+    )
 }
 
 sourceSets {
