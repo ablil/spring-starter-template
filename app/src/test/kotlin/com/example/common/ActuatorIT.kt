@@ -1,5 +1,6 @@
 package com.example.common
 
+import com.example.users.WithMockAdmin
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -20,7 +21,18 @@ class ActuatorIT {
     }
 
     @Test
-    @WithMockUser(authorities = ["ADMIN"])
+    @WithMockAdmin
+    fun `should access info endpoint given an admin`() {
+        mockMvc.get("/actuator/info").andExpectAll {
+            status { isOk() }
+            jsonPath("$.git.branch") { exists() }
+            jsonPath("$.git.commit") { exists() }
+            jsonPath("$.build.time") { exists() }
+        }
+    }
+
+    @Test
+    @WithMockAdmin
     fun `should access loggers endpoint given an admin user`() {
         mockMvc.get("/actuator/loggers").andExpect { status { isOk() } }
     }

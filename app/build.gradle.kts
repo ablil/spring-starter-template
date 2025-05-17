@@ -7,10 +7,12 @@ plugins {
     id("com.diffplug.spotless") version "7.0.3"
     id("io.gitlab.arturbosch.detekt") version "1.23.6"
     id("com.google.cloud.tools.jib") version "3.4.5"
+    id("com.gorylenko.gradle-git-properties") version "2.5.0"
 }
 
 
 val isCI = System.getenv("CI") == "true"
+version = rootProject.version
 
 java {
     toolchain {
@@ -91,4 +93,8 @@ springBoot {
 detekt {
     config.setFrom("src/main/resources/config/config.yml")
     buildUponDefaultConfig = true
+}
+
+gitProperties {
+    dotGitDirectory.set(project.rootProject.layout.projectDirectory.dir(".git"))
 }
