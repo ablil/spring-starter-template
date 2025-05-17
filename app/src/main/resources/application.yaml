@@ -25,14 +25,13 @@ management:
   endpoints:
     web:
       exposure:
-        include: '*'
-
+        include: 'health,info,loggers,env,beans,caches'
+  endpoint:
     loggers:
       enabled: true
   info:
     git:
       enabled: true
-      mode: full
 
 # custom application properties
 example:
