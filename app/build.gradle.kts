@@ -66,13 +66,21 @@ tasks.build {
 
 jib {
     to {
-        val imageTag = project.findProperty("tag")
-        image = "ghcr.io/ablil/spring-starter-template:$imageTag".takeIf { isCI } ?: "spring-starter-template:$imageTag"
+        val tag = project.findProperty("tag")
+        image = if ( isCI ) {
+            "ghcr.io/${System.getenv("GITHUB_REPOSITORY")}:$tag"
+        } else {
+            "${rootProject.name}:$tag"
+        }
     }
     container {
         creationTime = "USE_CURRENT_TIMESTAMP"
         ports = listOf("8080")
     }
+}
+
+tasks.withType<com.google.cloud.tools.jib.gradle.JibTask>().configureEach {
+    notCompatibleWithConfigurationCache("because https://github.com/GoogleContainerTools/jib/issues/3132")
 }
 
 allOpen {
