@@ -3,7 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.23"
     id("org.springframework.boot") version "3.5.0"
     id("io.spring.dependency-management")
-    id("org.jetbrains.kotlin.plugin.jpa") version "1.9.23"
+    id("org.jetbrains.kotlin.plugin.jpa") version "2.1.21"
     id("com.diffplug.spotless") version "7.0.4"
     id("io.gitlab.arturbosch.detekt") version "1.23.6"
     id("com.google.cloud.tools.jib") version "3.4.5"
