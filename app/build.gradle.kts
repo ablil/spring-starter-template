@@ -1,7 +1,7 @@
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.23"
-    id("org.springframework.boot") version "3.4.5"
+    id("org.springframework.boot") version "3.5.0"
     id("io.spring.dependency-management")
     id("org.jetbrains.kotlin.plugin.jpa") version "1.9.23"
     id("com.diffplug.spotless") version "7.0.4"
