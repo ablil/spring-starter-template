@@ -3,6 +3,7 @@ name: spring-starter-template
 services:
   db:
     image: postgres:17
+    container_name: spring-database
     environment:
       POSTGRES_PASSWORD: supersecurepassword
       POSTGRES_DB: mydb
