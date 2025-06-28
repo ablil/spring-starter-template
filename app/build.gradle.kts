@@ -54,7 +54,7 @@ kotlin {
 spotless {
     kotlin {
         toggleOffOn()
-        ktfmt("0.54").kotlinlangStyle()
+        ktfmt("0.56").kotlinlangStyle()
     }
 }
 
