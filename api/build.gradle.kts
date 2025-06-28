@@ -4,9 +4,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 plugins {
-    id("org.jetbrains.kotlin.jvm")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.springframework.boot)
     id("org.openapi.generator") version "7.13.0"
-    id("org.springframework.boot") version "3.5.0"
     id("io.spring.dependency-management")
 }
 

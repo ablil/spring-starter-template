@@ -1,9 +1,9 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm")
-    id("org.jetbrains.kotlin.plugin.spring") version "1.9.23"
-    id("org.springframework.boot") version "3.5.0"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.kotlin.jpa)
+    alias(libs.plugins.springframework.boot)
     id("io.spring.dependency-management")
-    id("org.jetbrains.kotlin.plugin.jpa") version "1.9.23"
     id("com.diffplug.spotless") version "7.0.4"
     id("io.gitlab.arturbosch.detekt") version "1.23.6"
     id("com.google.cloud.tools.jib") version "3.4.5"
