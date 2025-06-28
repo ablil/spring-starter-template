@@ -1,0 +1,9 @@
+[versions]
+kotlinVersion = "1.9.23"
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinVersion" }
+kotlin-jpa = { id = "org.jetbrains.kotlin.plugin.jpa", version.ref = "kotlinVersion" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlinVersion" }
+springframework-boot = { id = "org.springframework.boot", version = "3.5.0" }
+springframework-dependencymanagement = {id = "io.spring.dependency-management", version = "1.1.7"}
