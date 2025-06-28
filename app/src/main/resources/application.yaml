@@ -9,6 +9,7 @@ spring:
     password: ${POSTGRES_PASSWORD:supersecurepassword}
     url: jdbc:postgresql://127.0.0.1:${POSTGRES_PORT:5432}/${POSTGRES_DB:mydb}
   jpa:
+    open-in-view: false
     generate-ddl: true
     hibernate:
       ddl-auto: create-drop 
