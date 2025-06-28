@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.springframework.boot)
     id("io.spring.dependency-management")
     id("com.diffplug.spotless") version "7.0.4"
-    id("io.gitlab.arturbosch.detekt") version "1.23.6"
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
     id("com.google.cloud.tools.jib") version "3.4.5"
     id("com.gorylenko.gradle-git-properties") version "2.5.0"
 }
