@@ -4,6 +4,14 @@ spring:
   output:
     ansi:
       enabled: always
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          cache-public: true
+          max-age: 300
+          s-max-age: 3600s # shared cache can be store for longer time than private cache
+          stale-while-revalidate: 300 # five minutews window is enough for the shared cache to revalidate itself
   datasource:
     username: ${POSTGRES_USER:postgres}
     password: ${POSTGRES_PASSWORD:supersecurepassword}
