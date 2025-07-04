@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size
 import java.net.URI
 import org.openapitools.api.UsersApi
 import org.openapitools.model.GetAllUsers200Response
-import org.openapitools.model.GetUser200Response
+import org.openapitools.model.GetAllUsers200ResponseContentInner
 import org.openapitools.model.UpdateUserRequest
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -47,12 +47,12 @@ class UserController(val userService: UserService) : UsersApi {
         )
     }
 
-    override fun getUser(username: String): ResponseEntity<GetUser200Response> =
+    override fun getUser(username: String): ResponseEntity<GetAllUsers200ResponseContentInner> =
         ResponseEntity.ofNullable(userService.getUser(username)?.toResponse())
 
     override fun createUser(
         updateUserRequest: UpdateUserRequest
-    ): ResponseEntity<GetUser200Response> =
+    ): ResponseEntity<GetAllUsers200ResponseContentInner> =
         userService.createUser(CreateOrUpdateUserDTO.from(updateUserRequest)).let {
             ResponseEntity.created(URI("/api/users/${it.username}")).body(it.toResponse())
         }
@@ -60,7 +60,7 @@ class UserController(val userService: UserService) : UsersApi {
     override fun updateUser(
         username: String,
         updateUserRequest: UpdateUserRequest,
-    ): ResponseEntity<GetUser200Response> =
+    ): ResponseEntity<GetAllUsers200ResponseContentInner> =
         ResponseEntity.ofNullable(
             userService
                 .updateUserInfo(username, CreateOrUpdateUserDTO.from(updateUserRequest))
@@ -71,8 +71,8 @@ class UserController(val userService: UserService) : UsersApi {
         userService.deleteUser(username).let { ResponseEntity.noContent().build() }
 }
 
-fun DomainUser.toResponse(): GetUser200Response {
-    return GetUser200Response(
+fun DomainUser.toResponse(): GetAllUsers200ResponseContentInner {
+    return GetAllUsers200ResponseContentInner(
         id = this.id,
         username = this.username,
         email = this.email,

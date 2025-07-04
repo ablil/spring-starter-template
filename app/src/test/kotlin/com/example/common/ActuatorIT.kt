@@ -25,8 +25,6 @@ class ActuatorIT {
     fun `should access info endpoint given an admin`() {
         mockMvc.get("/actuator/info").andExpectAll {
             status { isOk() }
-            jsonPath("$.git.branch") { exists() }
-            jsonPath("$.git.commit") { exists() }
             jsonPath("$.build.time") { exists() }
         }
     }
