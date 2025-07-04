@@ -18,3 +18,7 @@ After create your project from this template, you can run the application by fol
 1. start Postgres container: `docker compose up -d`
 2. start the app: `./gradlew bootRun`
 3. check health: `curl http://localhost:8080/actuator/health`
+
+
+## References
+[ELK with Docker](https://medium.com/@shala.p02/centralized-logging-using-elk-as-a-docker-container-for-microservices-in-just-4-steps-4f4cdf278712)
