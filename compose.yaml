@@ -9,3 +9,37 @@ services:
       POSTGRES_DB: mydb
     ports:
       - 5432:5432
+
+  app:
+    image: spring-starter-template:latest
+    ports:
+      - 8080:8080
+    environment:
+      DB_HOST: db
+      SPRING_PROFILES_ACTIVE: datadog
+    depends_on:
+      - db
+    labels:
+      com.datadoghq.ad.logs: '[{"source": "local", "service": "spring-starter"}]'
+
+
+  dd-agent:
+    image: gcr.io/datadoghq/agent:7
+    environment:
+      DD_API_KEY: ${DD_API_KEY}
+      DD_SITE: "datadoghq.eu"
+      DD_DOGSTATSD_NON_LOCAL_TRAFFIC: true
+      DD_APM_ENABLED: true
+      DD_APM_NON_LOCAL_TRAFFIC: true
+      DD_APM_RECEIVER_SOCKET: /var/run/datadog/apm.socket
+      DD_DOGSTATSD_SOCKET: /var/run/datadog/dsd.socket
+      DD_LOGS_ENABLED: true
+      DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL: true
+      DD_CONTAINER_EXCLUDE: "name:datadog-agent"
+    volumes:
+      - /opt/datadog-agent/run:/opt/datadog-agent/run:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/datadog:/var/run/datadog

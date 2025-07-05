@@ -15,6 +15,7 @@ import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.userdetails.User
@@ -26,6 +27,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.context.SecurityContextHolderFilter
 
 @Configuration
 @EnableMethodSecurity
@@ -53,6 +55,7 @@ class SecurityConfig {
             sessionManagement { sessionCreationPolicy = SessionCreationPolicy.STATELESS }
             csrf { disable() }
             formLogin { disable() }
+            apply(LoggingFilterConfigurer())
         }
 
         return http.build()
@@ -98,6 +101,7 @@ class SecurityConfig {
                 httpBasic {}
                 formLogin { disable() }
                 authenticationManager = authManger
+                apply(LoggingFilterConfigurer())
             }
             .let { http.build() }
 
@@ -124,4 +128,13 @@ class SecurityConfig {
 
 enum class AuthorityConstants {
     ADMIN
+}
+
+class LoggingFilterConfigurer : AbstractHttpConfigurer<LoggingFilterConfigurer, HttpSecurity>() {
+
+    override fun configure(builder: HttpSecurity?) {
+        requireNotNull(builder).invoke {
+            addFilterBefore<SecurityContextHolderFilter>(RequestTraceFilter())
+        }
+    }
 }
