@@ -1,7 +1,7 @@
 package com.example.common
 
-import com.example.users.DomainUser
 import com.example.users.DEFAULT_CACHE
+import com.example.users.DomainUser
 import com.example.users.UserRepository
 import com.example.users.defaultTestUser
 import org.assertj.core.api.Java6Assertions.assertThat
