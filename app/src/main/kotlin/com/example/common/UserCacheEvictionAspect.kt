@@ -1,7 +1,7 @@
 package com.example.common
 
-import com.example.users.DomainUser
 import com.example.users.DEFAULT_CACHE
+import com.example.users.DomainUser
 import com.example.users.getLogger
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.Aspect
