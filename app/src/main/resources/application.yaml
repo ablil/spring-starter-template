@@ -27,7 +27,9 @@ spring:
     hibernate:
       ddl-auto: create-drop 
     properties:
-      "[hibernate.generate_statistics]": true
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        generate_statistics: true
 #  mail:
 #    host: ${MAIL_HOST}
 #    port: 25
