@@ -1,7 +1,7 @@
 package com.example.common
 
 import com.example.users.DomainUser
-import com.example.users.USERS_BY_LOGIN
+import com.example.users.DEFAULT_CACHE
 import com.example.users.UserRepository
 import com.example.users.defaultTestUser
 import org.assertj.core.api.Java6Assertions.assertThat
@@ -22,13 +22,13 @@ class UserCacheEvictionAspectTest {
     @Test
     fun `should clear users cache when user is persisted`() {
         val user = DomainUser.defaultTestUser(disabled = false)
-        cacheManager.getCache(USERS_BY_LOGIN)?.set(user.username, user)
-        assertThat(cacheManager.getCache(USERS_BY_LOGIN)?.get(user.username))
+        cacheManager.getCache(DEFAULT_CACHE)?.set(user.username, user)
+        assertThat(cacheManager.getCache(DEFAULT_CACHE)?.get(user.username))
             .`as`("cache is set")
             .isNotNull()
 
         userRepository.saveAndFlush(user)
-        assertThat(cacheManager.getCache(USERS_BY_LOGIN)?.get(user.username))
+        assertThat(cacheManager.getCache(DEFAULT_CACHE)?.get(user.username))
             .`as`("cache is cleared")
             .isNull()
     }
