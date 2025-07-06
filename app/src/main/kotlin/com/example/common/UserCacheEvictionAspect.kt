@@ -1,7 +1,7 @@
 package com.example.common
 
 import com.example.users.DomainUser
-import com.example.users.USERS_BY_LOGIN
+import com.example.users.DEFAULT_CACHE
 import com.example.users.getLogger
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.Aspect
@@ -26,6 +26,6 @@ class UserCacheEvictionAspect(val cacheManager: CacheManager) {
             logger.warn("advice called with invalid return value {}", retValue)
             return
         }
-        cacheManager.getCache(USERS_BY_LOGIN)?.evictIfPresent(retValue.username)
+        cacheManager.getCache(DEFAULT_CACHE)?.evictIfPresent(retValue.username)
     }
 }

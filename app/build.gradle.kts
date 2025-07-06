@@ -48,6 +48,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.5.18")
     // https://mvnrepository.com/artifact/net.logstash.logback/logstash-logback-encoder
     implementation("net.logstash.logback:logstash-logback-encoder:8.1")
+    runtimeOnly("com.github.ben-manes.caffeine:caffeine:3.2.1")
 }
 
 kotlin {

@@ -4,6 +4,11 @@ spring:
   output:
     ansi:
       enabled: always
+  cache:
+    type: caffeine
+    cache-names: 'default'
+    caffeine:
+      spec: 'maximumSize=500,recordStats'
   web:
     resources:
       cache:
@@ -31,10 +36,14 @@ spring:
 #    password: ${MAIL_PASSWORD}
 
 management:
+  simple:
+    metrics:
+      export:
+        enabled: true
   endpoints:
     web:
       exposure:
-        include: 'health,info,loggers,env,beans,caches'
+        include: 'health,info,loggers,env,beans,caches,metrics'
   endpoint:
     loggers:
       enabled: true
