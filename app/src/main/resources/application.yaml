@@ -42,10 +42,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: 'health,info,loggers,env,beans,caches,metrics'
+        include: 'health,info,loggers,env,beans,caches,metrics,prometheus'
   endpoint:
     loggers:
       enabled: true
+    health:
+      show-details: always
   info:
     git:
       enabled: true
