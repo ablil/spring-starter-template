@@ -50,6 +50,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:8.1")
     runtimeOnly("com.github.ben-manes.caffeine:caffeine:3.2.1")
     runtimeOnly("org.hibernate.orm:hibernate-micrometer")
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 }
 
 kotlin {

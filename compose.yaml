@@ -16,7 +16,6 @@ services:
       - 8080:8080
     environment:
       DB_HOST: db
-      SPRING_PROFILES_ACTIVE: datadog
     depends_on:
       - db
     labels:
@@ -43,3 +42,21 @@ services:
       - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/datadog:/var/run/datadog
+
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - app
+
+  grafana:
+    image: grafana/grafana-oss
+    ports:
+      - 3000:3000
+    depends_on:
+      - prometheus
