@@ -92,7 +92,9 @@ class SecurityConfig {
             .invoke {
                 securityMatcher("/actuator/**")
                 authorizeHttpRequests {
-                    authorize("/actuator/**", permitAll)
+                    authorize("/actuator/health", permitAll)
+                    authorize("/actuator/info", permitAll)
+                    authorize("/actuator/prometheus", permitAll)
                     authorize(anyRequest, hasAuthority(AuthorityConstants.ADMIN.name))
                 }
 
