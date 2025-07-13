@@ -21,3 +21,10 @@ This project adopt API first approach to define new APIs, and generate code via
 3. Implement API
 4. Expose API through [swagger-ui](https://springdoc.org/#swagger-ui-properties)
 (*check springdoc properties on application.yaml*)
+
+## Observability & monitoring
+
+[Prometheus](https://prometheus.io/) is an open source system that collect and store metrics from
+your applications, which will be visualized in [Grafana]().
+
+Some metrics are enabled by default (eg, Hibernate, cache), and some Docker images are provided also.
