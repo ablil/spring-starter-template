@@ -28,3 +28,9 @@ This project adopt API first approach to define new APIs, and generate code via
 your applications, which will be visualized in [Grafana]().
 
 Some metrics are enabled by default (eg, Hibernate, cache), and some Docker images are provided also.
+
+# Tips
+
+Extract all environment variable defined in `application.yaml`
+
+`grep -oh '\${[A-Z_][A-Z0-9_]*' app/**/application.yaml | sed 's/\${//'`
