@@ -4,10 +4,10 @@ plugins {
     alias(libs.plugins.kotlin.jpa)
     alias(libs.plugins.springframework.boot)
     id("io.spring.dependency-management")
-    id("com.diffplug.spotless") version "7.0.4"
+    id("com.diffplug.spotless") version "7.1.+"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
-    id("com.google.cloud.tools.jib") version "3.4.5"
-    id("com.gorylenko.gradle-git-properties") version "2.5.0"
+    id("com.google.cloud.tools.jib") version "3.4.+"
+    id("com.gorylenko.gradle-git-properties") version "2.5.+"
 }
 
 
@@ -35,8 +35,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.apache.commons:commons-lang3:3.17.0")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
+    implementation("org.apache.commons:commons-lang3:3.17.+")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.+")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
@@ -45,10 +45,10 @@ dependencies {
     testRuntimeOnly("com.h2database:h2")
     detektPlugins("com.github.ablil:detekt-extension:v0.1.0")
     // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
-    implementation("ch.qos.logback:logback-classic:1.5.18")
+    implementation("ch.qos.logback:logback-classic:1.5.+")
     // https://mvnrepository.com/artifact/net.logstash.logback/logstash-logback-encoder
     implementation("net.logstash.logback:logstash-logback-encoder:8.1")
-    runtimeOnly("com.github.ben-manes.caffeine:caffeine:3.2.1")
+    runtimeOnly("com.github.ben-manes.caffeine:caffeine:3.2.+")
     runtimeOnly("org.hibernate.orm:hibernate-micrometer")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 }
