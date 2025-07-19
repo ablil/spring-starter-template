@@ -151,7 +151,7 @@ class AccountsResourceTest {
     }
 
     @Test
-    fun `should finish password reset given same old password`() {
+    fun `should NOT reset password with with same old password`() {
         userRepository.saveAndFlush(
             DomainUser.defaultTestUser(disabled = false).apply {
                 resetKey = DEFAULT_RESET_KEY
@@ -167,7 +167,7 @@ class AccountsResourceTest {
                         KeyAndPassword(DEFAULT_RESET_KEY, DEFAULT_TEST_PASSWORD)
                     )
             }
-            .andExpect { status { isBadRequest() } }
+            .andExpect { status { isConflict() } }
     }
 
     @Test
@@ -187,7 +187,7 @@ class AccountsResourceTest {
                         KeyAndPassword(DEFAULT_RESET_KEY, "newsuperpassword")
                     )
             }
-            .andExpect { status { isConflict() } }
+            .andExpect { status { isUnprocessableEntity() } }
     }
 
     @Test
@@ -200,7 +200,7 @@ class AccountsResourceTest {
                         KeyAndPassword("invalidKey", DEFAULT_TEST_PASSWORD)
                     )
             }
-            .andExpect { status { isConflict() } }
+            .andExpect { status { isNotFound() } }
     }
 
     @Test
@@ -277,7 +277,7 @@ class AccountsResourceTest {
                         ChangePasswordDTO("invalidcurrentpass", DEFAULT_TEST_PASSWORD)
                     )
             }
-            .andExpect { status { isConflict() } }
+            .andExpect { status { isUnprocessableEntity() } }
     }
 
     @Test

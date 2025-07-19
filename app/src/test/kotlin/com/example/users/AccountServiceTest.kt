@@ -44,7 +44,7 @@ class AccountServiceTest {
             )
         whenever(repository.existsByEmailIgnoreCase("second@example.com")).thenReturn(true)
 
-        org.junit.jupiter.api.assertThrows<IllegalStateException> {
+        org.junit.jupiter.api.assertThrows<EmailNotAllowed> {
             service.updateUserInfo(
                 UserInfoDTO(firstName = "john", lastName = "doe", email = "second@example.com")
             )

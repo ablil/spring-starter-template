@@ -37,12 +37,12 @@ class ExceptionHandlerTest {
     }
 
     @Test
-    fun `should return conflict given illegal state exception`() {
+    fun `should return internal server error given IllegalStateException`() {
         mockMvc
             .post("/api/exception-handler-test/illegal-state") {
                 contentType = MediaType.APPLICATION_JSON
             }
-            .andExpect { status { isConflict() } }
+            .andExpect { status { isInternalServerError() } }
     }
 }
 

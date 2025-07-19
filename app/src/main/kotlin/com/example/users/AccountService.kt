@@ -61,8 +61,9 @@ class AccountService(
             throw InvalidKey()
         }
 
-        userRepository.save(user.apply { this.activate() })
-            .also { mailService?.sendAccountActivationEmail(it) }
+        userRepository.save(user.apply { this.activate() }).also {
+            mailService?.sendAccountActivationEmail(it)
+        }
         logger.info("user account activated successfully {}", user.email)
     }
 
@@ -85,9 +86,8 @@ class AccountService(
         }
 
         if (
-            user.resetDate
-                ?.plus(Duration.ofSeconds(resetKeyValidity.toLong()))
-                ?.isAfter(Instant.now()) == true
+            requireNotNull(user.resetDate?.plus(Duration.ofSeconds(resetKeyValidity.toLong())))
+                .isBefore(Instant.now())
         ) {
             throw KeyExpired()
         }
@@ -104,7 +104,7 @@ class AccountService(
         val user = getCurrentUser()
 
         if (!passwordEncoder.matches(currentPassword, user.password)) {
-            throw InvalidPassword("current password is invalid")
+            throw InvalidCurrentPassword()
         }
 
         if (StringUtils.equals(currentPassword, newPassword)) {
@@ -138,41 +138,45 @@ class AccountService(
     }
 
     private fun findByLoging(login: String): DomainUser {
-        return userRepository.findByUsernameOrEmailIgnoreCase(login, login)
-            ?: throw UserNotFound()
+        return userRepository.findByUsernameOrEmailIgnoreCase(login, login) ?: throw UserNotFound()
     }
 
     fun getCurrentUser(): DomainUser {
         val login = SecurityUtils.currentUserLogin()
         return userRepository.findByUsernameOrEmailIgnoreCase(login, login)
-            ?: throw IllegalStateException("current user not found in the database, even though he is authenticated")
+            ?: throw IllegalStateException(
+                "current user not found in the database, even though he is authenticated"
+            )
     }
 }
 
 fun Any.getLogger(): Logger = LoggerFactory.getLogger(this::class.java)
 
-@ResponseStatus(HttpStatus.NOT_FOUND)
-class UserNotFound : ApplicationException("User not found")
+@ResponseStatus(HttpStatus.NOT_FOUND) class UserNotFound : ApplicationException("User not found")
 
 fun generateRandomKey(): String = RandomStringUtils.secure().nextAlphanumeric(DEFAULT_KEY_LENGTH)
 
-@ResponseStatus(HttpStatus.BAD_REQUEST)
+@ResponseStatus(HttpStatus.CONFLICT)
 class EmailNotAllowed : ApplicationException("Email not allowed")
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
 class InvalidKey : ApplicationException("Invalid key, no account account associated with it")
 
-@ResponseStatus(HttpStatus.BAD_REQUEST)
+@ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
 class KeyExpired : ApplicationException("Invalid key, expired")
 
-@ResponseStatus(HttpStatus.BAD_REQUEST)
+@ResponseStatus(HttpStatus.CONFLICT)
 class UsingOldPassword : ApplicationException("can NOT use old password")
 
-@ResponseStatus(HttpStatus.BAD_REQUEST)
-class InvalidPassword(msg: String? = null) : ApplicationException(
-    if (StringUtils.isNotBlank(msg)) {
-        "Invalid password, $msg"
-    } else {
-        "Invalid password"
-    }
-)
+@ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+class InvalidCurrentPassword : ApplicationException("current password is invalid")
+
+@ResponseStatus(HttpStatus.CONFLICT)
+class InvalidPassword(msg: String? = null) :
+    ApplicationException(
+        if (StringUtils.isNotBlank(msg)) {
+            "Invalid password, $msg"
+        } else {
+            "Invalid password"
+        }
+    )

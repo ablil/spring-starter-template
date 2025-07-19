@@ -18,9 +18,8 @@ class ExceptionHandler {
 
     @ExceptionHandler(IllegalStateException::class)
     fun handleIllegalStates(ex: IllegalStateException) =
-        ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error").also {
-            logger.error("encountered Illegal state {}", ex.message, ex)
-        }
+        ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error")
+            .also { logger.error("encountered Illegal state {}", ex.message, ex) }
 
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIllegalArguments(ex: IllegalArgumentException) =
@@ -34,9 +33,9 @@ class ExceptionHandler {
         val objectErrors = ex.bindingResult.globalErrors.map { it.defaultMessage }
         val problemDetails =
             ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST,
-                "Validation failed for request body",
-            )
+                    HttpStatus.BAD_REQUEST,
+                    "Validation failed for request body",
+                )
                 .apply {
                     this.title = "Validation error"
                     this.properties = mutableMapOf()
