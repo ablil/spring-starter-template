@@ -1,5 +1,6 @@
 package com.example.users
 
+import com.example.common.ApplicationException
 import com.example.common.MailService
 import com.example.common.SecurityUtils
 import jakarta.validation.constraints.Email
@@ -160,6 +161,6 @@ fun checkOrThrow(condition: Boolean, lazyException: () -> RuntimeException) {
 }
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-class AccountResourceException(override val message: String) : RuntimeException(message)
+class AccountResourceException(message: String) : ApplicationException(message)
 
 fun generateRandomKey(): String = RandomStringUtils.secure().nextAlphanumeric(DEFAULT_KEY_LENGTH)

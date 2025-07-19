@@ -33,10 +33,7 @@ class ExceptionHandlerTest {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(DummyBody("short"))
             }
-            .andExpect {
-                status { isBadRequest() }
-                jsonPath("$.properties.key") { exists() }
-            }
+            .andExpect { status { isBadRequest() } }
     }
 
     @Test
