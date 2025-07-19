@@ -28,8 +28,7 @@ spring:
       ddl-auto: create-drop 
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        generate_statistics: true
+        generate_statistics: false
 #  mail:
 #    host: ${MAIL_HOST}
 #    port: 25
@@ -71,10 +70,6 @@ example:
   admin-management:
     username: admin
     password: ${ADMIN_PASSWORD:supersecurepassword}
-
-logging:
-  level:
-    com.example: debug
 
 springdoc:
   auto-tag-classes: false

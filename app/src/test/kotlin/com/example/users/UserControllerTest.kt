@@ -148,7 +148,7 @@ class UserControllerTest {
     @Test
     @WithMockAdmin
     fun `given non existing username when deleting a user then return return 409`() {
-        mockMvc.delete("/api/users/$DEFAULT_TEST_USERNAME").andExpect { status { isConflict() } }
+        mockMvc.delete("/api/users/$DEFAULT_TEST_USERNAME").andExpect { status { isNotFound() } }
     }
 
     @Test

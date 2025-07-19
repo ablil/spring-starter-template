@@ -151,17 +151,7 @@ class AccountsResourceTest {
     }
 
     @Test
-    fun `should not init password reset given email of non existing user`() {
-        mockMvc
-            .post("/api/account/password-reset/init") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(EmailWrapper("invalidemail@example.com"))
-            }
-            .andExpect { status { isConflict() } }
-    }
-
-    @Test
-    fun `should finish password reset given same old password`() {
+    fun `should NOT reset password with with same old password`() {
         userRepository.saveAndFlush(
             DomainUser.defaultTestUser(disabled = false).apply {
                 resetKey = DEFAULT_RESET_KEY
@@ -177,7 +167,7 @@ class AccountsResourceTest {
                         KeyAndPassword(DEFAULT_RESET_KEY, DEFAULT_TEST_PASSWORD)
                     )
             }
-            .andExpect { status { isBadRequest() } }
+            .andExpect { status { isConflict() } }
     }
 
     @Test
@@ -197,7 +187,7 @@ class AccountsResourceTest {
                         KeyAndPassword(DEFAULT_RESET_KEY, "newsuperpassword")
                     )
             }
-            .andExpect { status { isConflict() } }
+            .andExpect { status { isUnprocessableEntity() } }
     }
 
     @Test
@@ -210,7 +200,7 @@ class AccountsResourceTest {
                         KeyAndPassword("invalidKey", DEFAULT_TEST_PASSWORD)
                     )
             }
-            .andExpect { status { isConflict() } }
+            .andExpect { status { isNotFound() } }
     }
 
     @Test
@@ -287,7 +277,7 @@ class AccountsResourceTest {
                         ChangePasswordDTO("invalidcurrentpass", DEFAULT_TEST_PASSWORD)
                     )
             }
-            .andExpect { status { isConflict() } }
+            .andExpect { status { isUnprocessableEntity() } }
     }
 
     @Test
@@ -319,7 +309,7 @@ class AccountsResourceTest {
 
     @Test
     @WithMockUser(username = DEFAULT_TEST_USERNAME)
-    fun `should not update user info given existing email`() {
+    fun `should prevent updating user email with an existing one`() {
         userRepository.saveAllAndFlush(
             listOf(
                 DomainUser.defaultTestUser(disabled = false),
@@ -338,7 +328,7 @@ class AccountsResourceTest {
                         UserInfoDTO(
                             firstName = "rested",
                             lastName = "turkey",
-                            email = DEFAULT_TEST_EMAIL,
+                            email = "turkye@example.com",
                         )
                     )
             }

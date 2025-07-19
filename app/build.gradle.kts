@@ -51,6 +51,7 @@ dependencies {
     runtimeOnly("com.github.ben-manes.caffeine:caffeine:3.2.+")
     runtimeOnly("org.hibernate.orm:hibernate-micrometer")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:6.0.+")
 }
 
 kotlin {

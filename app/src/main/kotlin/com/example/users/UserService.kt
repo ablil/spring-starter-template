@@ -36,7 +36,7 @@ class UserService(val userRepository: UserRepository) {
 
     fun deleteUser(@NotBlank username: String) {
         val count = userRepository.deleteByUsernameIgnoreCase(username)
-        if (count == 0) error("user not found")
+        if (count == 0) throw UserNotFound()
     }
 
     fun createUser(info: CreateOrUpdateUserDTO): DomainUser {
