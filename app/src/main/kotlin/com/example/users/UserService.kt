@@ -28,7 +28,6 @@ class UserService(val userRepository: UserRepository, val passwordEncoder: Passw
         return userRepository
             .saveAndFlush(
                 user.apply {
-                    this.username = info.username
                     email = info.email
                     firstName = info.firstName
                     lastName = info.lastName
