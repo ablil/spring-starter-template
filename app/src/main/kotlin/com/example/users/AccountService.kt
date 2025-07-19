@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.ResponseStatus
 
-private const val DEFAULT_KEY_LENGTH = 10
+private const val DEFAULT_KEY_LENGTH = 32
 
 private const val USER_NOT_FOUND_ERROR_MSG = "user not found"
 
