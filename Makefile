@@ -17,5 +17,8 @@ oas:
 run:
 	./gradlew :app:bootRun
 
+debug:
+	SPRING_PROFILES_ACTIVE=debug ./gradlew :app:bootRun
+
 psql:
 	docker exec -it spring-database psql -U postgres -d mydb

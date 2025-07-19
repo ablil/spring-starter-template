@@ -29,6 +29,22 @@ your applications, which will be visualized in [Grafana]().
 
 Some metrics are enabled by default (eg, Hibernate, cache), and some Docker images are provided also.
 
+## Debugging & Enhanced Logging
+
+To simplify debugging and provide more detailed logs during development, a new `debug` Spring profile has been introduced.
+
+You can activate this profile using the  `debug` target in the Makefile:
+
+```bash
+make debug
+```
+
+This command runs the application with the `SPRING_PROFILES_ACTIVE=debug` environment variable. When active, the following enhanced logging is enabled:
+
+*   **Full HTTP Request & Response Logging:** Detailed logs including headers, payload, and query parameters for both incoming requests and outgoing responses.
+*   **Spring Framework Debug Logs:** More verbose logging for Spring Web, Spring Security, and Spring Data JPA, providing deeper insights into framework operations.
+*   **Application-Specific Debug Logs:** All logs from the `com.example` package will be shown at `DEBUG` level.
+
 # Tips
 
 Extract all environment variable defined in `application.yaml`
