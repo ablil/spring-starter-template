@@ -120,26 +120,29 @@ class AccountService(
         logger.info("user password updated successfully")
     }
 
+    @Transactional
     fun updateUserInfo(info: UserInfoDTO) {
-        val currentLogin = SecurityUtils.currentUserLogin()
-        val user =
-            userRepository.findByUsernameOrEmailIgnoreCase(currentLogin, currentLogin)
-                ?: logger.error("authenticated user '{}' is not persisted", currentLogin).run {
-                    error(USER_NOT_FOUND_ERROR_MSG)
-                }
+        val user = findByLoging(SecurityUtils.currentUserLogin())
 
-        check(!userRepository.existsByEmailIgnoreCase(info.email)) {
-            "an exiting user with same email already exists"
+        // check if another user with same email already exists
+        if (user.email != info.email && userRepository.existsByEmailIgnoreCase(info.email)) {
+            error("An existing user with same email already exists")
         }
 
-        userRepository.saveAndFlush(
-            user.apply {
-                firstName = info.firstName
-                lastName = info.lastName
-                email = requireNotNull(info.email)
-            }
-        )
-        logger.info("user '{}' info updated successfully", currentLogin)
+        val updatedUser =
+            userRepository.saveAndFlush(
+                user.apply {
+                    firstName = info.firstName
+                    lastName = info.lastName
+                    email = requireNotNull(info.email)
+                }
+            )
+        logger.info("user updated successfully {}", updatedUser)
+    }
+
+    private fun findByLoging(login: String): DomainUser {
+        return userRepository.findByUsernameOrEmailIgnoreCase(login, login)
+            ?: error(USER_NOT_FOUND_ERROR_MSG)
     }
 
     fun getCurrentUser(): DomainUser =
