@@ -44,7 +44,6 @@ class SecurityConfig {
     @Bean fun responseLogger() = CommonResponseLoggingFilter()
 
     @Bean
-    @Order
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http.invoke {
             authorizeHttpRequests {
@@ -72,11 +71,8 @@ class SecurityConfig {
     @Bean fun passwordEncoder() = PasswordEncoderFactories.createDelegatingPasswordEncoder()
 
     @Bean
-    fun jwtDecoder(secretKey: SecretKeySpec): JwtDecoder {
-        val decoder =
-            NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS256).build()
-        return JwtDecoder { token -> decoder.decode(token) }
-    }
+    fun jwtDecoder(secretKey: SecretKeySpec): JwtDecoder =
+        NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS256).build()
 
     @Bean
     fun jwtEncoder(secretKey: SecretKeySpec): JwtEncoder =
