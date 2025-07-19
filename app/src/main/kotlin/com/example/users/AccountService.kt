@@ -73,7 +73,7 @@ class AccountService(
             ?.also { it.initPasswordReset(generateRandomKey()) }
             ?.let { userRepository.saveAndFlush(it) }
             ?.also { mailService?.sendPasswordResetLinkEmail(it) }
-            ?: error("user account for $email NOT found")
+            ?: logger.warn("password reset request for unknown or disabled email {}", email)
     }
 
     fun finishPasswordReset(@NotBlank resetKey: String, @NotBlank newRawPassword: String) {
