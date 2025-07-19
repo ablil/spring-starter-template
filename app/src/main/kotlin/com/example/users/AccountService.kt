@@ -101,7 +101,7 @@ class AccountService(
     }
 
     fun changePassword(@NotBlank currentPassword: String, @NotBlank newPassword: String) {
-        val user = getCurrentUser()
+        val user = getAuthenticatedUser()
 
         if (!passwordEncoder.matches(currentPassword, user.password)) {
             throw InvalidCurrentPassword()
@@ -119,7 +119,9 @@ class AccountService(
 
     @Transactional
     fun updateUserInfo(info: UserInfoDTO) {
-        val user = findByLoging(SecurityUtils.currentUserLogin())
+        val login = SecurityUtils.currentUserLogin()
+        val user =
+            userRepository.findByUsernameOrEmailIgnoreCase(login, login) ?: throw UserNotFound()
 
         if (user.email != info.email && userRepository.existsByEmailIgnoreCase(info.email)) {
             logger.warn("user attempted to update email to an already existing one")
@@ -137,11 +139,7 @@ class AccountService(
         logger.info("user updated successfully {}", updatedUser)
     }
 
-    private fun findByLoging(login: String): DomainUser {
-        return userRepository.findByUsernameOrEmailIgnoreCase(login, login) ?: throw UserNotFound()
-    }
-
-    fun getCurrentUser(): DomainUser {
+    fun getAuthenticatedUser(): DomainUser {
         val login = SecurityUtils.currentUserLogin()
         return userRepository.findByUsernameOrEmailIgnoreCase(login, login)
             ?: throw IllegalStateException(
