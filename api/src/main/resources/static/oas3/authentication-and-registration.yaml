@@ -28,8 +28,10 @@ paths:
                 login:
                   type: string
                   description: username or email
+                  minLength: 1
                 password:
                   type: string
+                  minLength: 6
               required: [login, password]
       responses:
         200:
