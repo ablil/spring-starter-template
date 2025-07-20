@@ -1,0 +1,25 @@
+# Lines starting with a hash are comments and will be ignored.
+
+# --- Equivalent Synonyms ---
+# When a query contains one of these words, it will match documents containing ANY of the others.
+# For example, a search for "cheap" will also find "affordable", "inexpensive", etc.
+affordable, cheap, inexpensive, low-cost
+woman, female, ladies
+man, male, gentlemen
+book, novel, literature
+gadget, device, tool
+appliance, machine
+auto, car, vehicle
+clothes, apparel, attire, wear
+shoe, boot, sandal
+
+# --- Explicit Mappings ---
+# The term on the left is expanded to include the terms on the right.
+# A search for "discount" will become a search for "(discount OR promo OR offer OR sale)".
+# Note: A search for "promo" will NOT be expanded to include "discount".
+discount => promo, offer, sale
+
+# --- Multi-word synonyms ---
+# The synonymgraph filter handles these correctly.
+usa, united states => united states of america
+
