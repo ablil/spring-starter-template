@@ -113,7 +113,8 @@ class UserControllerTest {
     @Test
     @WithMockAdmin
     fun `should update user info given valid request body`() {
-        val userId = userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false)).id
+        val testUser = userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
+        val userId = testUser.id
 
         mockMvc.put("/api/users/$DEFAULT_TEST_USERNAME") {
             contentType = MediaType.APPLICATION_JSON
@@ -133,7 +134,7 @@ class UserControllerTest {
         assertThat(user.firstName).isEqualTo("robert")
         assertThat(user.lastName).isEqualTo("morgan")
         assertThat(user.email).isEqualTo("robert-morgan@example.com")
-        assertThat(user.username).isEqualTo("robert_morgan")
+        assertThat(user.username).isEqualTo(testUser.username)
         assertThat(user.roles).isEmpty()
     }
 
@@ -148,7 +149,7 @@ class UserControllerTest {
     @Test
     @WithMockAdmin
     fun `given non existing username when deleting a user then return return 409`() {
-        mockMvc.delete("/api/users/$DEFAULT_TEST_USERNAME").andExpect { status { isConflict() } }
+        mockMvc.delete("/api/users/$DEFAULT_TEST_USERNAME").andExpect { status { isNotFound() } }
     }
 
     @Test

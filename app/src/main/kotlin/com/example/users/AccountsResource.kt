@@ -27,8 +27,8 @@ class AccountsResource(val accountService: AccountService) : AccountApi {
     override fun requestResetPassword(
         requestResetPasswordRequest: RequestResetPasswordRequest
     ): ResponseEntity<Unit> =
-        accountService.requestPasswordReset(requestResetPasswordRequest.email).let {
-            ResponseEntity.noContent().build()
+        ResponseEntity.noContent().build<Unit?>().also {
+            accountService.requestPasswordReset(requestResetPasswordRequest.email)
         }
 
     override fun finishPasswordReset(
@@ -52,7 +52,7 @@ class AccountsResource(val accountService: AccountService) : AccountApi {
             .let { ResponseEntity.noContent().build() }
 
     override fun getCurrentUser(): ResponseEntity<UserInfo> =
-        ResponseEntity.ok(accountService.getCurrentUser().toUserInfo())
+        ResponseEntity.ok(accountService.getAuthenticatedUser().toUserInfo())
 
     override fun updateUserInformation(
         updateUserInformationRequest: UpdateUserInformationRequest

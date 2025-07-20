@@ -2,14 +2,18 @@ package com.example.users
 
 import jakarta.validation.constraints.NotBlank
 import java.time.Instant
+import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+
+private const val DEFAULT_PASSWORD_LENGTH = 32
 
 @Service
 @AdminOnly
-class UserService(val userRepository: UserRepository) {
+class UserService(val userRepository: UserRepository, val passwordEncoder: PasswordEncoder) {
 
     val logger = getLogger()
 
@@ -24,7 +28,6 @@ class UserService(val userRepository: UserRepository) {
         return userRepository
             .saveAndFlush(
                 user.apply {
-                    this.username = info.username
                     email = info.email
                     firstName = info.firstName
                     lastName = info.lastName
@@ -36,16 +39,26 @@ class UserService(val userRepository: UserRepository) {
 
     fun deleteUser(@NotBlank username: String) {
         val count = userRepository.deleteByUsernameIgnoreCase(username)
-        if (count == 0) error("user not found")
+        if (count == 0) throw UserNotFound()
     }
 
     fun createUser(info: CreateOrUpdateUserDTO): DomainUser {
+        if (userRepository.existsByEmailIgnoreCase(info.email)) {
+            throw EmailAlreadyUsed()
+        }
+        if (userRepository.existsByUsernameIgnoreCase(info.username)) {
+            throw UsernameAlreadyUsed()
+        }
+
         return userRepository
             .saveAndFlush(
                 DomainUser(
                     username = info.username,
                     email = info.email,
-                    password = "{noop}temporarypassword",
+                    password =
+                        passwordEncoder.encode(
+                            RandomStringUtils.secure().nextAlphanumeric(DEFAULT_PASSWORD_LENGTH)
+                        ),
                     disabled = true,
                     roles = info.roles ?: emptySet(),
                     firstName = info.firstName,

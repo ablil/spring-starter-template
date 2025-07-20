@@ -1,5 +1,6 @@
 package com.example.users
 
+import com.example.common.ApplicationException
 import com.example.common.MailService
 import com.example.common.SecurityUtils
 import jakarta.validation.constraints.Email
@@ -17,9 +18,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.ResponseStatus
 
-private const val DEFAULT_KEY_LENGTH = 10
-
-private const val USER_NOT_FOUND_ERROR_MSG = "user not found"
+private const val DEFAULT_KEY_LENGTH = 32
 
 @Service
 class AccountService(
@@ -37,9 +36,7 @@ class AccountService(
     fun registerUser(dto: RegistrationDTO) {
         val existingUser = userRepository.findByUsernameOrEmailIgnoreCase(dto.username, dto.email)
         if (existingUser != null) {
-            check(existingUser.disabled) { "user already exists" }
-            userRepository.delete(existingUser)
-            userRepository.flush()
+            throw EmailAlreadyUsed()
         }
 
         userRepository
@@ -55,14 +52,19 @@ class AccountService(
         logger.info("created new user successfully")
     }
 
+    @Transactional
     fun activateAccount(@NotBlank key: String) {
-        userRepository
-            .findOneByActivationKey(key)
-            ?.also { it.activate() }
-            ?.let { userRepository.saveAndFlush(it) }
-            ?.also { logger.info("user account {} activated", it.email) }
-            ?.also { mailService?.sendAccountActivationEmail(it) }
-            ?: error("no user account associated with activation key")
+        val user = userRepository.findOneByActivationKey(key)
+
+        if (user == null) {
+            logger.warn("account activation attempt with invalid key")
+            throw InvalidKey()
+        }
+
+        userRepository.save(user.apply { this.activate() }).also {
+            mailService?.sendAccountActivationEmail(it)
+        }
+        logger.info("user account activated successfully {}", user.email)
     }
 
     fun requestPasswordReset(@Email email: String) {
@@ -72,23 +74,22 @@ class AccountService(
             ?.also { it.initPasswordReset(generateRandomKey()) }
             ?.let { userRepository.saveAndFlush(it) }
             ?.also { mailService?.sendPasswordResetLinkEmail(it) }
-            ?: error("user account for $email NOT found")
+            ?: logger.warn("password reset request for unknown or disabled email {}", email)
     }
 
     fun finishPasswordReset(@NotBlank resetKey: String, @NotBlank newRawPassword: String) {
         val user =
             userRepository.findOneByResetKey(resetKey)?.takeUnless { it.disabled }
-                ?: error("no account with reset key found")
-        checkOrThrow(!passwordEncoder.matches(newRawPassword, user.password)) {
-            AccountResourceException("should NOT use old password")
+                ?: throw InvalidKey()
+        if (passwordEncoder.matches(newRawPassword, user.password)) {
+            throw UsingOldPassword()
         }
 
-        check(
-            user.resetDate
-                ?.plus(Duration.ofSeconds(resetKeyValidity.toLong()))
-                ?.isAfter(Instant.now()) == true
+        if (
+            requireNotNull(user.resetDate?.plus(Duration.ofSeconds(resetKeyValidity.toLong())))
+                .isBefore(Instant.now())
         ) {
-            "reset key expired"
+            throw KeyExpired()
         }
 
         userRepository
@@ -96,21 +97,18 @@ class AccountService(
                 user.also { it.finishResetPassword(passwordEncoder.encode(newRawPassword)) }
             )
             .also { mailService?.sendPasswordChangedEmail(it) }
-        logger.info("password reset completed for user {}", user.username)
+        logger.info("password reset for user {} completed", user.username)
     }
 
     fun changePassword(@NotBlank currentPassword: String, @NotBlank newPassword: String) {
-        val user =
-            userRepository.findByUsernameOrEmailIgnoreCase(
-                SecurityUtils.currentUserLogin(),
-                SecurityUtils.currentUserLogin(),
-            ) ?: error(USER_NOT_FOUND_ERROR_MSG)
+        val user = getAuthenticatedUser()
 
-        check(passwordEncoder.matches(currentPassword, user.password)) {
-            "current password is invalid"
+        if (!passwordEncoder.matches(currentPassword, user.password)) {
+            throw InvalidCurrentPassword()
         }
-        check(!StringUtils.equals(currentPassword, newPassword)) {
-            "new password should be different from old one"
+
+        if (StringUtils.equals(currentPassword, newPassword)) {
+            throw InvalidPassword("can NOT reuse the same password")
         }
 
         userRepository
@@ -119,47 +117,65 @@ class AccountService(
         logger.info("user password updated successfully")
     }
 
+    @Transactional
     fun updateUserInfo(info: UserInfoDTO) {
-        val currentLogin = SecurityUtils.currentUserLogin()
+        val login = SecurityUtils.currentUserLogin()
         val user =
-            userRepository.findByUsernameOrEmailIgnoreCase(currentLogin, currentLogin)
-                ?: logger.error("authenticated user '{}' is not persisted", currentLogin).run {
-                    error(USER_NOT_FOUND_ERROR_MSG)
-                }
+            userRepository.findByUsernameOrEmailIgnoreCase(login, login) ?: throw UserNotFound()
 
-        check(!userRepository.existsByEmailIgnoreCase(info.email)) {
-            "an exiting user with same email already exists"
+        if (user.email != info.email && userRepository.existsByEmailIgnoreCase(info.email)) {
+            logger.warn("user attempted to update email to an already existing one")
+            throw EmailAlreadyUsed()
         }
 
-        userRepository.saveAndFlush(
-            user.apply {
-                firstName = info.firstName
-                lastName = info.lastName
-                email = requireNotNull(info.email)
-            }
-        )
-        logger.info("user '{}' info updated successfully", currentLogin)
+        val updatedUser =
+            userRepository.saveAndFlush(
+                user.apply {
+                    firstName = info.firstName
+                    lastName = info.lastName
+                    email = requireNotNull(info.email)
+                }
+            )
+        logger.info("user updated successfully {}", updatedUser)
     }
 
-    fun getCurrentUser(): DomainUser =
-        userRepository.findByUsernameOrEmailIgnoreCase(
-            SecurityUtils.currentUserLogin(),
-            SecurityUtils.currentUserLogin(),
-        )
-            ?: logger.error("user is authenticated, but NO entity is found").run {
-                error(USER_NOT_FOUND_ERROR_MSG)
-            }
+    fun getAuthenticatedUser(): DomainUser {
+        val login = SecurityUtils.currentUserLogin()
+        return userRepository.findByUsernameOrEmailIgnoreCase(login, login)
+            ?: error("current user not found in the database, even though he is authenticated")
+    }
 }
 
 fun Any.getLogger(): Logger = LoggerFactory.getLogger(this::class.java)
 
-fun checkOrThrow(condition: Boolean, lazyException: () -> RuntimeException) {
-    if (!condition) {
-        throw lazyException.invoke()
-    }
-}
-
-@ResponseStatus(HttpStatus.BAD_REQUEST)
-class AccountResourceException(override val message: String) : RuntimeException(message)
+@ResponseStatus(HttpStatus.NOT_FOUND) class UserNotFound : ApplicationException("User not found")
 
 fun generateRandomKey(): String = RandomStringUtils.secure().nextAlphanumeric(DEFAULT_KEY_LENGTH)
+
+@ResponseStatus(HttpStatus.CONFLICT)
+class EmailAlreadyUsed : ApplicationException("Email not allowed")
+
+@ResponseStatus(HttpStatus.CONFLICT)
+class UsernameAlreadyUsed : ApplicationException("Username not allowed")
+
+@ResponseStatus(HttpStatus.NOT_FOUND)
+class InvalidKey : ApplicationException("Invalid key, no account account associated with it")
+
+@ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+class KeyExpired : ApplicationException("Invalid key, expired")
+
+@ResponseStatus(HttpStatus.CONFLICT)
+class UsingOldPassword : ApplicationException("can NOT use old password")
+
+@ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+class InvalidCurrentPassword : ApplicationException("current password is invalid")
+
+@ResponseStatus(HttpStatus.CONFLICT)
+class InvalidPassword(msg: String? = null) :
+    ApplicationException(
+        if (StringUtils.isNotBlank(msg)) {
+            "Invalid password, $msg"
+        } else {
+            "Invalid password"
+        }
+    )

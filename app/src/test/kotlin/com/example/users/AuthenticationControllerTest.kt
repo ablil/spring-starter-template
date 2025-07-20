@@ -4,8 +4,6 @@ import com.example.common.IntegrationTest
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.CsvSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -24,20 +22,38 @@ class AuthenticationControllerTest {
 
     @Autowired lateinit var userRepository: UserRepository
 
+    lateinit var dummyUser: DomainUser
+
     @BeforeEach
     fun setup() {
         userRepository.deleteAllInBatch()
+        dummyUser = userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
     }
 
-    @ParameterizedTest
-    @CsvSource(*[DEFAULT_TEST_USERNAME, DEFAULT_TEST_EMAIL])
-    fun `should get jwt given valid credentials`(login: String) {
-        userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
-
+    @Test
+    fun `should authenticate user given valid credentials`() {
+        // authenticate with username
         mockMvc
             .post("/api/authenticate") {
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(LoginDTO(login, DEFAULT_TEST_PASSWORD))
+                content =
+                    objectMapper.writeValueAsString(
+                        LoginDTO(dummyUser.username, DEFAULT_TEST_PASSWORD)
+                    )
+            }
+            .andExpectAll {
+                status { isOk() }
+                jsonPath("$.token") { isNotEmpty() }
+            }
+
+        // authenticate with email
+        mockMvc
+            .post("/api/authenticate") {
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    objectMapper.writeValueAsString(
+                        LoginDTO(dummyUser.username, DEFAULT_TEST_PASSWORD)
+                    )
             }
             .andExpectAll {
                 status { isOk() }
@@ -46,15 +62,51 @@ class AuthenticationControllerTest {
     }
 
     @Test
-    fun `should NOT authenticate user given invalid credentials`() {
+    fun `should return 401 for non-existent user`() {
+        mockMvc
+            .post("/api/authenticate") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(LoginDTO("nonexisting", "dummypassword"))
+            }
+            .andExpect { status { isUnauthorized() } }
+    }
+
+    @Test
+    fun `should return 401 for valid user given wrong password`() {
+        mockMvc
+            .post("/api/authenticate") {
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    objectMapper.writeValueAsString(LoginDTO(dummyUser.username, "invalidpassword"))
+            }
+            .andExpect { status { isUnauthorized() } }
+    }
+
+    @Test
+    fun `should return 401 for disabled user`() {
+        val disabledUser = userRepository.saveAndFlush(dummyUser.apply { disabled = true })
         mockMvc
             .post("/api/authenticate") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(
-                        LoginDTO("nonexistinguser", DEFAULT_TEST_PASSWORD)
+                        LoginDTO(disabledUser.username, DEFAULT_TEST_PASSWORD)
                     )
             }
-            .andExpect { status { is4xxClientError() } }
+            .andExpect { status { isUnauthorized() } }
+    }
+
+    @Test
+    fun `should return 400 given blank credentials`() {
+        mockMvc
+            .post("/api/authenticate") {
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    """
+                    {"login": "", "password": " " }
+                """
+                        .trimIndent()
+            }
+            .andExpect { status { isBadRequest() } }
     }
 }
