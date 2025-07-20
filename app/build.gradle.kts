@@ -52,7 +52,14 @@ dependencies {
     runtimeOnly("org.hibernate.orm:hibernate-micrometer")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     testImplementation("org.mockito.kotlin:mockito-kotlin:6.0.+")
-}
+
+    implementation("org.apache.lucene:lucene-core:10.2.2")
+    // https://mvnrepository.com/artifact/org.apache.lucene/lucene-analysis-common
+    implementation("org.apache.lucene:lucene-analysis-common:10.2.2")
+// https://mvnrepository.com/artifact/org.apache.lucene/lucene-queryparser
+    implementation("org.apache.lucene:lucene-queryparser:10.2.2")
+    // https://mvnrepository.com/artifact/org.apache.lucene/lucene-suggest
+    implementation("org.apache.lucene:lucene-suggest:10.2.2")}
 
 kotlin {
     compilerOptions {
