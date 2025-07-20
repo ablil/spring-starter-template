@@ -19,6 +19,8 @@ interface UserRepository :
 
     fun existsByEmailIgnoreCase(email: String): Boolean
 
+    fun existsByUsernameIgnoreCase(email: String): Boolean
+
     fun findOneByActivationKey(key: String): DomainUser?
 
     fun findOneByResetKey(key: String): DomainUser?

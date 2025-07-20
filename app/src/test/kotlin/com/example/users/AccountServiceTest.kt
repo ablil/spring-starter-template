@@ -44,7 +44,7 @@ class AccountServiceTest {
             )
         whenever(repository.existsByEmailIgnoreCase("second@example.com")).thenReturn(true)
 
-        org.junit.jupiter.api.assertThrows<EmailNotAllowed> {
+        org.junit.jupiter.api.assertThrows<EmailAlreadyUsed> {
             service.updateUserInfo(
                 UserInfoDTO(firstName = "john", lastName = "doe", email = "second@example.com")
             )

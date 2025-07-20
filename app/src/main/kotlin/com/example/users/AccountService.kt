@@ -36,7 +36,7 @@ class AccountService(
     fun registerUser(dto: RegistrationDTO) {
         val existingUser = userRepository.findByUsernameOrEmailIgnoreCase(dto.username, dto.email)
         if (existingUser != null) {
-            throw EmailNotAllowed()
+            throw EmailAlreadyUsed()
         }
 
         userRepository
@@ -125,7 +125,7 @@ class AccountService(
 
         if (user.email != info.email && userRepository.existsByEmailIgnoreCase(info.email)) {
             logger.warn("user attempted to update email to an already existing one")
-            throw EmailNotAllowed()
+            throw EmailAlreadyUsed()
         }
 
         val updatedUser =
@@ -142,9 +142,7 @@ class AccountService(
     fun getAuthenticatedUser(): DomainUser {
         val login = SecurityUtils.currentUserLogin()
         return userRepository.findByUsernameOrEmailIgnoreCase(login, login)
-            ?: throw IllegalStateException(
-                "current user not found in the database, even though he is authenticated"
-            )
+            ?: error("current user not found in the database, even though he is authenticated")
     }
 }
 
@@ -155,7 +153,10 @@ fun Any.getLogger(): Logger = LoggerFactory.getLogger(this::class.java)
 fun generateRandomKey(): String = RandomStringUtils.secure().nextAlphanumeric(DEFAULT_KEY_LENGTH)
 
 @ResponseStatus(HttpStatus.CONFLICT)
-class EmailNotAllowed : ApplicationException("Email not allowed")
+class EmailAlreadyUsed : ApplicationException("Email not allowed")
+
+@ResponseStatus(HttpStatus.CONFLICT)
+class UsernameAlreadyUsed : ApplicationException("Username not allowed")
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
 class InvalidKey : ApplicationException("Invalid key, no account account associated with it")

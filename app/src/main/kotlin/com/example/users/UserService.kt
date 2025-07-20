@@ -43,6 +43,13 @@ class UserService(val userRepository: UserRepository, val passwordEncoder: Passw
     }
 
     fun createUser(info: CreateOrUpdateUserDTO): DomainUser {
+        if (userRepository.existsByEmailIgnoreCase(info.email)) {
+            throw EmailAlreadyUsed()
+        }
+        if (userRepository.existsByUsernameIgnoreCase(info.username)) {
+            throw UsernameAlreadyUsed()
+        }
+
         return userRepository
             .saveAndFlush(
                 DomainUser(

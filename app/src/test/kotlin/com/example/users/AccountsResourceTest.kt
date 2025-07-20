@@ -93,6 +93,25 @@ class AccountsResourceTest {
     }
 
     @Test
+    fun `should preventing creating a user with existing email or username`() {
+        val dummyUser = userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
+
+        mockMvc
+            .post("/api/account/register") {
+                contentType = MediaType.APPLICATION_JSON
+                content =
+                    objectMapper.writeValueAsString(
+                        RegistrationDTO(
+                            username = dummyUser.username,
+                            email = dummyUser.email,
+                            password = "supersecurepassword",
+                        )
+                    )
+            }
+            .andExpect { status { isConflict() } }
+    }
+
+    @Test
     fun `should register user given an existing account with same email or username`() {
         userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
