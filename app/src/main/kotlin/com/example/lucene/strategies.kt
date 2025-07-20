@@ -16,13 +16,6 @@ import org.apache.lucene.search.PrefixQuery
 import org.apache.lucene.search.Query
 import org.apache.lucene.util.ClasspathResourceLoader
 
-interface SearchStrategy {
-    fun createAnalyzer(): Analyzer
-
-    fun createQuery(field: String, q: String): Query
-
-    fun createField(field: String, value: String): Field
-}
 
 class FuzzySearchStrategy(val maxEdit: Int = FuzzyQuery.defaultMaxEdits) : SearchStrategy {
     override fun createAnalyzer(): Analyzer = StandardAnalyzer()
