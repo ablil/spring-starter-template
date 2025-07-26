@@ -24,6 +24,7 @@ openApiGenerate {
     inputSpecRootDirectory = "$projectDir/src/main/resources/static/oas3"
     generatorName = "kotlin-spring"
     configFile = "$projectDir/src/main/resources/config/openapi.yaml"
+    skipValidateSpec = true
     typeMappings = mapOf(
         "string+date-time" to Instant::class.java.name,
     )

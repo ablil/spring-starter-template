@@ -1,8 +1,8 @@
 openapi: 3.0.4
 
 info:
-  title: account
-  description: manage authenticated user account
+  title: Accounts API
+  description: API to manage user accounts and profiles
   version: 0.0.1
 
 servers:
@@ -80,4 +80,4 @@ components:
       content:
         application/json:
           schema:
-            $ref: './users.yaml#/components/schemas/UserInfo'
+            $ref: './admin.yaml#/components/schemas/UserInfo'

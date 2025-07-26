@@ -85,9 +85,9 @@ springdoc:
     showCommonExtensions: true
     filter: true
     urls:
-      - url: oas3/users.yaml
-        name: users management (admin)
-      - url: oas3/account.yaml
-        name: user account
-      - url: oas3/authentication-and-registration.yaml
-        name: authentication and registration
+      - url: oas3/admin.yaml
+        name: admin
+      - url: oas3/accounts.yaml
+        name: accounts
+      - url: oas3/authentication.yaml
+        name: authentication

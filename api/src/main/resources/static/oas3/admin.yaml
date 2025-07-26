@@ -1,7 +1,7 @@
 openapi: 3.0.4
 info:
-  title: users management
-  description: collection of APIs intended for managing resources by admins
+  title: Admin API
+  description: collection of APIs intended for managing resources by admins only
   version: 0.0.1
 
 servers:
