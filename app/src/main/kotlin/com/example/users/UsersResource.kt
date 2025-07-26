@@ -5,9 +5,9 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Size
 import java.net.URI
 import org.openapitools.api.UsersApi
+import org.openapitools.model.CreateUserRequest
 import org.openapitools.model.GetAllUsers200Response
 import org.openapitools.model.GetAllUsers200ResponseContentInner
-import org.openapitools.model.UpdateUserRequest
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity
@@ -19,7 +19,7 @@ const val DEFAULT_SORT_FIELD = "id"
 
 @RestController
 @AdminOnly
-class UserController(val userService: UserService) : UsersApi {
+class UsersResource(val userService: UserService) : UsersApi {
 
     override fun getAllUsers(
         page: Int?,
@@ -51,19 +51,19 @@ class UserController(val userService: UserService) : UsersApi {
         ResponseEntity.ofNullable(userService.getUser(username)?.toResponse())
 
     override fun createUser(
-        updateUserRequest: UpdateUserRequest
+        createUserRequest: CreateUserRequest
     ): ResponseEntity<GetAllUsers200ResponseContentInner> =
-        userService.createUser(CreateOrUpdateUserDTO.from(updateUserRequest)).let {
-            ResponseEntity.created(URI("/api/users/${it.username}")).body(it.toResponse())
+        userService.createUser(CreateOrUpdateUserDTO.from(createUserRequest)).let {
+            ResponseEntity.created(URI("/api/v1/users/${it.username}")).body(it.toResponse())
         }
 
     override fun updateUser(
         username: String,
-        updateUserRequest: UpdateUserRequest,
+        createUserRequest: CreateUserRequest,
     ): ResponseEntity<GetAllUsers200ResponseContentInner> =
         ResponseEntity.ofNullable(
             userService
-                .updateUserInfo(username, CreateOrUpdateUserDTO.from(updateUserRequest))
+                .updateUserInfo(username, CreateOrUpdateUserDTO.from(createUserRequest))
                 ?.toResponse()
         )
 
@@ -96,7 +96,7 @@ data class CreateOrUpdateUserDTO(
     @field:Size(min = 6) val username: String,
 ) {
     companion object {
-        fun from(request: UpdateUserRequest): CreateOrUpdateUserDTO =
+        fun from(request: CreateUserRequest): CreateOrUpdateUserDTO =
             CreateOrUpdateUserDTO(
                 firstName = request.firstName,
                 lastName = request.lastName,
