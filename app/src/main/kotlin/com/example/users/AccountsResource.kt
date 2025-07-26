@@ -5,9 +5,7 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.openapitools.api.AccountApi
 import org.openapitools.model.ChangePasswordRequest
-import org.openapitools.model.FinishPasswordResetRequest
-import org.openapitools.model.RegisterUserRequest
-import org.openapitools.model.RequestResetPasswordRequest
+import org.openapitools.model.SignUpRequest
 import org.openapitools.model.UpdateUserInformationRequest
 import org.openapitools.model.UserInfo
 import org.springframework.http.ResponseEntity
@@ -16,30 +14,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class AccountsResource(val accountService: AccountService) : AccountApi {
 
-    override fun registerUser(registerUserRequest: RegisterUserRequest): ResponseEntity<Unit> =
-        accountService.registerUser(RegistrationDTO.from(registerUserRequest)).let {
-            ResponseEntity.noContent().build()
-        }
-
     override fun activateAccount(key: String): ResponseEntity<Unit> =
         accountService.activateAccount(key).let { ResponseEntity.noContent().build() }
-
-    override fun requestResetPassword(
-        requestResetPasswordRequest: RequestResetPasswordRequest
-    ): ResponseEntity<Unit> =
-        ResponseEntity.noContent().build<Unit?>().also {
-            accountService.requestPasswordReset(requestResetPasswordRequest.email)
-        }
-
-    override fun finishPasswordReset(
-        finishPasswordResetRequest: FinishPasswordResetRequest
-    ): ResponseEntity<Unit> =
-        accountService
-            .finishPasswordReset(
-                finishPasswordResetRequest.resetKey,
-                finishPasswordResetRequest.password,
-            )
-            .let { ResponseEntity.noContent().build() }
 
     override fun changePassword(
         changePasswordRequest: ChangePasswordRequest
@@ -68,7 +44,7 @@ data class RegistrationDTO(
     @field:Size(min = 10) val password: String,
 ) {
     companion object {
-        fun from(request: RegisterUserRequest): RegistrationDTO =
+        fun from(request: SignUpRequest): RegistrationDTO =
             RegistrationDTO(
                 username = request.username,
                 email = request.email,

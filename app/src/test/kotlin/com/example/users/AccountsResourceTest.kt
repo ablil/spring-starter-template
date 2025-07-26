@@ -50,7 +50,7 @@ class AccountsResourceTest {
     @Test
     fun `should create user given valid registration request`() {
         mockMvc
-            .post("/api/account/register") {
+            .post("/api/v1/signup") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(
@@ -79,7 +79,7 @@ class AccountsResourceTest {
     @Test
     fun `should NOT create user given short password or blank username`() {
         mockMvc
-            .post("/api/account/register") {
+            .post("/api/v1/signup") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(
@@ -98,7 +98,7 @@ class AccountsResourceTest {
         val dummyUser = userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
-            .post("/api/account/register") {
+            .post("/api/v1/signup") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(
@@ -117,7 +117,7 @@ class AccountsResourceTest {
         userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
-            .post("/api/account/register") {
+            .post("/api/v1/signup") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(
@@ -158,7 +158,7 @@ class AccountsResourceTest {
         userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
-            .post("/api/account/password-reset/init") {
+            .post("/api/v1/resetpassword/init") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(EmailWrapper(DEFAULT_TEST_EMAIL))
             }
@@ -180,7 +180,7 @@ class AccountsResourceTest {
         )
 
         mockMvc
-            .post("/api/account/password-reset/finish") {
+            .post("/api/v1/resetpassword") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(
@@ -200,7 +200,7 @@ class AccountsResourceTest {
         )
 
         mockMvc
-            .post("/api/account/password-reset/finish") {
+            .post("/api/v1/resetpassword") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(
@@ -213,7 +213,7 @@ class AccountsResourceTest {
     @Test
     fun `should finish password reset given invalid reset key`() {
         mockMvc
-            .post("/api/account/password-reset/finish") {
+            .post("/api/v1/resetpassword") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(
@@ -233,7 +233,7 @@ class AccountsResourceTest {
         )
 
         mockMvc
-            .post("/api/account/password-reset/finish") {
+            .post("/api/v1/resetpassword") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(

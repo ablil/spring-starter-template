@@ -36,7 +36,7 @@ class AuthenticationControllerTest {
     fun `should authenticate user given valid credentials`() {
         // authenticate with username
         mockMvc
-            .post("/api/authenticate") {
+            .post("/api/v1/signin") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(
@@ -50,7 +50,7 @@ class AuthenticationControllerTest {
 
         // authenticate with email
         mockMvc
-            .post("/api/authenticate") {
+            .post("/api/v1/signin") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(
@@ -66,7 +66,7 @@ class AuthenticationControllerTest {
     @Test
     fun `should return 401 for non-existent user`() {
         mockMvc
-            .post("/api/authenticate") {
+            .post("/api/v1/signin") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(LoginDTO("nonexisting", "dummypassword"))
             }
@@ -76,7 +76,7 @@ class AuthenticationControllerTest {
     @Test
     fun `should return 401 for valid user given wrong password`() {
         mockMvc
-            .post("/api/authenticate") {
+            .post("/api/v1/signin") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(LoginDTO(dummyUser.username, "invalidpassword"))
@@ -88,7 +88,7 @@ class AuthenticationControllerTest {
     fun `should return 401 for disabled user`() {
         val disabledUser = userRepository.saveAndFlush(dummyUser.apply { disabled = true })
         mockMvc
-            .post("/api/authenticate") {
+            .post("/api/v1/signin") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(
@@ -101,7 +101,7 @@ class AuthenticationControllerTest {
     @Test
     fun `should return 400 given blank credentials`() {
         mockMvc
-            .post("/api/authenticate") {
+            .post("/api/v1/signin") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     """
