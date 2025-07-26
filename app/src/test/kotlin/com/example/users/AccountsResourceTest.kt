@@ -61,7 +61,7 @@ class AccountsResourceTest {
                         )
                     )
             }
-            .andExpect { status { isNoContent() } }
+            .andExpect { status { isCreated() } }
 
         val user =
             userRepository.findByUsernameIgnoreCase(DEFAULT_TEST_USERNAME)

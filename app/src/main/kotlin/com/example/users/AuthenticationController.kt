@@ -1,6 +1,7 @@
 package com.example.users
 
 import jakarta.validation.constraints.NotBlank
+import java.net.URI
 import java.time.Instant
 import org.openapitools.api.AuthenticationApi
 import org.openapitools.api.PasswordApi
@@ -54,7 +55,8 @@ class AuthenticationController(
 
     override fun signUp(signUpRequest: SignUpRequest): ResponseEntity<Unit> {
         accountService.registerUser(RegistrationDTO.from(signUpRequest))
-        return ResponseEntity.noContent().build()
+        return ResponseEntity.created(URI("/api/v1/users/%s".format(signUpRequest.username)))
+            .build()
     }
 
     override fun requestPasswordReset(

@@ -79,7 +79,7 @@ paths:
                   example: supersecurepassword
               required: [username, email, password]
       responses:
-        204:
+        201:
           description: account created successfully
   /api/v1/accounts/activate:
     get:
