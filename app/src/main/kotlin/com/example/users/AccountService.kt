@@ -1,8 +1,8 @@
 package com.example.users
 
-import com.example.common.web.ApplicationException
 import com.example.common.MailService
 import com.example.common.security.SecurityUtils
+import com.example.common.web.ApplicationException
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import java.time.Duration

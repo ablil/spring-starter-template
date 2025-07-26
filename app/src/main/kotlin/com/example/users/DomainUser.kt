@@ -1,7 +1,6 @@
 package com.example.users
 
-import com.example.common.persistence.Auditable
-import com.example.common.persistence.Identifiable
+import com.example.common.persistence.BaseEntity
 import com.example.common.security.AuthorityConstants
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.CollectionTable
@@ -16,14 +15,11 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import java.time.Instant
-import org.springframework.data.annotation.PersistenceCreator
 
 @Entity
 @Table(name = "domain_users")
 @Suppress("LongParameterList")
-class DomainUser
-@PersistenceCreator
-constructor(
+class DomainUser(
     @Column(unique = true) var username: String,
     @Column(unique = true) var email: String,
     @JsonIgnore var password: String,
@@ -38,7 +34,7 @@ constructor(
     @JsonIgnore var resetKey: String? = null,
     @JsonIgnore var resetDate: Instant? = null,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) override var id: Long = 0,
-) : Auditable(), Identifiable<Long> {
+) : BaseEntity<Long>() {
 
     fun activate() {
         disabled = false

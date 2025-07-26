@@ -1,17 +1,17 @@
 package com.example.users
 
+import com.example.common.DEFAULT_TEST_AUDITOR
+import com.example.common.JPATestConfiguration
 import com.example.common.security.AuthorityConstants
-import com.example.common.persistence.JpaConfiguration
-import com.example.common.persistence.UNKNOWN_AUDITOR
 import java.time.Instant
 import org.assertj.core.api.Java6Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig
 
-@ImportAutoConfiguration(JpaConfiguration::class)
+@SpringJUnitConfig(JPATestConfiguration::class)
 @DataJpaTest
 class UsersRepositoryTest {
 
@@ -39,7 +39,10 @@ class UsersRepositoryTest {
                     resetDate = Instant.now(),
                 )
             )
-        assertThat(domainUser).extracting("createdBy", "updatedAt").doesNotContain(UNKNOWN_AUDITOR)
         assertThat(domainUser.id).isNotEqualTo(0)
+        assertThat(domainUser.updatedBy).isEqualTo(DEFAULT_TEST_AUDITOR)
+        assertThat(domainUser.updatedAt).isNotEqualTo(Instant.EPOCH)
+        assertThat(domainUser.createdBy).isEqualTo(DEFAULT_TEST_AUDITOR)
+        assertThat(domainUser.createdAt).isNotEqualTo(Instant.EPOCH)
     }
 }

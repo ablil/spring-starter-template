@@ -31,6 +31,7 @@ private const val DEFAULT_RESET_KEY = "resetKey"
 @SpringBootTest
 @AutoConfigureMockMvc
 @IntegrationTest
+@WithMockUser
 class AccountsResourceTest {
 
     @Autowired lateinit var mockMvc: MockMvc
