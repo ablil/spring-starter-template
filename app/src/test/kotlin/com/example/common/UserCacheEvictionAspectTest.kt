@@ -10,10 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cache.CacheManager
 import org.springframework.cache.set
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.TestPropertySource
 
 @SpringBootTest
 @TestPropertySource(properties = ["spring.cache.type=simple"])
+@WithMockUser
 class UserCacheEvictionAspectTest {
     @Autowired lateinit var cacheManager: CacheManager
 

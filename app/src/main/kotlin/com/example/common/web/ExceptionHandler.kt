@@ -1,4 +1,4 @@
-package com.example.common
+package com.example.common.web
 
 import com.example.users.getLogger
 import org.springframework.http.HttpStatus

@@ -1,7 +1,6 @@
 package com.example.users
 
 import jakarta.validation.constraints.NotBlank
-import java.time.Instant
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -28,10 +27,12 @@ class UserService(val userRepository: UserRepository, val passwordEncoder: Passw
         return userRepository
             .saveAndFlush(
                 user.apply {
-                    email = info.email
-                    firstName = info.firstName
-                    lastName = info.lastName
-                    roles = info.roles ?: emptySet()
+                    updateUserInfo(
+                        email = info.email,
+                        firstName = info.firstName,
+                        lastName = info.lastName,
+                        roles = info.roles,
+                    )
                 }
             )
             .also { logger.info("user info updated successfully") }
@@ -52,21 +53,18 @@ class UserService(val userRepository: UserRepository, val passwordEncoder: Passw
 
         return userRepository
             .saveAndFlush(
-                DomainUser(
-                    username = info.username,
-                    email = info.email,
-                    password =
-                        passwordEncoder.encode(
-                            RandomStringUtils.secure().nextAlphanumeric(DEFAULT_PASSWORD_LENGTH)
-                        ),
-                    disabled = true,
-                    roles = info.roles ?: emptySet(),
-                    firstName = info.firstName,
-                    lastName = info.lastName,
-                    activationKey = null,
-                    resetKey = generateRandomKey(),
-                    resetDate = Instant.now(),
-                )
+                DomainUser.newUser(
+                        username = info.username,
+                        email = info.email,
+                        password =
+                            passwordEncoder.encode(
+                                RandomStringUtils.secure().nextAlphanumeric(DEFAULT_PASSWORD_LENGTH)
+                            ),
+                        roles = info.roles ?: emptySet(),
+                        firstName = info.firstName,
+                        lastName = info.lastName,
+                    )
+                    .apply { resetAccount(generateRandomKey()) }
             )
             .also { logger.info("user created successfully") }
     }

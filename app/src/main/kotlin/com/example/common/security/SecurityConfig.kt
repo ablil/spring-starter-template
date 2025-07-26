@@ -1,5 +1,6 @@
-package com.example.common
+package com.example.common.security
 
+import com.example.common.AdminManagementProperties
 import com.nimbusds.jose.jwk.source.ImmutableSecret
 import com.nimbusds.jose.util.Base64
 import javax.crypto.spec.SecretKeySpec
@@ -47,11 +48,11 @@ class SecurityConfig {
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http.invoke {
             authorizeHttpRequests {
-                authorize("/api/account/register", permitAll)
-                authorize("/api/account/activate", permitAll)
-                authorize("/api/authenticate", permitAll)
-                authorize("/api/account/password-reset/init", permitAll)
-                authorize("/api/account/password-reset/finish", permitAll)
+                authorize("/api/v1/signup", permitAll)
+                authorize("/api/v1/accounts/activate", permitAll)
+                authorize("/api/v1/signin", permitAll)
+                authorize("/api/v1/resetpassword/init", permitAll)
+                authorize("/api/v1/resetpassword", permitAll)
 
                 authorize("/swagger-ui/**", permitAll)
                 authorize("/v3/api-docs/**", permitAll)

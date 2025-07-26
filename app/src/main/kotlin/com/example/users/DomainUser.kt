@@ -1,6 +1,7 @@
 package com.example.users
 
-import com.example.common.AuthorityConstants
+import com.example.common.persistence.BaseEntity
+import com.example.common.security.AuthorityConstants
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
@@ -14,14 +15,11 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import java.time.Instant
-import org.springframework.data.annotation.PersistenceCreator
 
 @Entity
 @Table(name = "domain_users")
 @Suppress("LongParameterList")
-class DomainUser
-@PersistenceCreator
-constructor(
+class DomainUser(
     @Column(unique = true) var username: String,
     @Column(unique = true) var email: String,
     @JsonIgnore var password: String,
@@ -36,26 +34,69 @@ constructor(
     @JsonIgnore var resetKey: String? = null,
     @JsonIgnore var resetDate: Instant? = null,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) override var id: Long = 0,
-) : Auditable(), Identifiable<Long> {
+) : BaseEntity<Long>() {
 
-    fun activate() {
-        disabled = false
-        activationKey = null
+    fun disableAccount(key: String) {
+        this.activationKey = key
+        this.disabled = true
     }
 
-    fun initPasswordReset(key: String) {
+    fun activateAccount() {
+        disabled = false
+        activationKey = null
+        resetKey = null
+        resetDate = null
+    }
+
+    fun resetAccount(key: String) {
         resetKey = key
         resetDate = Instant.now()
     }
 
-    fun finishResetPassword(encodedPassword: String) {
+    fun updatePassword(encodedPassword: String) {
+        check(encodedPassword != this.password) { "tried using the same password" }
         password = encodedPassword
         resetKey = null
         resetDate = null
     }
 
+    fun updateUserInfo(
+        email: String,
+        firstName: String?,
+        lastName: String?,
+        roles: Set<AuthorityConstants>?,
+    ) {
+        this.email = email
+        this.firstName = firstName
+        this.lastName = lastName
+        this.roles = roles ?: emptySet()
+    }
+
     val fullName: String?
         get() = "%s %s".format(firstName, lastName)
 
-    companion object
+    companion object {
+
+        fun newUser(
+            username: String,
+            email: String,
+            password: String,
+            firstName: String? = null,
+            lastName: String? = null,
+            roles: Set<AuthorityConstants>? = emptySet(),
+        ): DomainUser =
+            DomainUser(
+                username = username,
+                email = email,
+                password = password,
+                disabled = true,
+                roles = roles ?: emptySet(),
+                firstName = firstName,
+                lastName = lastName,
+                activationKey = generateRandomKey(),
+                resetKey = null,
+                resetDate = null,
+                id = 0,
+            )
+    }
 }

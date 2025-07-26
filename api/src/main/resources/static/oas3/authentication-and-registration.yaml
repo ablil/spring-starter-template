@@ -9,14 +9,18 @@ servers:
 
 tags:
   - name: authentication
-  - name: account
+    description: Sign in or sign up operations
+  - name: accounts
+    description: Operations related to user account
+  - name: password
+    description: Operations to reset user password
 
 paths:
-  /api/authenticate:
+  /api/v1/signin:
     post:
-      operationId: authenticate
+      operationId: signIn
       tags: [authentication]
-      summary: authenticate with credentials
+      summary: Signin with username or email and password
       requestBody:
         required: true
         description: user credentials
@@ -28,10 +32,12 @@ paths:
                 login:
                   type: string
                   description: username or email
+                  example: johndoe
                   minLength: 1
                 password:
                   type: string
-                  minLength: 6
+                  minLength: 10
+                  example: supersecurepassword
               required: [login, password]
       responses:
         200:
@@ -43,12 +49,13 @@ paths:
                 properties:
                   token:
                     type: string
+                    format: jwt
                     example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
-  /api/account/register:
+  /api/v1/signup:
     post:
-      operationId: registerUser
+      operationId: signUp
       summary: create new account
-      tags: [account]
+      tags: [authentication]
       description: user will be notified via email to activate his account
       requestBody:
         required: true
@@ -60,22 +67,25 @@ paths:
               properties:
                 username:
                   type: string
+                  example: johndoe
                   minLength: 6
                 email:
                   type: string
+                  example: johndoe@example.com
                   format: email
                 password:
                   type: string
                   minLength: 10
+                  example: supersecurepassword
               required: [username, email, password]
       responses:
-        204:
+        201:
           description: account created successfully
-  /api/account/activate:
+  /api/v1/accounts/activate:
     get:
       operationId: activateAccount
       summary: activate user account
-      tags: [account]
+      tags: [accounts]
       parameters:
         - in: query
           name: key
@@ -87,12 +97,12 @@ paths:
         204:
           description: user account activate successfully
 
-  /api/account/password-reset/init:
+  /api/v1/resetpassword/init:
     post:
-      operationId: requestResetPassword
+      operationId: requestPasswordReset
       summary: init the process to reset password
       description: reset link will be sent via email
-      tags: [account]
+      tags: [password]
       requestBody:
         required: true
         content:
@@ -102,16 +112,17 @@ paths:
               properties:
                 email:
                   type: string
+                  example: johndoe@example.com
                   format: email
               required: [email]
       responses:
         204:
           description: reset link sent via email successfully
-  /api/account/password-reset/finish:
+  /api/v1/resetpassword:
     post:
-      operationId: finishPasswordReset
+      operationId: resetPassword
       summary: reset password
-      tags: [account]
+      tags: [password]
       requestBody:
         required: true
         content:
@@ -122,8 +133,10 @@ paths:
                 resetKey:
                   type: string
                   description: reset key sent via email
+                  example: 123456
                 password:
                   type: string
+                  example: supersecurepassword
                   description: new password
               required: [resetKey, password]
       responses:

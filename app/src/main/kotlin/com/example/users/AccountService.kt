@@ -1,8 +1,8 @@
 package com.example.users
 
-import com.example.common.ApplicationException
 import com.example.common.MailService
-import com.example.common.SecurityUtils
+import com.example.common.security.SecurityUtils
+import com.example.common.web.ApplicationException
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import java.time.Duration
@@ -41,11 +41,10 @@ class AccountService(
 
         userRepository
             .saveAndFlush(
-                DomainUser(
+                DomainUser.newUser(
                     username = dto.username,
                     email = dto.email,
                     password = passwordEncoder.encode(dto.password),
-                    activationKey = generateRandomKey(),
                 )
             )
             .also { mailService?.sendAccountRegistrationEmail(it) }
@@ -61,7 +60,7 @@ class AccountService(
             throw InvalidKey()
         }
 
-        userRepository.save(user.apply { this.activate() }).also {
+        userRepository.save(user.apply { this.activateAccount() }).also {
             mailService?.sendAccountActivationEmail(it)
         }
         logger.info("user account activated successfully {}", user.email)
@@ -71,7 +70,7 @@ class AccountService(
         userRepository
             .findByEmailIgnoreCase(email)
             ?.takeUnless { it.disabled }
-            ?.also { it.initPasswordReset(generateRandomKey()) }
+            ?.also { it.resetAccount(generateRandomKey()) }
             ?.let { userRepository.saveAndFlush(it) }
             ?.also { mailService?.sendPasswordResetLinkEmail(it) }
             ?: logger.warn("password reset request for unknown or disabled email {}", email)
@@ -93,9 +92,7 @@ class AccountService(
         }
 
         userRepository
-            .saveAndFlush(
-                user.also { it.finishResetPassword(passwordEncoder.encode(newRawPassword)) }
-            )
+            .saveAndFlush(user.apply { updatePassword(passwordEncoder.encode(newRawPassword)) })
             .also { mailService?.sendPasswordChangedEmail(it) }
         logger.info("password reset for user {} completed", user.username)
     }
@@ -112,7 +109,7 @@ class AccountService(
         }
 
         userRepository
-            .saveAndFlush(user.apply { password = passwordEncoder.encode(newPassword) })
+            .saveAndFlush(user.apply { updatePassword(passwordEncoder.encode(newPassword)) })
             .also { mailService?.sendPasswordChangedEmail(user) }
         logger.info("user password updated successfully")
     }
@@ -131,9 +128,12 @@ class AccountService(
         val updatedUser =
             userRepository.saveAndFlush(
                 user.apply {
-                    firstName = info.firstName
-                    lastName = info.lastName
-                    email = requireNotNull(info.email)
+                    updateUserInfo(
+                        email = info.email,
+                        firstName = info.firstName,
+                        lastName = info.lastName,
+                        roles = this.roles,
+                    )
                 }
             )
         logger.info("user updated successfully {}", updatedUser)

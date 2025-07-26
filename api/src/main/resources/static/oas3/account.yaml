@@ -12,21 +12,23 @@ security:
   - bearerAuth: []
 
 tags:
-  - name: account
+  - name: accounts
+    description: Accounts management operations
 
 paths:
-  /api/account:
+  /api/v1/accounts/current:
     get:
-      operationId: getCurrentUser
-      summary: get authenticated user info
-      tags: [account]
+      operationId: getCurrentAccount
+      summary: get authenticated account
+      tags: [accounts]
       responses:
         200:
           $ref: '#/components/responses/UserInfo'
+  /api/v1/accounts:
     post:
       operationId: updateUserInformation
       summary: update account info
-      tags: [account]
+      tags: [accounts]
       requestBody:
         required: true
         content:
@@ -44,12 +46,12 @@ paths:
               required: [email]
       responses:
         204:
-          description: usef info updated successfully
-  /api/account/change-password:
+          description: user info updated successfully
+  /api/v1/accounts/change-password:
     post:
       operationId: changePassword
       summary: change password
-      tags: [account]
+      tags: [accounts]
       requestBody:
         required: true
         content:

@@ -14,7 +14,7 @@ tags:
   - name: users
 
 paths:
-  /api/users:
+  /api/v1/users:
     get:
       operationId: getAllUsers
       summary: get all users
@@ -81,7 +81,7 @@ paths:
       responses:
         201:
           $ref: '#/components/responses/FullUserInfo'
-  /api/users/{username}:
+  /api/v1/users/{username}:
     get:
       operationId: getUser
       summary: get user

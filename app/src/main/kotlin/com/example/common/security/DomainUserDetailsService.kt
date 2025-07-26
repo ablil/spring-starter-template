@@ -1,4 +1,4 @@
-package com.example.common
+package com.example.common.security
 
 import com.example.users.UserRepository
 import org.springframework.security.core.authority.SimpleGrantedAuthority

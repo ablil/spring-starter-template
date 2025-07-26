@@ -1,9 +1,9 @@
-package com.example.common
+package com.example.common.persistence
 
+import com.example.common.security.SecurityUtils
 import java.util.Optional
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Profile
 import org.springframework.data.domain.AuditorAware
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 
@@ -12,12 +12,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 class JpaConfiguration {
 
     @Bean
-    @Profile("!test")
     fun jpaAuditor(): AuditorAware<String> =
         AuditorAware<String> { Optional.ofNullable(SecurityUtils.currentUserLogin()) }
 
-    @Bean
-    @Profile("test")
-    fun testJpaAuditor(): AuditorAware<String> =
-        AuditorAware<String> { Optional.ofNullable("testuser") }
+    //    @Bean
+    //    @Profile("test")
+    //    fun testJpaAuditor(): AuditorAware<String> =
+    //        AuditorAware<String> { Optional.ofNullable("testuser") }
 }
