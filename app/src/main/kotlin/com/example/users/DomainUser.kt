@@ -36,24 +36,67 @@ class DomainUser(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) override var id: Long = 0,
 ) : BaseEntity<Long>() {
 
-    fun activate() {
-        disabled = false
-        activationKey = null
+    fun disableAccount(key: String) {
+        this.activationKey = key
+        this.disabled = true
     }
 
-    fun initPasswordReset(key: String) {
+    fun activateAccount() {
+        disabled = false
+        activationKey = null
+        resetKey = null
+        resetDate = null
+    }
+
+    fun resetAccount(key: String) {
         resetKey = key
         resetDate = Instant.now()
     }
 
-    fun finishResetPassword(encodedPassword: String) {
+    fun updatePassword(encodedPassword: String) {
+        check(encodedPassword != this.password) { "tried using the same password" }
         password = encodedPassword
         resetKey = null
         resetDate = null
     }
 
+    fun updateUserInfo(
+        email: String,
+        firstName: String?,
+        lastName: String?,
+        roles: Set<AuthorityConstants>?,
+    ) {
+        this.email = email
+        this.firstName = firstName
+        this.lastName = lastName
+        this.roles = roles ?: emptySet()
+    }
+
     val fullName: String?
         get() = "%s %s".format(firstName, lastName)
 
-    companion object
+    companion object {
+
+        fun newUser(
+            username: String,
+            email: String,
+            password: String,
+            firstName: String? = null,
+            lastName: String? = null,
+            roles: Set<AuthorityConstants>? = emptySet(),
+        ): DomainUser =
+            DomainUser(
+                username = username,
+                email = email,
+                password = password,
+                disabled = true,
+                roles = roles ?: emptySet(),
+                firstName = firstName,
+                lastName = lastName,
+                activationKey = generateRandomKey(),
+                resetKey = null,
+                resetDate = null,
+                id = 0,
+            )
+    }
 }
