@@ -1,4 +1,4 @@
-package com.example.common
+package com.example.common.web
 
 import java.time.Duration
 import org.springframework.beans.factory.annotation.Value

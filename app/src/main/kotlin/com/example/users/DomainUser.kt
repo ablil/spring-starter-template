@@ -1,6 +1,8 @@
 package com.example.users
 
-import com.example.common.AuthorityConstants
+import com.example.common.persistence.Auditable
+import com.example.common.persistence.Identifiable
+import com.example.common.security.AuthorityConstants
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column

@@ -1,5 +1,6 @@
-package com.example.common
+package com.example.common.security
 
+import com.example.common.AdminManagementProperties
 import com.nimbusds.jose.jwk.source.ImmutableSecret
 import com.nimbusds.jose.util.Base64
 import javax.crypto.spec.SecretKeySpec

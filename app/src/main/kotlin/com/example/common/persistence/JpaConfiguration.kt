@@ -1,5 +1,6 @@
-package com.example.common
+package com.example.common.persistence
 
+import com.example.common.security.SecurityUtils
 import java.util.Optional
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

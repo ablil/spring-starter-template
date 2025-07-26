@@ -1,4 +1,4 @@
-package com.example.common
+package com.example.common.security
 
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest

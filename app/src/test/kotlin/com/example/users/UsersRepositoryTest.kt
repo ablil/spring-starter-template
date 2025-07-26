@@ -1,7 +1,8 @@
 package com.example.users
 
-import com.example.common.AuthorityConstants
-import com.example.common.JpaConfiguration
+import com.example.common.security.AuthorityConstants
+import com.example.common.persistence.JpaConfiguration
+import com.example.common.persistence.UNKNOWN_AUDITOR
 import java.time.Instant
 import org.assertj.core.api.Java6Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
