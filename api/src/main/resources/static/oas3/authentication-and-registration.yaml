@@ -10,7 +10,7 @@ servers:
 tags:
   - name: authentication
     description: Sign in or sign up operations
-  - name: account
+  - name: accounts
     description: Operations related to user account
   - name: password
     description: Operations to reset user password
@@ -81,11 +81,11 @@ paths:
       responses:
         204:
           description: account created successfully
-  /api/account/activate:
+  /api/v1/accounts/activate:
     get:
       operationId: activateAccount
       summary: activate user account
-      tags: [account]
+      tags: [accounts]
       parameters:
         - in: query
           name: key

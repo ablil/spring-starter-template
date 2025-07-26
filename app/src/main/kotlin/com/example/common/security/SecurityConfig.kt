@@ -49,7 +49,7 @@ class SecurityConfig {
         http.invoke {
             authorizeHttpRequests {
                 authorize("/api/v1/signup", permitAll)
-                authorize("/api/account/activate", permitAll)
+                authorize("/api/v1/accounts/activate", permitAll)
                 authorize("/api/v1/signin", permitAll)
                 authorize("/api/v1/resetpassword/init", permitAll)
                 authorize("/api/v1/resetpassword", permitAll)

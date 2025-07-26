@@ -58,7 +58,7 @@ example:
   application:
     base-url: https://example.com
     urls:
-      activation-link: ${example.application.base-url}/api/account/activate
+      activation-link: ${example.application.base-url}/api/v1/accounts/activate
       reset-password-link: ${example.application.base-url}/reset
   security:
     jwt:

@@ -135,7 +135,7 @@ class AccountsResourceTest {
     fun `should activate user account successfully given valid activation key`() {
         userRepository.saveAndFlush(DomainUser.defaultTestUser())
 
-        mockMvc.get("/api/account/activate?key=$DEFAULT_ACTIVATION_KEY").andExpect {
+        mockMvc.get("/api/v1/accounts/activate?key=$DEFAULT_ACTIVATION_KEY").andExpect {
             status { is2xxSuccessful() }
         }
 
@@ -148,7 +148,7 @@ class AccountsResourceTest {
 
     @Test
     fun `should NOT activate user account given invalid or missing activation key`() {
-        mockMvc.get("/api/account/activate?key=doesnotexists").andExpect {
+        mockMvc.get("/api/v1/accounts/activate?key=doesnotexists").andExpect {
             status { is4xxClientError() }
         }
     }
@@ -254,7 +254,7 @@ class AccountsResourceTest {
         userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
-            .post("/api/account/change-password") {
+            .post("/api/v1/accounts/change-password") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(
@@ -274,7 +274,7 @@ class AccountsResourceTest {
         userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
-            .post("/api/account/change-password") {
+            .post("/api/v1/accounts/change-password") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(
@@ -290,7 +290,7 @@ class AccountsResourceTest {
         userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
-            .post("/api/account/change-password") {
+            .post("/api/v1/accounts/change-password") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(
@@ -306,7 +306,7 @@ class AccountsResourceTest {
         userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
-            .post("/api/account") {
+            .post("/api/v1/accounts") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(
@@ -341,7 +341,7 @@ class AccountsResourceTest {
         )
 
         mockMvc
-            .post("/api/account") {
+            .post("/api/v1/accounts") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(
@@ -360,7 +360,7 @@ class AccountsResourceTest {
     fun `should get currently authenticated user`() {
         userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
-        mockMvc.get("/api/account").andExpectAll {
+        mockMvc.get("/api/v1/accounts/current").andExpectAll {
             status { isOk() }
             jsonPath("$.username") { value(DEFAULT_TEST_USERNAME) }
             jsonPath("$.password") { doesNotExist() }

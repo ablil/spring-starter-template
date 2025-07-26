@@ -3,7 +3,7 @@ package com.example.users
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
-import org.openapitools.api.AccountApi
+import org.openapitools.api.AccountsApi
 import org.openapitools.model.ChangePasswordRequest
 import org.openapitools.model.SignUpRequest
 import org.openapitools.model.UpdateUserInformationRequest
@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class AccountsResource(val accountService: AccountService) : AccountApi {
+class AccountsResource(val accountService: AccountService) : AccountsApi {
 
     override fun activateAccount(key: String): ResponseEntity<Unit> =
         accountService.activateAccount(key).let { ResponseEntity.noContent().build() }
@@ -27,7 +27,7 @@ class AccountsResource(val accountService: AccountService) : AccountApi {
             )
             .let { ResponseEntity.noContent().build() }
 
-    override fun getCurrentUser(): ResponseEntity<UserInfo> =
+    override fun getCurrentAccount(): ResponseEntity<UserInfo> =
         ResponseEntity.ok(accountService.getAuthenticatedUser().toUserInfo())
 
     override fun updateUserInformation(
