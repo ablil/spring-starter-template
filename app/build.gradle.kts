@@ -22,36 +22,32 @@ java {
 
 dependencies {
     implementation(project(":api"))
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-logging")
-    implementation("org.springframework.boot:spring-boot-starter-mail")
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-cache")
-    implementation("org.springframework.boot:spring-boot-starter-mail")
-    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation(libs.bundles.spring)
+
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.apache.commons:commons-lang3:3.17.+")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.+")
-    runtimeOnly("org.postgresql:postgresql")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:6.0.+")
+
+    runtimeOnly("org.postgresql:postgresql")
     testRuntimeOnly("com.h2database:h2")
-    detektPlugins("com.github.ablil:detekt-extension:v0.1.0")
-    // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
+
+
     implementation("ch.qos.logback:logback-classic:1.5.+")
-    // https://mvnrepository.com/artifact/net.logstash.logback/logstash-logback-encoder
     implementation("net.logstash.logback:logstash-logback-encoder:8.1")
-    runtimeOnly("com.github.ben-manes.caffeine:caffeine:3.2.+")
+
     runtimeOnly("org.hibernate.orm:hibernate-micrometer")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:6.0.+")
+
+    runtimeOnly("com.github.ben-manes.caffeine:caffeine:3.2.+")
+    implementation("org.apache.commons:commons-lang3:3.17.+")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.+")
+    detektPlugins("com.github.ablil:detekt-extension:v0.1.0")
+
 }
 
 kotlin {
