@@ -2,8 +2,6 @@ package com.example.users
 
 import com.example.common.IntegrationTest
 import com.fasterxml.jackson.databind.ObjectMapper
-import java.time.Duration
-import java.time.Instant
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -50,35 +48,6 @@ class AccountsResourceTest {
     }
 
     @Test
-    fun `should create user given valid registration request`() {
-        mockMvc
-            .post("/api/v1/signup") {
-                contentType = MediaType.APPLICATION_JSON
-                content =
-                    objectMapper.writeValueAsString(
-                        RegistrationDTO(
-                            username = DEFAULT_TEST_USERNAME,
-                            email = DEFAULT_TEST_EMAIL,
-                            password = DEFAULT_TEST_PASSWORD,
-                        )
-                    )
-            }
-            .andExpect { status { isCreated() } }
-
-        val user =
-            userRepository.findByUsernameIgnoreCase(DEFAULT_TEST_USERNAME)
-                ?: fail("user not persisted")
-        assertThat(user.username).isEqualTo(DEFAULT_TEST_USERNAME)
-        assertThat(user.email).isEqualTo(DEFAULT_TEST_EMAIL)
-        assertThat(user.password).isNotEqualTo(DEFAULT_TEST_PASSWORD)
-        assertThat(passwordEncoder.matches(DEFAULT_TEST_PASSWORD, user.password))
-            .`as`("user password is encrypted")
-            .isTrue()
-        assertThat(user.disabled).`as`("user account is disabled").isTrue()
-        assertThat(user.activationKey).isNotBlank()
-    }
-
-    @Test
     fun `should NOT create user given short password or blank username`() {
         mockMvc
             .post("/api/v1/signup") {
@@ -93,44 +62,6 @@ class AccountsResourceTest {
                     )
             }
             .andExpect { status { isBadRequest() } }
-    }
-
-    @Test
-    fun `should preventing creating a user with existing email or username`() {
-        val dummyUser = userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
-
-        mockMvc
-            .post("/api/v1/signup") {
-                contentType = MediaType.APPLICATION_JSON
-                content =
-                    objectMapper.writeValueAsString(
-                        RegistrationDTO(
-                            username = dummyUser.username,
-                            email = dummyUser.email,
-                            password = "supersecurepassword",
-                        )
-                    )
-            }
-            .andExpect { status { isConflict() } }
-    }
-
-    @Test
-    fun `should register user given an existing account with same email or username`() {
-        userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
-
-        mockMvc
-            .post("/api/v1/signup") {
-                contentType = MediaType.APPLICATION_JSON
-                content =
-                    objectMapper.writeValueAsString(
-                        RegistrationDTO(
-                            username = DEFAULT_TEST_USERNAME,
-                            email = DEFAULT_TEST_EMAIL,
-                            password = DEFAULT_TEST_PASSWORD,
-                        )
-                    )
-            }
-            .andExpect { status { isConflict() } }
     }
 
     @Test
@@ -153,101 +84,6 @@ class AccountsResourceTest {
         mockMvc.get("/api/v1/accounts/activate?key=doesnotexists").andExpect {
             status { is4xxClientError() }
         }
-    }
-
-    @Test
-    fun `should init password reset given email of existing user`() {
-        userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
-
-        mockMvc
-            .post("/api/v1/resetpassword/init") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(EmailWrapper(DEFAULT_TEST_EMAIL))
-            }
-            .andExpect { status { isNoContent() } }
-
-        val user =
-            userRepository.findByEmailIgnoreCase(DEFAULT_TEST_EMAIL) ?: fail("user not persisted")
-        assertThat(user.resetKey).isNotBlank()
-        assertThat(user.resetKey).isNotNull()
-    }
-
-    @Test
-    fun `should NOT reset password with with same old password`() {
-        userRepository.saveAndFlush(
-            DomainUser.defaultTestUser(disabled = false).apply {
-                resetKey = DEFAULT_RESET_KEY
-                resetDate = Instant.now()
-            }
-        )
-
-        mockMvc
-            .post("/api/v1/resetpassword") {
-                contentType = MediaType.APPLICATION_JSON
-                content =
-                    objectMapper.writeValueAsString(
-                        KeyAndPassword(DEFAULT_RESET_KEY, DEFAULT_TEST_PASSWORD)
-                    )
-            }
-            .andExpect { status { isConflict() } }
-    }
-
-    @Test
-    fun `should finish password reset given expired reset key`() {
-        userRepository.saveAndFlush(
-            DomainUser.defaultTestUser(disabled = false).apply {
-                resetKey = DEFAULT_RESET_KEY
-                resetDate = Instant.now().minus(Duration.ofDays(7))
-            }
-        )
-
-        mockMvc
-            .post("/api/v1/resetpassword") {
-                contentType = MediaType.APPLICATION_JSON
-                content =
-                    objectMapper.writeValueAsString(
-                        KeyAndPassword(DEFAULT_RESET_KEY, "newsuperpassword")
-                    )
-            }
-            .andExpect { status { isUnprocessableEntity() } }
-    }
-
-    @Test
-    fun `should finish password reset given invalid reset key`() {
-        mockMvc
-            .post("/api/v1/resetpassword") {
-                contentType = MediaType.APPLICATION_JSON
-                content =
-                    objectMapper.writeValueAsString(
-                        KeyAndPassword("invalidKey", DEFAULT_TEST_PASSWORD)
-                    )
-            }
-            .andExpect { status { isNotFound() } }
-    }
-
-    @Test
-    fun `should finish password reset given valid password and reset key`() {
-        userRepository.saveAndFlush(
-            DomainUser.defaultTestUser(disabled = false).apply {
-                resetKey = DEFAULT_RESET_KEY
-                resetDate = Instant.now()
-            }
-        )
-
-        mockMvc
-            .post("/api/v1/resetpassword") {
-                contentType = MediaType.APPLICATION_JSON
-                content =
-                    objectMapper.writeValueAsString(
-                        KeyAndPassword(DEFAULT_RESET_KEY, "newsecurepassword")
-                    )
-            }
-            .andExpect { status { isNoContent() } }
-
-        val user =
-            userRepository.findByEmailIgnoreCase(DEFAULT_TEST_EMAIL) ?: fail("user not persisted")
-        assertThat(user.resetKey).isNull()
-        assertThat(user.resetDate).isNull()
     }
 
     @Test

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 private const val DEFAULT_KEY_LENGTH = 32
 
 @Service
+@Transactional
 class AccountService(
     val userRepository: UserRepository,
     val passwordEncoder: PasswordEncoder,
@@ -32,7 +33,6 @@ class AccountService(
 
     val logger = getLogger()
 
-    @Transactional
     fun registerUser(dto: RegistrationDTO) {
         val existingUser = userRepository.findByUsernameOrEmailIgnoreCase(dto.username, dto.email)
         if (existingUser != null) {
@@ -51,7 +51,6 @@ class AccountService(
         logger.info("created new user successfully")
     }
 
-    @Transactional
     fun activateAccount(@NotBlank key: String) {
         val user = userRepository.findOneByActivationKey(key)
 
@@ -71,14 +70,14 @@ class AccountService(
             .findByEmailIgnoreCase(email)
             ?.takeUnless { it.disabled }
             ?.also { it.resetAccount(generateRandomKey()) }
-            ?.let { userRepository.saveAndFlush(it) }
+            ?.let { userRepository.save(it) }
             ?.also { mailService?.sendPasswordResetLinkEmail(it) }
             ?: logger.warn("password reset request for unknown or disabled email {}", email)
     }
 
     fun finishPasswordReset(@NotBlank resetKey: String, @NotBlank newRawPassword: String) {
         val user =
-            userRepository.findOneByResetKey(resetKey)?.takeUnless { it.disabled }
+            userRepository.findOneByResetKey(resetKey)?.also { check(it.disabled) }
                 ?: throw InvalidKey()
         if (passwordEncoder.matches(newRawPassword, user.password)) {
             throw UsingOldPassword()
@@ -91,9 +90,11 @@ class AccountService(
             throw KeyExpired()
         }
 
-        userRepository
-            .saveAndFlush(user.apply { updatePassword(passwordEncoder.encode(newRawPassword)) })
-            .also { mailService?.sendPasswordChangedEmail(it) }
+        with(user) {
+                updatePassword(passwordEncoder.encode(newRawPassword))
+                activateAccount()
+            }
+            .also { mailService?.sendPasswordChangedEmail(user) }
         logger.info("password reset for user {} completed", user.username)
     }
 
@@ -114,7 +115,6 @@ class AccountService(
         logger.info("user password updated successfully")
     }
 
-    @Transactional
     fun updateUserInfo(info: UserInfoDTO) {
         val login = SecurityUtils.currentUserLogin()
         val user =
@@ -139,6 +139,7 @@ class AccountService(
         logger.info("user updated successfully {}", updatedUser)
     }
 
+    @Transactional(readOnly = true)
     fun getAuthenticatedUser(): DomainUser {
         val login = SecurityUtils.currentUserLogin()
         return userRepository.findByUsernameOrEmailIgnoreCase(login, login)

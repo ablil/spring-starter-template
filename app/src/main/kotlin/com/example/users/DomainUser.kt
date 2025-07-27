@@ -49,6 +49,7 @@ class DomainUser(
     }
 
     fun resetAccount(key: String) {
+        disabled = true
         resetKey = key
         resetDate = Instant.now()
     }
