@@ -24,11 +24,13 @@ paths:
       responses:
         200:
           $ref: '#/components/responses/UserInfo'
-  /api/v1/accounts:
+  /api/v1/accounts/{username}:
     put:
       operationId: updateUserInformation
       summary: update account info
       tags: [accounts]
+      parameters:
+        - $ref: '#/components/parameters/Username'
       requestBody:
         required: true
         content:
@@ -47,11 +49,17 @@ paths:
       responses:
         204:
           description: user info updated successfully
-  /api/v1/accounts/change-password:
+        403:
+          description: attempted to update another user account
+        409:
+          description: attempted to set email of another user
+  /api/v1/accounts/{username}/change-password:
     post:
       operationId: changePassword
       summary: change password
       tags: [accounts]
+      parameters:
+        - $ref: '#/components/parameters/Username'
       requestBody:
         required: true
         content:
@@ -67,8 +75,21 @@ paths:
       responses:
         204:
           description: password updated successfully
+        403:
+          description: attempted to updated password of another user
+        422:
+          description: attempted to set an old password or provided invalid current password
 
 components:
+  parameters:
+    Username:
+      in: path
+      required: true
+      name: username
+      schema:
+        type: string
+        example: johndoe
+        minLength: 2
   securitySchemes:
     bearerAuth:
       type: http

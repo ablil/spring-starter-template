@@ -106,16 +106,18 @@ class AccountService(
             throw InvalidPassword("can NOT reuse the same password")
         }
 
-        userRepository
-            .saveAndFlush(user.apply { updatePassword(passwordEncoder.encode(newPassword)) })
-            .also { mailService?.sendPasswordChangedEmail(user) }
+        user.updatePassword(passwordEncoder.encode(newPassword))
+        mailService?.sendPasswordChangedEmail(user)
         logger.info("user password updated successfully")
     }
 
     fun updateUserInfo(info: UserInfoDTO) {
         val login = SecurityUtils.currentUserLogin()
-        val user =
-            userRepository.findByUsernameOrEmailIgnoreCase(login, login) ?: throw UserNotFound()
+        val user = userRepository.findByLogin(login) ?: throw UserNotFound()
+        if (user.disabled) {
+            logger.error("attempted to update disabled user {}", login)
+            throw IllegalStateException("user account is disabled")
+        }
 
         if (user.email != info.email && userRepository.existsByEmailIgnoreCase(info.email)) {
             logger.warn("user attempted to update email to an already existing one")
@@ -138,9 +140,16 @@ class AccountService(
 
     @Transactional(readOnly = true)
     fun getAuthenticatedUser(): DomainUser {
-        val login = SecurityUtils.currentUserLogin()
-        return userRepository.findByUsernameOrEmailIgnoreCase(login, login)
-            ?: error("current user not found in the database, even though he is authenticated")
+        val user = userRepository.findByLogin(SecurityUtils.currentUserLogin())
+        if (user == null) {
+            logger.error("authenticated user expected to be on the system")
+            throw IllegalStateException("authenticated user expected to be on the system")
+        }
+        if (user.disabled) {
+            logger.error("authenticated user should NOT be disabled")
+            throw IllegalStateException("authenticated user should NOT be disabled")
+        }
+        return user
     }
 }
 
@@ -168,7 +177,7 @@ class UsingOldPassword : ApplicationException("can NOT use old password")
 @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
 class InvalidCurrentPassword : ApplicationException("current password is invalid")
 
-@ResponseStatus(HttpStatus.CONFLICT)
+@ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
 class InvalidPassword(msg: String? = null) :
     ApplicationException(
         if (StringUtils.isNotBlank(msg)) {

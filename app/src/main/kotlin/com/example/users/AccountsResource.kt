@@ -9,6 +9,7 @@ import org.openapitools.model.SignUpRequest
 import org.openapitools.model.UpdateUserInformationRequest
 import org.openapitools.model.UserInfo
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -17,8 +18,10 @@ class AccountsResource(val accountService: AccountService) : AccountsApi {
     override fun activateAccount(key: String): ResponseEntity<Unit> =
         accountService.activateAccount(key).let { ResponseEntity.noContent().build() }
 
+    @PreAuthorize("principal.username == #username")
     override fun changePassword(
-        changePasswordRequest: ChangePasswordRequest
+        username: String,
+        changePasswordRequest: ChangePasswordRequest,
     ): ResponseEntity<Unit> =
         accountService
             .changePassword(
@@ -30,12 +33,15 @@ class AccountsResource(val accountService: AccountService) : AccountsApi {
     override fun getCurrentAccount(): ResponseEntity<UserInfo> =
         ResponseEntity.ok(accountService.getAuthenticatedUser().toUserInfo())
 
+    @PreAuthorize("principal.username == #username")
     override fun updateUserInformation(
-        updateUserInformationRequest: UpdateUserInformationRequest
-    ): ResponseEntity<Unit> =
-        accountService.updateUserInfo(UserInfoDTO.from(updateUserInformationRequest)).let {
+        username: String,
+        updateUserInformationRequest: UpdateUserInformationRequest,
+    ): ResponseEntity<Unit> {
+        return accountService.updateUserInfo(UserInfoDTO.from(updateUserInformationRequest)).let {
             ResponseEntity.noContent().build()
         }
+    }
 }
 
 data class RegistrationDTO(
