@@ -24,6 +24,16 @@ class UserService(val userRepository: UserRepository, val passwordEncoder: Passw
     fun updateUserInfo(@NotBlank username: String, info: CreateOrUpdateUserDTO): DomainUser? {
         val user = userRepository.findByUsernameIgnoreCase(username) ?: return null
 
+        if (info.email != user.email && userRepository.existsByEmailIgnoreCase(info.email)) {
+            throw EmailAlreadyUsed()
+        }
+        if (
+            info.username != user.username &&
+                userRepository.existsByUsernameIgnoreCase(info.username)
+        ) {
+            throw UsernameAlreadyUsed()
+        }
+
         return userRepository
             .saveAndFlush(
                 user.apply {

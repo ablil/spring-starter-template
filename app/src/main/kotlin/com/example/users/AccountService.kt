@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 private const val DEFAULT_KEY_LENGTH = 32
 
 @Service
+@Transactional
 class AccountService(
     val userRepository: UserRepository,
     val passwordEncoder: PasswordEncoder,
@@ -32,7 +33,6 @@ class AccountService(
 
     val logger = getLogger()
 
-    @Transactional
     fun registerUser(dto: RegistrationDTO) {
         val existingUser = userRepository.findByUsernameOrEmailIgnoreCase(dto.username, dto.email)
         if (existingUser != null) {
@@ -51,18 +51,14 @@ class AccountService(
         logger.info("created new user successfully")
     }
 
-    @Transactional
     fun activateAccount(@NotBlank key: String) {
-        val user = userRepository.findOneByActivationKey(key)
-
-        if (user == null) {
-            logger.warn("account activation attempt with invalid key")
-            throw InvalidKey()
+        val user = userRepository.findOneByActivationKey(key) ?: throw NoSuchElementException()
+        if (!(user.disabled)) {
+            logger.warn("attempted to activate an already activated account")
         }
 
-        userRepository.save(user.apply { this.activateAccount() }).also {
-            mailService?.sendAccountActivationEmail(it)
-        }
+        user.activateAccount()
+        mailService?.sendAccountActivationEmail(user)
         logger.info("user account activated successfully {}", user.email)
     }
 
@@ -71,14 +67,14 @@ class AccountService(
             .findByEmailIgnoreCase(email)
             ?.takeUnless { it.disabled }
             ?.also { it.resetAccount(generateRandomKey()) }
-            ?.let { userRepository.saveAndFlush(it) }
+            ?.let { userRepository.save(it) }
             ?.also { mailService?.sendPasswordResetLinkEmail(it) }
             ?: logger.warn("password reset request for unknown or disabled email {}", email)
     }
 
     fun finishPasswordReset(@NotBlank resetKey: String, @NotBlank newRawPassword: String) {
         val user =
-            userRepository.findOneByResetKey(resetKey)?.takeUnless { it.disabled }
+            userRepository.findOneByResetKey(resetKey)?.also { check(it.disabled) }
                 ?: throw InvalidKey()
         if (passwordEncoder.matches(newRawPassword, user.password)) {
             throw UsingOldPassword()
@@ -91,9 +87,11 @@ class AccountService(
             throw KeyExpired()
         }
 
-        userRepository
-            .saveAndFlush(user.apply { updatePassword(passwordEncoder.encode(newRawPassword)) })
-            .also { mailService?.sendPasswordChangedEmail(it) }
+        with(user) {
+                updatePassword(passwordEncoder.encode(newRawPassword))
+                activateAccount()
+            }
+            .also { mailService?.sendPasswordChangedEmail(user) }
         logger.info("password reset for user {} completed", user.username)
     }
 
@@ -108,17 +106,15 @@ class AccountService(
             throw InvalidPassword("can NOT reuse the same password")
         }
 
-        userRepository
-            .saveAndFlush(user.apply { updatePassword(passwordEncoder.encode(newPassword)) })
-            .also { mailService?.sendPasswordChangedEmail(user) }
+        user.updatePassword(passwordEncoder.encode(newPassword))
+        mailService?.sendPasswordChangedEmail(user)
         logger.info("user password updated successfully")
     }
 
-    @Transactional
     fun updateUserInfo(info: UserInfoDTO) {
         val login = SecurityUtils.currentUserLogin()
-        val user =
-            userRepository.findByUsernameOrEmailIgnoreCase(login, login) ?: throw UserNotFound()
+        val user = userRepository.findByLogin(login) ?: throw UserNotFound()
+        check(user.disabled.not()) { "user account is disabled" }
 
         if (user.email != info.email && userRepository.existsByEmailIgnoreCase(info.email)) {
             logger.warn("user attempted to update email to an already existing one")
@@ -139,10 +135,12 @@ class AccountService(
         logger.info("user updated successfully {}", updatedUser)
     }
 
+    @Transactional(readOnly = true)
     fun getAuthenticatedUser(): DomainUser {
-        val login = SecurityUtils.currentUserLogin()
-        return userRepository.findByUsernameOrEmailIgnoreCase(login, login)
-            ?: error("current user not found in the database, even though he is authenticated")
+        val user = userRepository.findByLogin(SecurityUtils.currentUserLogin())
+        checkNotNull(user) { "authenticated user expected to be on the system" }
+        check(!user.disabled) { "authenticated user should NOT be disabled" }
+        return user
     }
 }
 
@@ -170,7 +168,7 @@ class UsingOldPassword : ApplicationException("can NOT use old password")
 @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
 class InvalidCurrentPassword : ApplicationException("current password is invalid")
 
-@ResponseStatus(HttpStatus.CONFLICT)
+@ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
 class InvalidPassword(msg: String? = null) :
     ApplicationException(
         if (StringUtils.isNotBlank(msg)) {

@@ -1,6 +1,6 @@
 spring:
   application:
-    name: spring-starter-template
+    name: ${SERVICE_NAME:spring-starter-template}
   output:
     ansi:
       enabled: always
@@ -9,14 +9,6 @@ spring:
     cache-names: 'default'
     caffeine:
       spec: 'maximumSize=500,recordStats'
-  web:
-    resources:
-      cache:
-        cachecontrol:
-          cache-public: true
-          max-age: 300
-          s-max-age: 3600s # shared cache can be store for longer time than private cache
-          stale-while-revalidate: 300 # five minutews window is enough for the shared cache to revalidate itself
   datasource:
     username: ${POSTGRES_USER:postgres}
     password: ${POSTGRES_PASSWORD:supersecurepassword}
@@ -75,7 +67,7 @@ springdoc:
   auto-tag-classes: false
   show-login-endpoint: true
   swagger-ui:
-    urlsPrimaryName: authentication and registration
+    urlsPrimaryName: authentication
     operationsSorter: alpha
     tagsSorter: alpha
     displayRequestDuration: true
@@ -85,9 +77,9 @@ springdoc:
     showCommonExtensions: true
     filter: true
     urls:
-      - url: oas3/users.yaml
-        name: users management (admin)
-      - url: oas3/account.yaml
-        name: user account
-      - url: oas3/authentication-and-registration.yaml
-        name: authentication and registration
+      - url: oas3/admin.yaml
+        name: admin
+      - url: oas3/accounts.yaml
+        name: accounts
+      - url: oas3/authentication.yaml
+        name: authentication

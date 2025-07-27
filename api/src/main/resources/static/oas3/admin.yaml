@@ -1,7 +1,7 @@
 openapi: 3.0.4
 info:
-  title: users management
-  description: collection of APIs intended for managing resources by admins
+  title: Admin API
+  description: collection of APIs intended for managing resources by admins only
   version: 0.0.1
 
 servers:
@@ -12,6 +12,7 @@ security:
 
 tags:
   - name: users
+    description: users management
 
 paths:
   /api/v1/users:
@@ -81,6 +82,8 @@ paths:
       responses:
         201:
           $ref: '#/components/responses/FullUserInfo'
+        409:
+          description: attempted to create a user with an existing email or username
   /api/v1/users/{username}:
     get:
       operationId: getUser
@@ -112,6 +115,8 @@ paths:
       responses:
         200:
           $ref: '#/components/responses/FullUserInfo'
+        409:
+          description: attempted to update user with existing username or email
     delete:
       operationId: deleteUser
       summary: delete user account
