@@ -95,7 +95,9 @@ paths:
             type: string
       responses:
         204:
-          description: user account activate successfully
+          description: account activated successfully
+        404:
+          description: key not found
 
   /api/v1/resetpassword/init:
     post:

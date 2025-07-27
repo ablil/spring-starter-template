@@ -14,9 +14,4 @@ class JpaConfiguration {
     @Bean
     fun jpaAuditor(): AuditorAware<String> =
         AuditorAware<String> { Optional.ofNullable(SecurityUtils.currentUserLogin()) }
-
-    //    @Bean
-    //    @Profile("test")
-    //    fun testJpaAuditor(): AuditorAware<String> =
-    //        AuditorAware<String> { Optional.ofNullable("testuser") }
 }

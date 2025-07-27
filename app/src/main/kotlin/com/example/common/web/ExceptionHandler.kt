@@ -27,6 +27,10 @@ class ExceptionHandler {
             logger.info("encountered illegal argument {}", ex.message, ex)
         }
 
+    @ExceptionHandler(NoSuchElementException::class, java.util.NoSuchElementException::class)
+    fun handleNotFound() =
+        ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "resource not found")
+
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidationExceptions(ex: MethodArgumentNotValidException): ProblemDetail {
         val fieldErrors = ex.bindingResult.fieldErrors.associate { it.field to it.defaultMessage }

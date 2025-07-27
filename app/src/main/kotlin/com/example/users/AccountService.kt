@@ -52,16 +52,13 @@ class AccountService(
     }
 
     fun activateAccount(@NotBlank key: String) {
-        val user = userRepository.findOneByActivationKey(key)
-
-        if (user == null) {
-            logger.warn("account activation attempt with invalid key")
-            throw InvalidKey()
+        val user = userRepository.findOneByActivationKey(key) ?: throw NoSuchElementException()
+        if (!(user.disabled)) {
+            logger.warn("attempted to activate an already activated account")
         }
 
-        userRepository.save(user.apply { this.activateAccount() }).also {
-            mailService?.sendAccountActivationEmail(it)
-        }
+        user.activateAccount()
+        mailService?.sendAccountActivationEmail(user)
         logger.info("user account activated successfully {}", user.email)
     }
 
