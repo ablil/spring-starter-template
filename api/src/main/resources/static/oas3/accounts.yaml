@@ -25,7 +25,7 @@ paths:
         200:
           $ref: '#/components/responses/UserInfo'
   /api/v1/accounts:
-    post:
+    put:
       operationId: updateUserInformation
       summary: update account info
       tags: [accounts]

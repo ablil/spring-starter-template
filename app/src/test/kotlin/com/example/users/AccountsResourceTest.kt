@@ -17,6 +17,8 @@ import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.put
+import org.springframework.web.servlet.function.RequestPredicates.contentType
 
 const val DEFAULT_TEST_USERNAME = "johndoe"
 
@@ -306,7 +308,7 @@ class AccountsResourceTest {
         userRepository.saveAndFlush(DomainUser.defaultTestUser(disabled = false))
 
         mockMvc
-            .post("/api/v1/accounts") {
+            .put("/api/v1/accounts") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(
@@ -341,7 +343,7 @@ class AccountsResourceTest {
         )
 
         mockMvc
-            .post("/api/v1/accounts") {
+            .put("/api/v1/accounts") {
                 contentType = MediaType.APPLICATION_JSON
                 content =
                     objectMapper.writeValueAsString(
