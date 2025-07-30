@@ -16,6 +16,12 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 import java.time.Instant
 
+enum class UserStatus {
+    ACTIVE,
+    INACTIVE,
+    WAITING_FOR_CONFIRMATION,
+}
+
 @Entity
 @Table(name = "domain_users")
 @Suppress("LongParameterList")
@@ -23,7 +29,7 @@ class DomainUser(
     @Column(unique = true) var username: String,
     @Column(unique = true) var email: String,
     @JsonIgnore var password: String,
-    var disabled: Boolean = true,
+    var status: UserStatus = UserStatus.INACTIVE,
     @Enumerated(EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER, targetClass = AuthorityConstants::class)
     @CollectionTable(name = "authorities")
@@ -38,20 +44,20 @@ class DomainUser(
 
     fun disableAccount(key: String) {
         this.activationKey = key
-        this.disabled = true
+        this.status = UserStatus.INACTIVE
     }
 
     fun activateAccount() {
-        disabled = false
+        status = UserStatus.ACTIVE
         activationKey = null
         resetKey = null
         resetDate = null
     }
 
     fun resetAccount(key: String) {
-        disabled = true
         resetKey = key
         resetDate = Instant.now()
+        this.status = UserStatus.WAITING_FOR_CONFIRMATION
     }
 
     fun updatePassword(encodedPassword: String) {
@@ -76,6 +82,8 @@ class DomainUser(
     val fullName: String?
         get() = "%s %s".format(firstName, lastName)
 
+    fun isActive(): Boolean = UserStatus.ACTIVE == this.status
+
     companion object {
 
         fun newUser(
@@ -90,7 +98,7 @@ class DomainUser(
                 username = username,
                 email = email,
                 password = password,
-                disabled = true,
+                status = UserStatus.INACTIVE,
                 roles = roles ?: emptySet(),
                 firstName = firstName,
                 lastName = lastName,

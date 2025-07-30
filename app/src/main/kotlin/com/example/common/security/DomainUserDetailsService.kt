@@ -14,7 +14,7 @@ class DomainUserDetailsService(val userRepository: UserRepository) : UserDetails
     override fun loadUserByUsername(username: String): UserDetails =
         userRepository
             .findByUsernameOrEmailIgnoreCase(username, username)
-            ?.takeIf { !it.disabled }
+            ?.takeIf { it.isActive() }
             ?.let { createSpringSecurityUser(it) }
             ?: throw UsernameNotFoundException("user account $username NOT found OR disabled")
 

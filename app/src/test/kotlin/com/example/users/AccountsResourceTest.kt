@@ -13,7 +13,6 @@ fun DomainUser.Companion.defaultTestUser(disabled: Boolean = true): DomainUser =
         username = DEFAULT_TEST_USERNAME,
         email = DEFAULT_TEST_EMAIL,
         password = "{noop}$DEFAULT_TEST_PASSWORD",
-        disabled = disabled,
         roles = emptySet(),
         firstName = "john",
         lastName = "doe",

@@ -61,9 +61,9 @@ constructor(
 
         val user = userRepository.findByLogin(DUMMY_EMAIL) ?: fail("user was NOT persisted")
 
-        assertThat(user.disabled)
-            .withFailMessage("account should be disabled after requesting password reset")
-            .isTrue
+        assertThat(user.status)
+            .withFailMessage("account should be waiting for confirmation state")
+            .isEqualTo(UserStatus.WAITING_FOR_CONFIRMATION)
         assertThat(user.resetKey).isNotBlank
         assertThat(user.resetDate)
             .`as`("timestamp when reset was requested")
@@ -104,9 +104,9 @@ constructor(
 
         val updatedUser = userRepository.findByLogin(DUMMY_USERNAME) ?: fail("user NOT found")
 
-        assertThat(updatedUser.disabled)
+        assertThat(updatedUser.status)
             .withFailMessage { "user account is still disabled" }
-            .isFalse
+            .isEqualTo(UserStatus.ACTIVE)
         assertThat(updatedUser.resetKey).isNull()
         assertThat(updatedUser.resetDate).isNull()
         assertThat(passwordEncoder.matches("newsupersecurepassword", updatedUser.password))

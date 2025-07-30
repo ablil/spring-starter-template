@@ -25,12 +25,11 @@ class UsersRepositoryTest {
     @Test
     fun `should set auditing fields`() {
         val domainUser =
-            repository.saveAndFlush(
+            repository.save(
                 DomainUser(
                     username = "johndoe",
                     email = "johndoe@example.com",
                     password = "supersecurepassword",
-                    disabled = false,
                     roles = setOf(AuthorityConstants.ADMIN),
                     firstName = null,
                     lastName = null,

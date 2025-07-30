@@ -40,12 +40,13 @@ class AccountService(
         }
 
         userRepository
-            .saveAndFlush(
+            .save(
                 DomainUser.newUser(
-                    username = dto.username,
-                    email = dto.email,
-                    password = passwordEncoder.encode(dto.password),
-                )
+                        username = dto.username,
+                        email = dto.email,
+                        password = passwordEncoder.encode(dto.password),
+                    )
+                    .also { it.status = UserStatus.WAITING_FOR_CONFIRMATION }
             )
             .also { mailService?.sendAccountRegistrationEmail(it) }
         logger.info("created new user successfully")
@@ -53,7 +54,7 @@ class AccountService(
 
     fun activateAccount(@NotBlank key: String) {
         val user = userRepository.findOneByActivationKey(key) ?: throw NoSuchElementException()
-        if (!(user.disabled)) {
+        if (user.isActive()) {
             logger.warn("attempted to activate an already activated account")
         }
 
@@ -65,7 +66,7 @@ class AccountService(
     fun requestPasswordReset(@Email email: String) {
         userRepository
             .findByEmailIgnoreCase(email)
-            ?.takeUnless { it.disabled }
+            ?.takeIf { it.isActive() }
             ?.also { it.resetAccount(generateRandomKey()) }
             ?.let { userRepository.save(it) }
             ?.also { mailService?.sendPasswordResetLinkEmail(it) }
@@ -74,8 +75,9 @@ class AccountService(
 
     fun finishPasswordReset(@NotBlank resetKey: String, @NotBlank newRawPassword: String) {
         val user =
-            userRepository.findOneByResetKey(resetKey)?.also { check(it.disabled) }
-                ?: throw InvalidKey()
+            userRepository.findOneByResetKey(resetKey)?.also {
+                check(it.status == UserStatus.WAITING_FOR_CONFIRMATION)
+            } ?: throw InvalidKey()
         if (passwordEncoder.matches(newRawPassword, user.password)) {
             throw UsingOldPassword()
         }
@@ -114,7 +116,7 @@ class AccountService(
     fun updateUserInfo(info: UserInfoDTO) {
         val login = SecurityUtils.currentUserLogin()
         val user = userRepository.findByLogin(login) ?: throw UserNotFound()
-        check(user.disabled.not()) { "user account is disabled" }
+        check(user.isActive()) { "user account is disabled" }
 
         if (user.email != info.email && userRepository.existsByEmailIgnoreCase(info.email)) {
             logger.warn("user attempted to update email to an already existing one")
@@ -122,7 +124,7 @@ class AccountService(
         }
 
         val updatedUser =
-            userRepository.saveAndFlush(
+            userRepository.save(
                 user.apply {
                     updateUserInfo(
                         email = info.email,
@@ -139,7 +141,7 @@ class AccountService(
     fun getAuthenticatedUser(): DomainUser {
         val user = userRepository.findByLogin(SecurityUtils.currentUserLogin())
         checkNotNull(user) { "authenticated user expected to be on the system" }
-        check(!user.disabled) { "authenticated user should NOT be disabled" }
+        check(user.isActive()) { "authenticated user should NOT be disabled" }
         return user
     }
 }

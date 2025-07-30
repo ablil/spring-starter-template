@@ -68,7 +68,7 @@ constructor(
         Assertions.assertThat(user.password)
             .`as`("encoded password")
             .isNotEqualTo("supersecurepassword")
-        Assertions.assertThat(user.disabled).isTrue
+        Assertions.assertThat(user.status).isEqualTo(UserStatus.WAITING_FOR_CONFIRMATION)
         Assertions.assertThat(user.roles).isEmpty()
         Assertions.assertThat(user.activationKey)
             .withFailMessage("activation key was not generated")

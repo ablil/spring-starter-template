@@ -76,7 +76,7 @@ fun DomainUser.toResponse(): GetAllUsers200ResponseContentInner {
         id = this.id,
         username = this.username,
         email = this.email,
-        disabled = this.disabled,
+        disabled = !this.isActive(),
         firstName = this.firstName,
         lastName = this.lastName,
         fullName = this.fullName,

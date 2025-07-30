@@ -4,7 +4,6 @@ import com.example.common.JPATestConfiguration
 import com.example.users.SignInIT.Companion.DUMMY_EMAIL
 import com.example.users.SignInIT.Companion.DUMMY_PASSWORD
 import com.example.users.SignInIT.Companion.DUMMY_USERNAME
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.fail
 import org.junit.jupiter.api.BeforeEach
@@ -22,11 +21,7 @@ import org.springframework.test.web.servlet.get
 @AutoConfigureMockMvc
 class AccountActivationIT
 @Autowired
-constructor(
-    val mockMvc: MockMvc,
-    val objectMapper: ObjectMapper,
-    val userRepository: UserRepository,
-) {
+constructor(val mockMvc: MockMvc, val userRepository: UserRepository) {
 
     lateinit var testUser: DomainUser
 
@@ -54,7 +49,9 @@ constructor(
 
         val user: DomainUser = userRepository.findByLogin(DUMMY_USERNAME) ?: fail("user NOT found")
 
-        assertThat(user.disabled).withFailMessage { "user account is still disabled" }.isFalse
+        assertThat(user.status)
+            .withFailMessage { "user account should be activated" }
+            .isEqualTo(UserStatus.ACTIVE)
         assertThat(user.activationKey).withFailMessage { "activation key was not removed" }.isNull()
     }
 

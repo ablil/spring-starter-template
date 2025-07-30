@@ -22,7 +22,6 @@ import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
-import org.springframework.web.servlet.function.RequestPredicates.contentType
 
 @SpringBootTest
 @ContextConfiguration(classes = [JPATestConfiguration::class])
@@ -59,7 +58,7 @@ constructor(
             status { isOk() }
             jsonPath("$.username") { equals(testUser.username) }
             jsonPath("$.email") { equals(testUser.email) }
-            jsonPath("$.disabled") { value(testUser.disabled) }
+            jsonPath("$.disabled") { value(!(testUser.isActive())) }
             jsonPath("$.roles") { value(testUser.roles.map { it.name }) }
         }
     }

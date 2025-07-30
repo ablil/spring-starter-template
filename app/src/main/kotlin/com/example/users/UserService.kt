@@ -35,7 +35,7 @@ class UserService(val userRepository: UserRepository, val passwordEncoder: Passw
         }
 
         return userRepository
-            .saveAndFlush(
+            .save(
                 user.apply {
                     updateUserInfo(
                         email = info.email,
@@ -62,7 +62,7 @@ class UserService(val userRepository: UserRepository, val passwordEncoder: Passw
         }
 
         return userRepository
-            .saveAndFlush(
+            .save(
                 DomainUser.newUser(
                         username = info.username,
                         email = info.email,
