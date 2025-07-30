@@ -19,6 +19,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.userdetails.User
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm
 import org.springframework.security.oauth2.jwt.JwtDecoder
@@ -112,7 +113,10 @@ class SecurityConfig {
             .let { http.build() }
 
     @Bean(value = ["adminAuthenticationManager"])
-    fun adminAuthenticationProvider(properties: AdminManagementProperties): AuthenticationManager {
+    fun adminAuthenticationProvider(
+        properties: AdminManagementProperties,
+        userDetailsService: UserDetailsService,
+    ): AuthenticationManager {
         val userDetailsService =
             InMemoryUserDetailsManager(
                 listOf(
@@ -126,9 +130,7 @@ class SecurityConfig {
                         .build()
                 )
             )
-        val authenticationProvider =
-            DaoAuthenticationProvider().also { it.setUserDetailsService(userDetailsService) }
-        return ProviderManager(authenticationProvider)
+        return ProviderManager(DaoAuthenticationProvider(userDetailsService))
     }
 }
 
