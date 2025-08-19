@@ -45,6 +45,16 @@ This command runs the application with the `SPRING_PROFILES_ACTIVE=debug` enviro
 *   **Spring Framework Debug Logs:** More verbose logging for Spring Web, Spring Security, and Spring Data JPA, providing deeper insights into framework operations.
 *   **Application-Specific Debug Logs:** All logs from the `com.example` package will be shown at `DEBUG` level.
 
+## Rate limiting
+
+Rate limiting can be enabled by setting the property `example.rate-limiting.enabled` and a new security filter will be added to the security filter chain.
+
+By default, requests are identified through their IP address from the `HttpServletRequest` or you can define a custom bean `RequestIdentifierResolver` to extract headers like *X-forwareded-for*.
+
+By default, a sliding window rate limiting implementation is configured through `example.rate-limting.sliding-window` and `example.rate-limiting.max-rate`, however you can also define your own `RateLimiter` implementation.
+
+
+
 # Tips
 
 Extract all environment variable defined in `application.yaml`

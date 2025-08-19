@@ -1,6 +1,8 @@
 package com.example.common.security
 
 import com.example.common.AdminManagementProperties
+import com.example.common.security.ratelimit.RateLimitConfig
+import com.example.common.security.ratelimit.RateLimitFilter
 import com.nimbusds.jose.jwk.source.ImmutableSecret
 import com.nimbusds.jose.util.Base64
 import javax.crypto.spec.SecretKeySpec
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.security.authentication.AuthenticationManager
@@ -28,10 +31,12 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.context.SecurityContextHolderFilter
 import org.springframework.web.filter.CommonsRequestLoggingFilter
 
 @Configuration
 @EnableMethodSecurity
+@Import(RateLimitConfig::class)
 @EnableConfigurationProperties(AdminManagementProperties::class)
 class SecurityConfig {
 
@@ -46,7 +51,10 @@ class SecurityConfig {
     @Bean fun responseLogger() = CommonResponseLoggingFilter()
 
     @Bean
-    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+    fun securityFilterChain(
+        http: HttpSecurity,
+        rateLimitingFilter: RateLimitFilter?,
+    ): SecurityFilterChain {
         http.invoke {
             authorizeHttpRequests {
                 authorize("/api/v1/signup", permitAll)
@@ -65,6 +73,9 @@ class SecurityConfig {
             sessionManagement { sessionCreationPolicy = SessionCreationPolicy.STATELESS }
             csrf { disable() }
             formLogin { disable() }
+            if (rateLimitingFilter != null) {
+                addFilterAfter<SecurityContextHolderFilter>(rateLimitingFilter)
+            }
         }
 
         return http.build()
@@ -93,6 +104,7 @@ class SecurityConfig {
     fun adminSecurityFilterChain(
         http: HttpSecurity,
         @Qualifier("adminAuthenticationManager") authManger: AuthenticationManager,
+        rateLimitingFilter: RateLimitFilter?,
     ): SecurityFilterChain =
         http
             .invoke {
@@ -109,6 +121,9 @@ class SecurityConfig {
                 httpBasic {}
                 formLogin { disable() }
                 authenticationManager = authManger
+                if (rateLimitingFilter != null) {
+                    addFilterAfter<SecurityContextHolderFilter>(rateLimitingFilter)
+                }
             }
             .let { http.build() }
 
