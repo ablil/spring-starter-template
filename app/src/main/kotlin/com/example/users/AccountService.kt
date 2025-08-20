@@ -1,6 +1,9 @@
 package com.example.users
 
-import com.example.common.MailService
+import com.example.common.events.AccountActivatedEvent
+import com.example.common.events.AccountCreatedEvent
+import com.example.common.events.PasswordChangedEvent
+import com.example.common.events.PasswordResetRequested
 import com.example.common.security.SecurityUtils
 import com.example.common.web.ApplicationException
 import jakarta.validation.constraints.Email
@@ -12,6 +15,7 @@ import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -25,7 +29,7 @@ private const val DEFAULT_KEY_LENGTH = 32
 class AccountService(
     val userRepository: UserRepository,
     val passwordEncoder: PasswordEncoder,
-    val mailService: MailService?,
+    val eventsPublisher: ApplicationEventPublisher,
 ) {
 
     @Value("\${example.authentication.reset-password-key-validity-in-seconds:86400}")
@@ -48,7 +52,7 @@ class AccountService(
                     )
                     .also { it.status = UserStatus.WAITING_FOR_CONFIRMATION }
             )
-            .also { mailService?.sendAccountRegistrationEmail(it) }
+            .also { eventsPublisher.publishEvent(AccountCreatedEvent(it)) }
         logger.info("created new user successfully")
     }
 
@@ -58,8 +62,7 @@ class AccountService(
             logger.warn("attempted to activate an already activated account")
         }
 
-        user.activateAccount()
-        mailService?.sendAccountActivationEmail(user)
+        user.activateAccount().also { eventsPublisher.publishEvent(AccountActivatedEvent(user)) }
         logger.info("user account activated successfully {}", user.email)
     }
 
@@ -69,7 +72,7 @@ class AccountService(
             ?.takeIf { it.isActive() }
             ?.also { it.resetAccount(generateRandomKey()) }
             ?.let { userRepository.save(it) }
-            ?.also { mailService?.sendPasswordResetLinkEmail(it) }
+            ?.also { eventsPublisher.publishEvent(PasswordResetRequested(it)) }
             ?: logger.warn("password reset request for unknown or disabled email {}", email)
     }
 
@@ -93,7 +96,7 @@ class AccountService(
                 updatePassword(passwordEncoder.encode(newRawPassword))
                 activateAccount()
             }
-            .also { mailService?.sendPasswordChangedEmail(user) }
+            .also { eventsPublisher.publishEvent(PasswordChangedEvent(user)) }
         logger.info("password reset for user {} completed", user.username)
     }
 
@@ -109,7 +112,7 @@ class AccountService(
         }
 
         user.updatePassword(passwordEncoder.encode(newPassword))
-        mailService?.sendPasswordChangedEmail(user)
+        eventsPublisher.publishEvent(PasswordChangedEvent(user))
         logger.info("user password updated successfully")
     }
 

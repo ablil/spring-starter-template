@@ -1,7 +1,6 @@
 package com.example.users
 
 import jakarta.validation.constraints.Email
-import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.openapitools.api.AccountsApi
 import org.openapitools.model.ChangePasswordRequest
@@ -58,18 +57,6 @@ data class RegistrationDTO(
             )
     }
 }
-
-data class EmailWrapper(@field:Email val email: String)
-
-data class KeyAndPassword(
-    @field:NotBlank val resetKey: String,
-    @field:Size(min = 10) val password: String,
-)
-
-data class ChangePasswordDTO(
-    @field:NotBlank val currentPassword: String,
-    @field:Size(min = 10) val newPassword: String,
-)
 
 data class UserInfoDTO(
     val firstName: String?,

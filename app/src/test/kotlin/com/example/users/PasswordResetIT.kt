@@ -1,6 +1,8 @@
 package com.example.users
 
 import com.example.common.JPATestConfiguration
+import com.example.common.events.PasswordChangedEvent
+import com.example.common.events.PasswordResetRequested
 import com.example.users.SignInIT.Companion.DUMMY_EMAIL
 import com.example.users.SignInIT.Companion.DUMMY_PASSWORD
 import com.example.users.SignInIT.Companion.DUMMY_USERNAME
@@ -18,12 +20,15 @@ import org.springframework.http.MediaType
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.event.ApplicationEvents
+import org.springframework.test.context.event.RecordApplicationEvents
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ContextConfiguration(classes = [JPATestConfiguration::class])
+@RecordApplicationEvents
 class PasswordResetIT
 @Autowired
 constructor(
@@ -33,11 +38,14 @@ constructor(
     val passwordEncoder: PasswordEncoder,
 ) {
 
+    @Autowired lateinit var events: ApplicationEvents
+
     lateinit var testUser: DomainUser
 
     @BeforeEach
     @WithMockUser // required to JPA auditor
     fun setup() {
+        events.clear()
         userRepository.deleteAllInBatch()
         testUser =
             userRepository.save(
@@ -68,6 +76,8 @@ constructor(
         assertThat(user.resetDate)
             .`as`("timestamp when reset was requested")
             .isAfter(Instant.now().minus(Duration.ofMinutes(3)))
+
+        assertThat(events.stream(PasswordResetRequested::class.java).count()).isEqualTo(1)
     }
 
     @Test
@@ -112,6 +122,8 @@ constructor(
         assertThat(passwordEncoder.matches("newsupersecurepassword", updatedUser.password))
             .withFailMessage { "user password was NOT updated" }
             .isTrue
+
+        assertThat(events.stream(PasswordChangedEvent::class.java).count()).isEqualTo(1)
     }
 
     @Test
