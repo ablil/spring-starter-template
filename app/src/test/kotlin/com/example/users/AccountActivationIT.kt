@@ -1,6 +1,7 @@
 package com.example.users
 
 import com.example.common.JPATestConfiguration
+import com.example.common.events.AccountActivatedEvent
 import com.example.users.SignInIT.Companion.DUMMY_EMAIL
 import com.example.users.SignInIT.Companion.DUMMY_PASSWORD
 import com.example.users.SignInIT.Companion.DUMMY_USERNAME
@@ -13,21 +14,27 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.event.ApplicationEvents
+import org.springframework.test.context.event.RecordApplicationEvents
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 
 @SpringBootTest
 @ContextConfiguration(classes = [JPATestConfiguration::class])
 @AutoConfigureMockMvc
+@RecordApplicationEvents
 class AccountActivationIT
 @Autowired
 constructor(val mockMvc: MockMvc, val userRepository: UserRepository) {
+
+    @Autowired lateinit var events: ApplicationEvents
 
     lateinit var testUser: DomainUser
 
     @BeforeEach
     @WithMockUser
     fun setup() {
+        events.clear()
         userRepository.deleteAllInBatch()
         testUser =
             userRepository.save(
@@ -53,6 +60,8 @@ constructor(val mockMvc: MockMvc, val userRepository: UserRepository) {
             .withFailMessage { "user account should be activated" }
             .isEqualTo(UserStatus.ACTIVE)
         assertThat(user.activationKey).withFailMessage { "activation key was not removed" }.isNull()
+
+        assertThat(events.stream(AccountActivatedEvent::class.java).count()).isEqualTo(1)
     }
 
     @Test

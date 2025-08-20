@@ -1,6 +1,7 @@
 package com.example.users
 
 import com.example.common.JPATestConfiguration
+import com.example.common.events.PasswordChangedEvent
 import com.example.users.SignInIT.Companion.DUMMY_EMAIL
 import com.example.users.SignInIT.Companion.DUMMY_PASSWORD
 import com.example.users.SignInIT.Companion.DUMMY_USERNAME
@@ -15,6 +16,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.event.ApplicationEvents
+import org.springframework.test.context.event.RecordApplicationEvents
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
@@ -23,6 +26,7 @@ import org.springframework.test.web.servlet.put
 @SpringBootTest
 @ContextConfiguration(classes = [JPATestConfiguration::class])
 @AutoConfigureMockMvc
+@RecordApplicationEvents
 class AccountIT
 @Autowired
 constructor(
@@ -30,6 +34,8 @@ constructor(
     val objectMapper: ObjectMapper,
     val userRepository: UserRepository,
 ) {
+
+    @Autowired lateinit var events: ApplicationEvents
 
     lateinit var testUser: DomainUser
 
@@ -138,6 +144,8 @@ constructor(
                     )
             }
             .andExpect { status { isNoContent() } }
+
+        assertThat(events.stream(PasswordChangedEvent::class.java).count()).isEqualTo(1)
     }
 
     @Test

@@ -1,11 +1,13 @@
 package com.example.users
 
 import com.example.common.JPATestConfiguration
+import com.example.common.events.AccountCreatedEvent
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.stream.Stream
 import kotlin.test.junit5.JUnit5Asserter
 import kotlin.text.format
 import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -17,12 +19,15 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.event.ApplicationEvents
+import org.springframework.test.context.event.RecordApplicationEvents
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
 
 @SpringBootTest
 @ContextConfiguration(classes = [JPATestConfiguration::class])
 @AutoConfigureMockMvc
+@RecordApplicationEvents
 class SignUpIT
 @Autowired
 constructor(
@@ -31,9 +36,12 @@ constructor(
     val userRepository: UserRepository,
 ) {
 
+    @Autowired lateinit var events: ApplicationEvents
+
     @BeforeEach
     @WithMockUser // required to JPA auditor
     fun setup() {
+        events.clear()
         userRepository.deleteAllInBatch()
         userRepository.save(
             DomainUser.newUser(
@@ -73,6 +81,8 @@ constructor(
         Assertions.assertThat(user.activationKey)
             .withFailMessage("activation key was not generated")
             .isNotBlank
+
+        assertThat(events.stream(AccountCreatedEvent::class.java).count()).isEqualTo(1)
     }
 
     @ParameterizedTest
