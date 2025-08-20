@@ -1,28 +1,27 @@
 package com.example.common.security
 
-import com.example.common.AdminManagementProperties
 import com.example.common.security.ratelimit.RateLimitConfig
-import com.example.common.security.ratelimit.RateLimitFilter
+import com.example.common.security.ratelimit.RateLimitConfigurer
 import com.nimbusds.jose.jwk.source.ImmutableSecret
 import com.nimbusds.jose.util.Base64
 import javax.crypto.spec.SecretKeySpec
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty
+import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
-import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.userdetails.User
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm
 import org.springframework.security.oauth2.jwt.JwtDecoder
@@ -31,13 +30,15 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.context.SecurityContextHolderFilter
 import org.springframework.web.filter.CommonsRequestLoggingFilter
+
+@ConfigurationProperties(prefix = "example.technical-user")
+data class TechnicalUserProperties(val username: String, val password: String)
 
 @Configuration
 @EnableMethodSecurity
 @Import(RateLimitConfig::class)
-@EnableConfigurationProperties(AdminManagementProperties::class)
+@EnableConfigurationProperties(TechnicalUserProperties::class)
 class SecurityConfig {
 
     @Bean
@@ -51,11 +52,11 @@ class SecurityConfig {
     @Bean fun responseLogger() = CommonResponseLoggingFilter()
 
     @Bean
-    fun securityFilterChain(
-        http: HttpSecurity,
-        rateLimitingFilter: RateLimitFilter?,
-    ): SecurityFilterChain {
+    fun apiFilterChain(http: HttpSecurity): SecurityFilterChain {
         http.invoke {
+            securityMatcher("/api/**")
+            with(CommonSecurityConfigurations())
+            with(RateLimitConfigurer())
             authorizeHttpRequests {
                 authorize("/api/v1/signup", permitAll)
                 authorize("/api/v1/accounts/activate", permitAll)
@@ -63,21 +64,55 @@ class SecurityConfig {
                 authorize("/api/v1/resetpassword/init", permitAll)
                 authorize("/api/v1/resetpassword", permitAll)
 
-                authorize("/swagger-ui/**", permitAll)
-                authorize("/v3/api-docs/**", permitAll)
-                authorize("/oas3/**", permitAll)
-
+                authorize("/api/v1/users/**", hasAuthority(AuthorityConstants.ADMIN.name))
                 authorize(anyRequest, authenticated)
             }
+
             oauth2ResourceServer { jwt {} }
-            sessionManagement { sessionCreationPolicy = SessionCreationPolicy.STATELESS }
-            csrf { disable() }
-            formLogin { disable() }
-            if (rateLimitingFilter != null) {
-                addFilterAfter<SecurityContextHolderFilter>(rateLimitingFilter)
+        }
+        return http.build()
+    }
+
+    @Bean
+    @ConditionalOnBooleanProperty("example.technical-user.enabled")
+    fun actuatorFilterChain(
+        http: HttpSecurity,
+        technicalUserProperties: TechnicalUserProperties,
+    ): SecurityFilterChain {
+        http.invoke {
+            securityMatcher("/actuator/**")
+            with(CommonSecurityConfigurations())
+            with(TechnicalUserBasicAuthConfigurer(technicalUserProperties))
+            authorizeHttpRequests {
+                authorize("/actuator/health", permitAll)
+                authorize("/actuator/info", permitAll)
+
+                authorize(anyRequest, hasAuthority(AuthorityConstants.ADMIN.name))
             }
         }
+        return http.build()
+    }
 
+    @Bean
+    fun swaggerFilterChain(http: HttpSecurity): SecurityFilterChain {
+        http.invoke {
+            securityMatcher("/swagger-ui/**", "/v3/api-docs/**", "/oas3/**")
+            with(CommonSecurityConfigurations())
+            authorizeHttpRequests { authorize(anyRequest, permitAll) }
+        }
+        return http.build()
+    }
+
+    @Bean
+    @Order(Ordered.LOWEST_PRECEDENCE)
+    fun fallbackSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {
+        http.invoke {
+            authorizeHttpRequests {
+                authorize("/actuator/health", permitAll)
+                authorize("/error", permitAll)
+                authorize(anyRequest, denyAll)
+            }
+        }
         return http.build()
     }
 
@@ -98,57 +133,52 @@ class SecurityConfig {
         Base64.from(base64SecretKey).decode().let {
             SecretKeySpec(it, 0, it.size, MacAlgorithm.HS256.name)
         }
-
-    @Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    fun adminSecurityFilterChain(
-        http: HttpSecurity,
-        @Qualifier("adminAuthenticationManager") authManger: AuthenticationManager,
-        rateLimitingFilter: RateLimitFilter?,
-    ): SecurityFilterChain =
-        http
-            .invoke {
-                securityMatcher("/actuator/**")
-                authorizeHttpRequests {
-                    authorize("/actuator/health", permitAll)
-                    authorize("/actuator/info", permitAll)
-                    authorize("/actuator/prometheus", permitAll)
-                    authorize(anyRequest, hasAuthority(AuthorityConstants.ADMIN.name))
-                }
-
-                sessionManagement { sessionCreationPolicy = SessionCreationPolicy.STATELESS }
-                csrf { disable() }
-                httpBasic {}
-                formLogin { disable() }
-                authenticationManager = authManger
-                if (rateLimitingFilter != null) {
-                    addFilterAfter<SecurityContextHolderFilter>(rateLimitingFilter)
-                }
-            }
-            .let { http.build() }
-
-    @Bean(value = ["adminAuthenticationManager"])
-    fun adminAuthenticationProvider(
-        properties: AdminManagementProperties,
-        userDetailsService: UserDetailsService,
-    ): AuthenticationManager {
-        val userDetailsService =
-            InMemoryUserDetailsManager(
-                listOf(
-                    User.builder()
-                        .username(properties.username)
-                        .password("{noop}${properties.password}")
-                        .disabled(false)
-                        .authorities(AuthorityConstants.ADMIN.name)
-                        .accountLocked(false)
-                        .accountExpired(false)
-                        .build()
-                )
-            )
-        return ProviderManager(DaoAuthenticationProvider(userDetailsService))
-    }
 }
 
 enum class AuthorityConstants {
     ADMIN
+}
+
+class CommonSecurityConfigurations :
+    AbstractHttpConfigurer<CommonSecurityConfigurations, HttpSecurity>() {
+
+    override fun init(builder: HttpSecurity?) {
+        builder
+            ?.csrf()
+            ?.disable()
+            ?.formLogin()
+            ?.disable()
+            ?.cors()
+            ?.disable()
+            ?.sessionManagement()
+            ?.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+    }
+}
+
+class TechnicalUserBasicAuthConfigurer(val technicalUserProperties: TechnicalUserProperties) :
+    AbstractHttpConfigurer<TechnicalUserBasicAuthConfigurer, HttpSecurity>() {
+    override fun init(builder: HttpSecurity?) {
+        builder?.httpBasic {}
+    }
+
+    override fun configure(builder: HttpSecurity?) {
+        builder?.authenticationManager(
+            ProviderManager(
+                DaoAuthenticationProvider(
+                    InMemoryUserDetailsManager(
+                        listOf(
+                            User.builder()
+                                .username(technicalUserProperties.username)
+                                .password("{noop}%s".format(technicalUserProperties.password))
+                                .authorities(AuthorityConstants.ADMIN.name)
+                                .disabled(false)
+                                .accountLocked(false)
+                                .accountExpired(false)
+                                .build()
+                        )
+                    )
+                )
+            )
+        )
+    }
 }
