@@ -70,6 +70,16 @@ set through `example.technical-user.username` and `example.technical-user.passwo
 
 When enabled, spring security will expose actuator endpoints through basic auth with the specified credentials (above)
 
+## Mail
+
+if `mail.host` is provided, mail will be configured, otherwise it will be ignored and all email will be logged (warning level).
+
+By default, a fake docker image is set on `compose.yaml` file with a web interface.
+
+smtp server: http://localhost:1025
+
+web ui: http://localhost:8025
+
 # Tips
 
 Extract all environment variable defined in `application.yaml`

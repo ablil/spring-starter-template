@@ -10,6 +10,13 @@ services:
     ports:
       - 5432:5432
 
+  smtp:
+    image: mailhog/mailhog:v1.0.1
+    container_name: smtp
+    ports:
+      - 1025:1025
+      - 8025:8025 # web interface
+
   app:
     image: spring-starter-template:latest
     ports:
