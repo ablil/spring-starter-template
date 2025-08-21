@@ -29,7 +29,7 @@ class DomainUser(
     @Column(unique = true) var username: String,
     @Column(unique = true) var email: String,
     @JsonIgnore var password: String,
-    var status: UserStatus = UserStatus.INACTIVE,
+    @Enumerated(EnumType.STRING) var status: UserStatus = UserStatus.INACTIVE,
     @Enumerated(EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER, targetClass = AuthorityConstants::class)
     @CollectionTable(name = "authorities")
@@ -80,7 +80,7 @@ class DomainUser(
     }
 
     val fullName: String?
-        get() = "%s %s".format(firstName, lastName)
+        get() = listOfNotNull(lastName, firstName).takeUnless { it.isEmpty() }?.joinToString(" ")
 
     fun isActive(): Boolean = UserStatus.ACTIVE == this.status
 

@@ -47,7 +47,7 @@ class EmailEventsListeners(
                     setVariables(
                         mapOf(
                             "applicationName" to applicationName,
-                            "fullName" to event.user.fullName,
+                            "fullName" to (event.user.fullName ?: event.user.email),
                             "activationLink" to
                                 "%s?key=%s"
                                     .format(
@@ -66,7 +66,8 @@ class EmailEventsListeners(
             to = event.user.email,
             title = "Account activation",
             template = "accountActivated",
-            context = Context().apply { setVariable("fullName", event.user.fullName) },
+            context =
+                Context().apply { setVariable("fullName", event.user.fullName ?: event.user.email) },
         )
     }
 

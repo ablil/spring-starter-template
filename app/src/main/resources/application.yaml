@@ -21,11 +21,11 @@ spring:
     properties:
       hibernate:
         generate_statistics: false
-#  mail:
-#    host: ${MAIL_HOST}
-#    port: 25
-#    username: ${MAIL_USERNAME}
-#    password: ${MAIL_PASSWORD}
+  mail:
+    host: ${SMTP_SERVER:0.0.0.0}
+    port: ${SMTP_PORT:1025}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
 
 management:
   simple:
@@ -48,7 +48,7 @@ management:
 # custom application properties
 example:
   application:
-    base-url: https://example.com
+    base-url: http://0.0.0.0:8080
     urls:
       activation-link: ${example.application.base-url}/api/v1/accounts/activate
       reset-password-link: ${example.application.base-url}/reset
