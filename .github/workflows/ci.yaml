@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
 
       - run: docker login ghcr.io -u USERNAME -p ${{ github.token }}
