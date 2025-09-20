@@ -43,4 +43,4 @@ jobs:
 
       - name: Upload reports to job summary
         if: always()
-        uses: ./.github/actions/reports-converter
+        uses: ablil/junit5-reports-markdown-converter@main
