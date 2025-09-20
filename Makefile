@@ -1,6 +1,9 @@
 # havent yet decided if this makefile should be commited and maintained
 
-.PHONY: help
+.PHONY: assemble
+
+assemble:
+	./gradlew app:assemble -x app:jibDockerBuild
 
 help:
 	grep -E '^[a-z]+:' Makefile # display all targets
@@ -16,9 +19,6 @@ oas:
 
 run:
 	./gradlew :app:bootRun
-
-debug:
-	SPRING_PROFILES_ACTIVE=debug ./gradlew :app:bootRun
 
 psql:
 	docker exec -it spring-database psql -U postgres -d mydb
