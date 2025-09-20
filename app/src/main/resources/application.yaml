@@ -1,9 +1,6 @@
 spring:
   application:
     name: ${SERVICE_NAME:spring-starter-template}
-  output:
-    ansi:
-      enabled: always
   cache:
     type: caffeine
     cache-names: 'default'
@@ -63,10 +60,6 @@ example:
     enabled: true
     username: admin
     password: ${ADMIN_PASSWORD:supersecurepassword}
-  rate-limiting:
-    enabled: true
-    sliding-window: 60 # seconds
-    max-rate: 300 # max requests per sliding window
 
 springdoc:
   auto-tag-classes: false
@@ -88,6 +81,7 @@ springdoc:
         name: accounts
       - url: oas3/authentication.yaml
         name: authentication
+
 logging:
   level:
-    com.example: debug
+    root: info

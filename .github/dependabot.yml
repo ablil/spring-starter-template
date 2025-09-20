@@ -1,10 +1,15 @@
 version: 2
 updates:
-- package-ecosystem: gradle
-  directory: "/"
-  schedule:
-    interval: monthly
-- package-ecosystem: github-actions
-  directory: "/"
-  schedule:
-    interval: monthly
+  - package-ecosystem: gradle
+    directory: "/"
+    schedule:
+      interval: monthly
+    ignore:
+      # ignore bumping kotlin version because of compatibility issue with detekt
+      # ref: https://detekt.dev/docs/introduction/compatibility#tool-versions
+      - dependency-name: "org.jetbrains.kotlin:kotlin-gradle-plugin"
+        versions: [ "2.x" ]
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly

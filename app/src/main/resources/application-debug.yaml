@@ -1,8 +1,0 @@
-spring:
-  jpa:
-    properties:
-      hibernate:
-        generate_statistics: false
-logging:
-  level:
-    org.springframework.security: debug

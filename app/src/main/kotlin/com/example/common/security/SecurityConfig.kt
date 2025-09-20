@@ -1,7 +1,5 @@
 package com.example.common.security
 
-import com.example.common.security.ratelimit.RateLimitConfig
-import com.example.common.security.ratelimit.RateLimitConfigurer
 import com.nimbusds.jose.jwk.source.ImmutableSecret
 import com.nimbusds.jose.util.Base64
 import javax.crypto.spec.SecretKeySpec
@@ -11,7 +9,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Import
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.security.authentication.ProviderManager
@@ -37,7 +34,6 @@ data class TechnicalUserProperties(val username: String, val password: String)
 
 @Configuration
 @EnableMethodSecurity
-@Import(RateLimitConfig::class)
 @EnableConfigurationProperties(TechnicalUserProperties::class)
 class SecurityConfig {
 
@@ -49,14 +45,11 @@ class SecurityConfig {
             this.setIncludeQueryString(true)
         }
 
-    @Bean fun responseLogger() = CommonResponseLoggingFilter()
-
     @Bean
     fun apiFilterChain(http: HttpSecurity): SecurityFilterChain {
         http.invoke {
             securityMatcher("/api/**")
             with(CommonSecurityConfigurations())
-            with(RateLimitConfigurer())
             authorizeHttpRequests {
                 authorize("/api/v1/signup", permitAll)
                 authorize("/api/v1/accounts/activate", permitAll)
@@ -89,6 +82,9 @@ class SecurityConfig {
 
                 authorize(anyRequest, hasAuthority(AuthorityConstants.ADMIN.name))
             }
+            sessionManagement { sessionCreationPolicy = SessionCreationPolicy.STATELESS }
+            csrf { disable() }
+            formLogin { disable() }
         }
         return http.build()
     }
