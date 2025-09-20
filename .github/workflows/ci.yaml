@@ -44,3 +44,5 @@ jobs:
       - name: Upload reports to job summary
         if: always()
         uses: ablil/junit5-reports-markdown-converter@main
+        with:
+          tests_directory: app/build/test-results/test
