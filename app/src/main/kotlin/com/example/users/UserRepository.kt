@@ -29,5 +29,5 @@ interface UserRepository :
 
     fun findOneByResetKey(key: String): DomainUser?
 
-    @Transactional fun deleteByUsernameIgnoreCase(username: String): Int
+    @Transactional fun deleteByUsernameIgnoreCase(username: String): DomainUser?
 }

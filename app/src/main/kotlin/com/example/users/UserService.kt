@@ -49,8 +49,8 @@ class UserService(val userRepository: UserRepository, val passwordEncoder: Passw
     }
 
     fun deleteUser(@NotBlank username: String) {
-        val count = userRepository.deleteByUsernameIgnoreCase(username)
-        if (count == 0) throw UserNotFound()
+        val count: DomainUser? = userRepository.deleteByUsernameIgnoreCase(username)
+        if (count == null) throw UserNotFound()
     }
 
     fun createUser(info: CreateOrUpdateUserDTO): DomainUser {
