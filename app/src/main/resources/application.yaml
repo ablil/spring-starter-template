@@ -1,9 +1,6 @@
 spring:
   application:
     name: ${SERVICE_NAME:spring-starter-template}
-  output:
-    ansi:
-      enabled: always
   cache:
     type: caffeine
     cache-names: 'default'
@@ -88,6 +85,7 @@ springdoc:
         name: accounts
       - url: oas3/authentication.yaml
         name: authentication
+
 logging:
   level:
-    com.example: debug
+    root: info

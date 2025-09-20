@@ -1,7 +1,0 @@
-spring:
-  output:
-    ansi:
-      enabled: never
-
-logging:
-  config: classpath:logback-datadog.xml

@@ -49,8 +49,6 @@ class SecurityConfig {
             this.setIncludeQueryString(true)
         }
 
-    @Bean fun responseLogger() = CommonResponseLoggingFilter()
-
     @Bean
     fun apiFilterChain(http: HttpSecurity): SecurityFilterChain {
         http.invoke {

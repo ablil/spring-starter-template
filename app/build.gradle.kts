@@ -37,9 +37,6 @@ dependencies {
     testRuntimeOnly("com.h2database:h2")
 
 
-    implementation("ch.qos.logback:logback-classic:1.5.+")
-    implementation("net.logstash.logback:logstash-logback-encoder:8.1")
-
     runtimeOnly("org.hibernate.orm:hibernate-micrometer")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
@@ -47,7 +44,7 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine:3.2.+")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.+")
     detektPlugins("com.github.ablil:detekt-extension:v0.1.0")
-
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
 }
 
 kotlin {
