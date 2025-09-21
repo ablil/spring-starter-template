@@ -11,6 +11,9 @@ help:
 clean:
 	./gradlew clean
 
+build:
+	./gradlew build
+
 containers:
 	docker compose up -d
 

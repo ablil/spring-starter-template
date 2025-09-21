@@ -100,10 +100,14 @@ springBoot {
     buildInfo()
 }
 
-detekt {
-    config.setFrom("src/main/resources/config/config.yml")
-    buildUponDefaultConfig = true
+tasks.detekt {
+    // disabled until 2.0.0 is released with support for newer version of Kotlin
+    enabled = false
 }
+//detekt {
+//    config.setFrom("src/main/resources/config/config.yml")
+//    buildUponDefaultConfig = true
+//}
 
 gitProperties {
     dotGitDirectory.set(project.rootProject.layout.projectDirectory.dir(".git"))
