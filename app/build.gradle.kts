@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.jpa)
     alias(libs.plugins.springframework.boot)
     id("io.spring.dependency-management")
-    id("com.diffplug.spotless") version "7.1.+"
+    id("com.diffplug.spotless") version "8.0.0"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
     id("com.google.cloud.tools.jib") version "3.4.+"
     id("com.gorylenko.gradle-git-properties") version "2.5.+"
@@ -56,7 +56,7 @@ kotlin {
 spotless {
     kotlin {
         toggleOffOn()
-        ktfmt("0.56").kotlinlangStyle()
+        ktfmt("0.58").kotlinlangStyle()
     }
 }
 
