@@ -6,7 +6,7 @@ import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.springframework.boot)
-    id("org.openapi.generator") version "7.15.+"
+    id("org.openapi.generator") version "7.16.+"
     id("io.spring.dependency-management")
 }
 
