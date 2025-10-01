@@ -41,7 +41,7 @@ dependencies {
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
     runtimeOnly("com.github.ben-manes.caffeine:caffeine:3.2.+")
-    implementation("org.apache.commons:commons-lang3:3.18.+")
+    implementation("org.apache.commons:commons-lang3:3.19.+")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.+")
     compileOnly("com.github.ablil:detekt-extension:v0.1.0")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
