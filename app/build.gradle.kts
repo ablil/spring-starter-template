@@ -31,7 +31,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:6.0.+")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:6.1.+")
 
     runtimeOnly("org.postgresql:postgresql")
     testRuntimeOnly("com.h2database:h2")
