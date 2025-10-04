@@ -1,13 +1,13 @@
-package com.example.users
+package com.example.authentication
 
+import com.example.authentication.SignInIT.Companion.DUMMY_EMAIL
+import com.example.authentication.SignInIT.Companion.DUMMY_PASSWORD
+import com.example.authentication.SignInIT.Companion.DUMMY_USERNAME
 import com.example.common.JPATestConfiguration
 import com.example.common.entities.DomainUser
 import com.example.common.entities.UserStatus
 import com.example.common.events.AccountActivatedEvent
 import com.example.common.repositories.UserRepository
-import com.example.users.SignInIT.Companion.DUMMY_EMAIL
-import com.example.users.SignInIT.Companion.DUMMY_PASSWORD
-import com.example.users.SignInIT.Companion.DUMMY_USERNAME
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.fail
 import org.junit.jupiter.api.BeforeEach

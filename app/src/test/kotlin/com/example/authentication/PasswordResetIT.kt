@@ -1,14 +1,15 @@
-package com.example.users
+package com.example.authentication
 
+import com.example.authentication.SignInIT.Companion.DUMMY_EMAIL
+import com.example.authentication.SignInIT.Companion.DUMMY_PASSWORD
+import com.example.authentication.SignInIT.Companion.DUMMY_USERNAME
+import com.example.authentication.services.generateRandomKey
 import com.example.common.JPATestConfiguration
 import com.example.common.entities.DomainUser
 import com.example.common.entities.UserStatus
 import com.example.common.events.PasswordChangedEvent
 import com.example.common.events.PasswordResetRequested
 import com.example.common.repositories.UserRepository
-import com.example.users.SignInIT.Companion.DUMMY_EMAIL
-import com.example.users.SignInIT.Companion.DUMMY_PASSWORD
-import com.example.users.SignInIT.Companion.DUMMY_USERNAME
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.time.Duration
 import java.time.Instant

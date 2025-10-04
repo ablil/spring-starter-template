@@ -1,5 +1,8 @@
-package com.example.users
+package com.example.authentication.services
 
+import com.example.authentication.rest.RegistrationDTO
+import com.example.authentication.rest.UserInfoDTO
+import com.example.common.ApplicationException
 import com.example.common.entities.DomainUser
 import com.example.common.entities.UserStatus
 import com.example.common.events.AccountActivatedEvent
@@ -8,7 +11,6 @@ import com.example.common.events.PasswordChangedEvent
 import com.example.common.events.PasswordResetRequested
 import com.example.common.repositories.UserRepository
 import com.example.common.security.SecurityUtils
-import com.example.common.web.ApplicationException
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import java.time.Duration

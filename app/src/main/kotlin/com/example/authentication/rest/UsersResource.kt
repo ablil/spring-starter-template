@@ -1,5 +1,7 @@
-package com.example.users
+package com.example.authentication.rest
 
+import com.example.authentication.services.AdminOnly
+import com.example.authentication.services.UserService
 import com.example.common.configs.AuthorityConstants
 import com.example.common.entities.DomainUser
 import jakarta.validation.constraints.Email

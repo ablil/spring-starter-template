@@ -1,4 +1,4 @@
-package com.example.users
+package com.example.authentication
 
 import com.example.common.DEFAULT_TEST_AUDITOR
 import com.example.common.JPATestConfiguration

@@ -1,8 +1,8 @@
 package com.example.common.events
 
+import com.example.common.MailClient
 import com.example.common.configs.ApplicationUrls
 import com.example.common.entities.DomainUser
-import com.example.common.mail.MailClient
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEvent
 import org.springframework.context.event.EventListener

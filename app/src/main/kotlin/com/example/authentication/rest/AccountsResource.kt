@@ -1,5 +1,6 @@
-package com.example.users
+package com.example.authentication.rest
 
+import com.example.authentication.services.AccountService
 import com.example.common.entities.DomainUser
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Size

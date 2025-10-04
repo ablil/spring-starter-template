@@ -1,7 +1,7 @@
 package com.example.common.entities
 
+import com.example.authentication.services.generateRandomKey
 import com.example.common.configs.AuthorityConstants
-import com.example.users.generateRandomKey
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
