@@ -1,5 +1,6 @@
-package com.example.common.mail
+package com.example.common.configs
 
+import com.example.common.mail.MailClient
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.ConfigurationProperties

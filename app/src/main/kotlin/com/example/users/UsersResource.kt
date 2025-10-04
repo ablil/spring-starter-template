@@ -1,6 +1,6 @@
 package com.example.users
 
-import com.example.common.security.AuthorityConstants
+import com.example.common.configs.AuthorityConstants
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Size
 import java.net.URI

@@ -1,7 +1,7 @@
 package com.example.users
 
+import com.example.common.configs.AuthorityConstants
 import com.example.common.persistence.BaseEntity
-import com.example.common.security.AuthorityConstants
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column

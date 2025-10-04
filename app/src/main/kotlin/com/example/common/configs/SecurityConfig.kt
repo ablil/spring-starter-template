@@ -1,4 +1,4 @@
-package com.example.common.security
+package com.example.common.configs
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret
 import com.nimbusds.jose.util.Base64
@@ -79,6 +79,8 @@ class SecurityConfig {
             authorizeHttpRequests {
                 authorize("/actuator/health", permitAll)
                 authorize("/actuator/info", permitAll)
+                authorize("/actuator/caches/**", permitAll)
+                authorize("/actuator/metrics/**", permitAll)
 
                 authorize(anyRequest, hasAuthority(AuthorityConstants.ADMIN.name))
             }

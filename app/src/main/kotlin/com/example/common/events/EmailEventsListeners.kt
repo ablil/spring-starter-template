@@ -1,6 +1,6 @@
 package com.example.common.events
 
-import com.example.common.mail.ApplicationUrls
+import com.example.common.configs.ApplicationUrls
 import com.example.common.mail.MailClient
 import com.example.users.DomainUser
 import org.springframework.beans.factory.annotation.Value
