@@ -1,7 +1,7 @@
-package com.example.users
+package com.example.common.entities
 
 import com.example.common.configs.AuthorityConstants
-import com.example.common.persistence.BaseEntity
+import com.example.users.generateRandomKey
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column

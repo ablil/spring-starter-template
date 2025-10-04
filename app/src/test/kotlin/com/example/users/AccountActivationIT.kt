@@ -1,7 +1,10 @@
 package com.example.users
 
 import com.example.common.JPATestConfiguration
+import com.example.common.entities.DomainUser
+import com.example.common.entities.UserStatus
 import com.example.common.events.AccountActivatedEvent
+import com.example.common.repositories.UserRepository
 import com.example.users.SignInIT.Companion.DUMMY_EMAIL
 import com.example.users.SignInIT.Companion.DUMMY_PASSWORD
 import com.example.users.SignInIT.Companion.DUMMY_USERNAME

@@ -1,5 +1,6 @@
-package com.example.users
+package com.example.common.repositories
 
+import com.example.common.entities.DomainUser
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query

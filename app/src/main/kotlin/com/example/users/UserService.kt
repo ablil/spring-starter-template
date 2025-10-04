@@ -1,5 +1,7 @@
 package com.example.users
 
+import com.example.common.entities.DomainUser
+import com.example.common.repositories.UserRepository
 import jakarta.validation.constraints.NotBlank
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.data.domain.Page
