@@ -1,8 +1,10 @@
-package com.example.users
+package com.example.authentication
 
 import com.example.common.DEFAULT_TEST_AUDITOR
 import com.example.common.JPATestConfiguration
-import com.example.common.security.AuthorityConstants
+import com.example.common.configs.AuthorityConstants
+import com.example.common.entities.DomainUser
+import com.example.common.repositories.UserRepository
 import java.time.Instant
 import org.assertj.core.api.Java6Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach

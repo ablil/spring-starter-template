@@ -1,5 +1,6 @@
-package com.example.users
+package com.example.common.repositories
 
+import com.example.common.entities.DomainUser
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -14,7 +15,12 @@ interface UserRepository :
     @Query("select u from DomainUser u where u.username = :login or u.email = :login")
     fun findByLogin(login: String): DomainUser?
 
-    @Cacheable(cacheNames = [DEFAULT_CACHE], key = "#username", condition = "#username == #email")
+    @Cacheable(
+        cacheNames = [DEFAULT_CACHE],
+        key = "#username",
+        condition = "#username == #email",
+        unless = "#result == null",
+    )
     fun findByUsernameOrEmailIgnoreCase(username: String, email: String): DomainUser?
 
     fun findByUsernameIgnoreCase(username: String): DomainUser?

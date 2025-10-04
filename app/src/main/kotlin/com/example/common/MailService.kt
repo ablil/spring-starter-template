@@ -1,6 +1,6 @@
-package com.example.common.mail
+package com.example.common
 
-import com.example.users.getLogger
+import com.example.authentication.services.getLogger
 import jakarta.mail.MessagingException
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.mail.MailException

@@ -1,5 +1,6 @@
-package com.example.users
+package com.example.authentication.rest
 
+import com.example.authentication.services.AccountService
 import jakarta.validation.constraints.NotBlank
 import java.net.URI
 import java.time.Instant

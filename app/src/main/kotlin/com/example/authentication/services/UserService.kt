@@ -1,5 +1,8 @@
-package com.example.users
+package com.example.authentication.services
 
+import com.example.authentication.rest.CreateOrUpdateUserDTO
+import com.example.common.entities.DomainUser
+import com.example.common.repositories.UserRepository
 import jakarta.validation.constraints.NotBlank
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.data.domain.Page

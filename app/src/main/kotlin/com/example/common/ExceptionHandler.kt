@@ -1,6 +1,6 @@
-package com.example.common.web
+package com.example.common
 
-import com.example.users.getLogger
+import com.example.authentication.services.getLogger
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.web.bind.MethodArgumentNotValidException

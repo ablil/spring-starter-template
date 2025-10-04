@@ -1,4 +1,4 @@
-package com.example.common.persistence
+package com.example.common.configs
 
 import com.example.common.security.SecurityUtils
 import java.util.Optional
@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 
 @Configuration
 @EnableJpaAuditing
-class JpaConfiguration {
+class JPAConfiguration {
 
     @Bean
     fun jpaAuditor(): AuditorAware<String> =
