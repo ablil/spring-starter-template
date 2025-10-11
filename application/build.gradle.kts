@@ -8,11 +8,12 @@ plugins {
     alias(libs.plugins.springframework.dependencymanagement)
     alias(libs.plugins.kotlin.jpa)
     id("org.openapi.generator") version "7.15.+"
+    id("com.google.cloud.tools.jib") version "3.4.5"
 }
 
 
 version = rootProject.version
-
+val isCI = System.getenv("CI") == "true"
 
 dependencies {
     implementation(project(":domain-autoconfiguration"))
@@ -44,6 +45,9 @@ openApiGenerate {
     )
 }
 
+tasks.compileKotlin {
+    dependsOn(tasks.openApiGenerate)
+}
 // include generated code by openapi-generator as source code
 sourceSets {
     main {
@@ -53,4 +57,28 @@ sourceSets {
     }
 }
 
-// TODO: add jib plugin
+
+tasks.withType<com.google.cloud.tools.jib.gradle.JibTask>().configureEach {
+    notCompatibleWithConfigurationCache("because https://github.com/GoogleContainerTools/jib/issues/3132")
+}
+
+jib {
+    to {
+        image = rootProject.name
+        if (isCI) {
+            val tag = "latest".takeIf { System.getenv("GITHUB_REF_NAME") == "main" } ?: System.getenv("GITHUB_SHA")
+            image = "ghcr.io/${System.getenv("GITHUB_REPOSITORY")}:$tag"
+        }
+    }
+
+    container {
+        creationTime = "USE_CURRENT_TIMESTAMP"
+        ports = listOf("8080")
+    }
+}
+
+tasks.build {
+    if (isCI) {
+        dependsOn(tasks.jib)
+    }
+}
