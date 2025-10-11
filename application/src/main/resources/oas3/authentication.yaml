@@ -1,0 +1,146 @@
+openapi: 3.0.4
+info:
+  title: authentication
+  description: Collections of API to create user accounts, authenticate, register ....
+  version: 0.0.1
+
+servers:
+  - url: /
+
+tags:
+  - name: signin
+    description: Sign in
+  - name: signup
+    description: Sign up
+  - name: password
+    description: Password reset
+
+paths:
+  /api/v1/signin:
+    post:
+      operationId: signIn
+      tags: [signin]
+      summary: Signin with username or email and password
+      requestBody:
+        required: true
+        description: user credentials
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                login:
+                  type: string
+                  description: username or email
+                  example: johndoe
+                  minLength: 1
+                password:
+                  type: string
+                  minLength: 10
+                  example: supersecurepassword
+              required: [login, password]
+      responses:
+        200:
+          description: json web token (jwt)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    format: jwt
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
+  /api/v1/signup:
+    post:
+      operationId: signUp
+      summary: create new account
+      tags: [signup]
+      description: user will be notified via email to activate his account
+      requestBody:
+        required: true
+        description: user info
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: johndoe
+                  minLength: 6
+                email:
+                  type: string
+                  example: johndoe@example.com
+                  format: email
+                password:
+                  type: string
+                  minLength: 10
+                  example: supersecurepassword
+              required: [username, email, password]
+      responses:
+        201:
+          description: account created successfully
+  /api/v1/accounts/activate:
+    get:
+      operationId: activateAccount
+      summary: activate user account
+      tags: [signup]
+      parameters:
+        - in: query
+          name: key
+          required: true
+          description: activation key sent via email upon registration
+          schema:
+            type: string
+      responses:
+        204:
+          description: account activated successfully
+        404:
+          description: key not found
+
+  /api/v1/resetpassword/init:
+    post:
+      operationId: requestPasswordReset
+      summary: init the process to reset password
+      description: reset link will be sent via email
+      tags: [password]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: johndoe@example.com
+                  format: email
+              required: [email]
+      responses:
+        204:
+          description: reset link sent via email successfully
+  /api/v1/resetpassword:
+    post:
+      operationId: resetPassword
+      summary: reset password
+      tags: [password]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resetKey:
+                  type: string
+                  description: reset key sent via email
+                  example: 123456
+                password:
+                  type: string
+                  example: supersecurepassword
+                  description: new password
+              required: [resetKey, password]
+      responses:
+        204:
+          description: password reset successfully

@@ -1,0 +1,12 @@
+spring:
+  h2:
+    console:
+      enabled: true
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    username: test-dbadmin
+    password:
+    url: jdbc:h2:mem:mytestdb
+  cache:
+    type: none
