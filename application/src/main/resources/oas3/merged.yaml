@@ -1,0 +1,19 @@
+---
+servers:
+- url: "http://localhost:8080"
+openapi: "3.0.4"
+paths:
+  /api/v1/signup:
+    $ref: "./authentication.yaml#/paths/~1api~1v1~1signup"
+  /api/v1/resetpassword:
+    $ref: "./authentication.yaml#/paths/~1api~1v1~1resetpassword"
+  /api/v1/resetpassword/init:
+    $ref: "./authentication.yaml#/paths/~1api~1v1~1resetpassword~1init"
+  /api/v1/accounts/activate:
+    $ref: "./authentication.yaml#/paths/~1api~1v1~1accounts~1activate"
+  /api/v1/signin:
+    $ref: "./authentication.yaml#/paths/~1api~1v1~1signin"
+info:
+  title: "merged spec"
+  description: "merged spec"
+  version: "1.0.0"
