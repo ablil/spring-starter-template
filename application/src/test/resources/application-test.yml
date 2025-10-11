@@ -1,4 +1,7 @@
 spring:
+  h2:
+    console:
+      enabled: true
   main:
     allow-bean-definition-overriding: true
   datasource:

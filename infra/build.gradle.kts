@@ -1,22 +1,14 @@
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    id("com.diffplug.spotless") version "8.0.0"
+    id("conventions.kotlin-jvm")
+    id("conventions.spotless")
     alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.springframework.boot)
+    alias(libs.plugins.springframework.dependencymanagement)
     alias(libs.plugins.kotlin.jpa)
-    id("io.spring.dependency-management")
 }
 
 
 version = rootProject.version
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
 
 dependencies {
     implementation(project(":domain"))
@@ -30,26 +22,6 @@ dependencies {
     testRuntimeOnly("com.h2database:h2")
     testImplementation("org.mockito.kotlin:mockito-kotlin:6.1.0")
 }
-
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict")
-    }
-}
-
-spotless {
-    kotlin {
-        toggleOffOn()
-        ktfmt("0.58").kotlinlangStyle()
-    }
-}
-
-
-
-tasks.test {
-    useJUnitPlatform()
-    testLogging {
-        events("skipped", "failed")
-        exceptionFormat = TestExceptionFormat.SHORT
-    }
+tasks.bootJar {
+    enabled = false
 }

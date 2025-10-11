@@ -5,7 +5,6 @@ import com.example.domain.accounts.UsernameOrEmail
 import com.example.web.accounts.SignInControllerTest.Companion.johnDoe
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.openapitools.model.SignUpRequest

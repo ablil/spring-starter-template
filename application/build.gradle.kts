@@ -1,25 +1,18 @@
 import java.time.Instant
-import kotlin.jvm.java
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    id("com.diffplug.spotless") version "8.0.0"
+    id("conventions.kotlin-jvm")
+    id("conventions.spotless")
     alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.springframework.boot)
+    alias(libs.plugins.springframework.dependencymanagement)
     alias(libs.plugins.kotlin.jpa)
-    id("io.spring.dependency-management")
     id("org.openapi.generator") version "7.15.+"
 }
 
 
 version = rootProject.version
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
 
 dependencies {
     implementation(project(":domain-autoconfiguration"))
@@ -35,20 +28,9 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     testRuntimeOnly("com.h2database:h2")
+    runtimeOnly("com.h2database:h2")
 }
 
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict")
-    }
-}
-
-spotless {
-    kotlin {
-        toggleOffOn()
-        ktfmt("0.58").kotlinlangStyle()
-    }
-}
 
 
 
@@ -72,12 +54,3 @@ sourceSets {
 }
 
 // TODO: add jib plugin
-
-tasks.test {
-    useJUnitPlatform()
-    systemProperty("spring.profiles.active", "test")
-    testLogging {
-        events("skipped", "failed")
-        exceptionFormat = TestExceptionFormat.SHORT
-    }
-}
