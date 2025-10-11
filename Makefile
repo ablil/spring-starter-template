@@ -18,10 +18,10 @@ containers:
 	docker compose up -d
 
 oas:
-	./gradlew openApiGenerate
+	./gradlew application:openApiGenerate
 
 run:
-	./gradlew :app:bootRun
+	./gradlew :application:bootRun
 
 psql:
 	docker exec -it spring-database psql -U postgres -d mydb

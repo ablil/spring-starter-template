@@ -33,8 +33,6 @@ dependencies {
 }
 
 
-
-
 openApiGenerate {
     inputSpecRootDirectory = "$projectDir/src/main/resources/oas3"
     generatorName = "kotlin-spring"
@@ -48,6 +46,11 @@ openApiGenerate {
 tasks.compileKotlin {
     dependsOn(tasks.openApiGenerate)
 }
+
+tasks.spotlessKotlin {
+    dependsOn(tasks.openApiGenerate)
+}
+
 // include generated code by openapi-generator as source code
 sourceSets {
     main {
