@@ -34,11 +34,7 @@ class SecurityConfiguration {
                 authorize("/api/v1/resetpassword/init", permitAll)
                 authorize("/api/v1/resetpassword", permitAll)
 
-                // private endpoints
-                authorize("/", authenticated)
-
-                // deny everything else
-                authorize(anyRequest, denyAll)
+                authorize(anyRequest, authenticated)
             }
         }
 
