@@ -14,8 +14,10 @@ plugins {
 
 version = rootProject.version
 val isCI = System.getenv("CI") == "true"
+val isGcp = project.findProperty("gcp") == "true"
 
 dependencies {
+
     implementation(project(":domain-autoconfiguration"))
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -31,6 +33,14 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     testRuntimeOnly("com.h2database:h2")
     runtimeOnly("com.h2database:h2")
+
+
+    // uncomment this include when running with gcp profile
+    implementation(platform("com.google.cloud:spring-cloud-gcp-dependencies:6.4.0"))
+    implementation("com.google.cloud:spring-cloud-gcp-starter")
+    implementation("com.google.cloud:spring-cloud-gcp-starter-metrics")
+    implementation("com.google.cloud:spring-cloud-gcp-starter-logging")
+    implementation("com.google.cloud:spring-cloud-gcp-starter-trace")
 }
 
 
@@ -69,6 +79,13 @@ tasks.withType<com.google.cloud.tools.jib.gradle.JibTask>().configureEach {
 jib {
     to {
         image = project.findProperty("jib.image") as? String ?: throw GradleException("missing project property jib.image")
+
+        if (isGcp) {
+            auth {
+                username = "oauth2accesstoken"
+                password = "gcloud auth print-access-token".runCommand()
+            }
+        }
     }
 
     container {
@@ -81,4 +98,18 @@ tasks.build {
     if (isCI) {
         dependsOn(tasks.jib)
     }
+}
+
+fun String.runCommand(): String =
+    ProcessBuilder(this.split(" "))
+        .redirectErrorStream(true)
+        .start()
+        .inputStream
+        .bufferedReader()
+        .readText()
+        .trim()
+
+
+springBoot {
+    buildInfo()
 }

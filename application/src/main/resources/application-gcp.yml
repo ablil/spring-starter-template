@@ -2,6 +2,8 @@ spring:
   cloud:
     gcp:
       project-id: ${PROJECT_ID}
+      trace:
+        enabled: true
 
 
 logging:
@@ -9,3 +11,29 @@ logging:
     root: info
     org.springframework.web: debug
     org.springframework.security: debug
+  config: classpath:logback-gcp.xml
+
+
+management:
+  tracing:
+    sampling:
+      probability: 0.1
+    enabled: true
+  metrics:
+    tags:
+      app: ${spring.application.name}
+      instance: ${random.uuid}
+    enable:
+      datasource: false
+  stackdriver:
+    metrics:
+      export:
+        project-id: ${PROJECT_ID}
+        step: 30s
+
+
+info:
+  gcp:
+    project-id: ${PROJECT_ID}
+    region: ${REGION}
+    revision: ${K_REVISION}
