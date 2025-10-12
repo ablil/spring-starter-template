@@ -1,6 +1,6 @@
 spring:
   application:
-    name: myapplication
+    name: ${SERVICE_NAME:myapplication}
   datasource:
     username: sa
     password: password
@@ -28,6 +28,12 @@ springdoc:
     showCommonExtensions: true
     filter: true
   packages-to-scan: com.example.web
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
 
 myproperties:
   security:

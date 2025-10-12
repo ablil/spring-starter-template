@@ -53,6 +53,7 @@ class SecurityConfiguration {
             authorizeHttpRequests {
                 authorize("/actuator/health", permitAll)
                 authorize("/actuator/info", permitAll)
+                authorize("/actuator/metrics", permitAll)
                 authorize(anyRequest, denyAll)
             }
         }
