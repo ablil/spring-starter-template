@@ -68,11 +68,7 @@ tasks.withType<com.google.cloud.tools.jib.gradle.JibTask>().configureEach {
 
 jib {
     to {
-        image = rootProject.name
-        if (isCI) {
-            val tag = "latest".takeIf { System.getenv("GITHUB_REF_NAME") == "main" } ?: System.getenv("GITHUB_SHA")
-            image = "ghcr.io/${System.getenv("GITHUB_REPOSITORY")}:$tag"
-        }
+        image = project.findProperty("jib.image") as? String ?: throw GradleException("missing project property jib.image")
     }
 
     container {
