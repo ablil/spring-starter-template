@@ -30,6 +30,11 @@ springdoc:
   packages-to-scan: com.example.web
 
 management:
+  tracing:
+    enabled: false
+  info:
+    env:
+      enabled: true
   endpoints:
     web:
       exposure:
