@@ -1,33 +1,58 @@
 package com.example.security
 
-import com.nimbusds.jose.jwk.source.ImmutableSecret
-import com.nimbusds.jose.util.Base64
-import javax.crypto.spec.SecretKeySpec
+import com.nimbusds.jose.jwk.JWKSet
+import com.nimbusds.jose.jwk.RSAKey
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet
+import java.security.KeyFactory
+import java.security.interfaces.RSAPrivateKey
+import java.security.interfaces.RSAPublicKey
+import java.security.spec.PKCS8EncodedKeySpec
+import java.security.spec.X509EncodedKeySpec
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm
-import org.springframework.security.oauth2.jwt.JwtDecoder
+import org.springframework.core.io.Resource
 import org.springframework.security.oauth2.jwt.JwtEncoder
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder
 
 @Configuration
 class JwtConfiguration {
 
     @Bean
-    fun jwtDecoder(secretKey: SecretKeySpec): JwtDecoder =
-        NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS256).build()
+    fun jwtEncoder(
+        @Value("\${spring.security.oauth2.resourceserver.jwt.private-key-location}")
+        privateKey: Resource,
+        @Value("\${spring.security.oauth2.resourceserver.jwt.public-key-location}")
+        publicKey: Resource,
+    ): JwtEncoder {
+        return NimbusJwtEncoder(
+            ImmutableJWKSet(
+                JWKSet(
+                    RSAKey.Builder(parsePublicKey(publicKey))
+                        .privateKey(parsePrivateKey(privateKey))
+                        .build()
+                )
+            )
+        )
+    }
 
-    @Bean
-    fun jwtEncoder(secretKey: SecretKeySpec): JwtEncoder =
-        NimbusJwtEncoder(ImmutableSecret(secretKey))
+    fun parsePublicKey(resource: Resource): RSAPublicKey {
+        val key =
+            String(resource.inputStream.readAllBytes())
+                .replace("-----\\w+ PUBLIC KEY-----".toRegex(), "")
+                .replace("\\s".toRegex(), "")
+        val decoded: ByteArray = java.util.Base64.getDecoder().decode(key)
+        val keySpec = X509EncodedKeySpec(decoded)
+        return (KeyFactory.getInstance("RSA").generatePublic(keySpec) as RSAPublicKey?)!!
+    }
 
-    @Bean
-    fun getSecretKey(
-        @Value("\${myproperties.security.jwt.base64-secret}") base64SecretKey: String
-    ): SecretKeySpec =
-        Base64.from(base64SecretKey).decode().let {
-            SecretKeySpec(it, 0, it.size, MacAlgorithm.HS256.name)
-        }
+    fun parsePrivateKey(resource: Resource): RSAPrivateKey {
+        val key =
+            String(resource.inputStream.readAllBytes())
+                .replace("-----\\w+ PRIVATE KEY-----".toRegex(), "")
+                .replace("\\s".toRegex(), "")
+        val decoded: ByteArray = java.util.Base64.getDecoder().decode(key)
+        val keySpec = PKCS8EncodedKeySpec(decoded)
+        return (KeyFactory.getInstance("RSA").generatePrivate(keySpec) as RSAPrivateKey?)!!
+    }
 }

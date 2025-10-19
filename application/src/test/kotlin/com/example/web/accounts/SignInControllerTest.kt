@@ -5,8 +5,11 @@ import com.example.domain.accounts.AccountStatus
 import com.example.domain.accounts.UserAccount
 import com.example.domain.accounts.UserAccountRepository
 import com.example.domain.accounts.UserInfo
+import com.example.web.accounts.JwtClaimMatcher.Companion.jwtHasClaim
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.junit.jupiter.api.Assertions.*
+import com.nimbusds.jwt.SignedJWT
+import org.hamcrest.Description
+import org.hamcrest.TypeSafeMatcher
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -17,7 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
-import sun.security.jgss.GSSUtil.login
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -57,6 +59,7 @@ class SignInControllerTest {
             .andExpectAll {
                 status { is2xxSuccessful() }
                 jsonPath("$.token") { isNotEmpty() }
+                jsonPath("$.token", jwtHasClaim("sub", "johndoe"))
             }
     }
 
@@ -95,5 +98,26 @@ class SignInControllerTest {
                         activationKey = "dummy",
                     ),
             )
+    }
+}
+
+class JwtClaimMatcher(val claim: String, val expectedValue: String) : TypeSafeMatcher<String>() {
+    override fun matchesSafely(token: String?): Boolean {
+        return token?.let { SignedJWT.parse(it) }?.jwtClaimsSet?.getClaim(claim)?.toString() ==
+            expectedValue
+    }
+
+    override fun describeTo(description: Description?) {
+        description
+            ?.appendText("a jwt with claim ")
+            ?.appendValue(claim)
+            ?.appendText(" = ")
+            ?.appendValue(expectedValue)
+    }
+
+    companion object {
+        @JvmStatic
+        fun jwtHasClaim(claim: String, expected: String): JwtClaimMatcher =
+            JwtClaimMatcher(claim, expected)
     }
 }
