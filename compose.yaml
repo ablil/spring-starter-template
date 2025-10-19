@@ -17,8 +17,6 @@ services:
       - 9090:9090
     volumes:
       - ./prometheus.yaml:/etc/prometheus/prometheus.yml
-    depends_on:
-      - app
 
   grafana:
     image: grafana/grafana-oss
@@ -26,3 +24,11 @@ services:
       - 3000:3000
     depends_on:
       - prometheus
+
+  redis:
+    image: redis:7.2
+    ports:
+      - 6379:6379
+    volumes:
+      - ./docker/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
