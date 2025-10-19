@@ -1,4 +1,7 @@
 spring:
+  config:
+    import:
+      - classpath:application-infra.yml
   application:
     name: ${SERVICE_NAME:myapplication}
   datasource:
@@ -34,6 +37,9 @@ management:
     web:
       exposure:
         include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
 
 myproperties:
   security:
