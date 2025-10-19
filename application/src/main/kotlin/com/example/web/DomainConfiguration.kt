@@ -8,7 +8,7 @@ import java.time.Instant
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm
 import org.springframework.security.oauth2.jwt.JwsHeader
 import org.springframework.security.oauth2.jwt.JwtClaimsSet
 import org.springframework.security.oauth2.jwt.JwtEncoder
@@ -31,12 +31,13 @@ class DomainConfiguration {
     @Bean
     fun tokenProvider(
         jwtEncoder: JwtEncoder,
-        @Value("\${myproperties.security.jwt.validity-in-seconds:3600}") jwtValidity: String,
+        @Value("\${spring.security.oauth2.resourceserver.jwt.validity-in-seconds}")
+        jwtValidity: String,
     ): AuthenticationTokenProvider =
         object : AuthenticationTokenProvider {
 
             override fun apply(user: UserAccount): Token {
-                val jwtHeader = JwsHeader.with(MacAlgorithm.HS256).build()
+                val jwtHeader = JwsHeader.with(SignatureAlgorithm.RS256).build()
 
                 val authoritiesClaim = emptyList<String>()
                 val jwtPayload =
