@@ -7,4 +7,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "spring-starter-template"
-include("domain", "infra", "application", "domain-autoconfiguration")
+include("domain", "infra", "application", "domain-autoconfiguration", "gatling")
