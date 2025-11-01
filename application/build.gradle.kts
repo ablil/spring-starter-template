@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.springframework.boot)
     alias(libs.plugins.springframework.dependencymanagement)
     alias(libs.plugins.kotlin.jpa)
-    id("org.openapi.generator") version "7.15.+"
+    id("org.openapi.generator") version "7.17.+"
     id("com.google.cloud.tools.jib") version "3.4.5"
 }
 
