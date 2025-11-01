@@ -8,7 +8,7 @@ version = rootProject.version
 dependencies {
     implementation("org.slf4j:slf4j-api:2.0.17")
     testImplementation("org.slf4j:slf4j-nop:2.0.17")
-    testImplementation(platform("org.junit:junit-bom:6.0.0"))
+    testImplementation(platform("org.junit:junit-bom:6.0.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.mockito.kotlin:mockito-kotlin:6.1.0")
