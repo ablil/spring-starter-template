@@ -1,4 +1,4 @@
-package com.example.infra.todos
+package com.example.persistence.todos
 
 import com.example.domain.todos.Todo
 import com.example.domain.todos.TodosRepository

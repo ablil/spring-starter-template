@@ -1,9 +1,12 @@
-package com.example.web
+package com.example.common.config
 
+import com.example.domain.accounts.AccountService
+import com.example.domain.accounts.AuthenticationService
 import com.example.domain.accounts.AuthenticationTokenProvider
 import com.example.domain.accounts.PasswordEncoder
 import com.example.domain.accounts.Token
 import com.example.domain.accounts.UserAccount
+import com.example.domain.accounts.UserAccountRepository
 import java.time.Instant
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -16,6 +19,24 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters
 
 @Configuration
 class DomainConfiguration {
+
+    @Bean
+    fun accountService(
+        repository: UserAccountRepository,
+        passwordEncoder: PasswordEncoder,
+    ): AccountService = AccountService(repository, passwordEncoder)
+
+    @Bean
+    fun authenticationService(
+        repository: UserAccountRepository,
+        passwordEncoder: PasswordEncoder,
+        tokenProvider: AuthenticationTokenProvider,
+    ): AuthenticationService =
+        AuthenticationService(
+            repository = repository,
+            passwordEncoder = passwordEncoder,
+            authenticationTokenProvider = tokenProvider,
+        )
 
     @Bean
     fun domainPasswordEncoder(
