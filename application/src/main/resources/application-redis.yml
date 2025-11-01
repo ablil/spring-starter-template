@@ -1,0 +1,21 @@
+spring:
+  cache:
+    type: redis
+    cache-names: cache1,cache2,cache3
+    redis:
+      enable-statistics: true
+      time-to-live: 10m
+  data:
+    redis:
+      repositories:
+        enabled: false
+      timeout: 1s
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      connect-timeout: 1s
+      password: ${REDIS_PASSWORD:supersecurepassword}
+
+management:
+  health:
+    redis:
+      enabled: true

@@ -25,12 +25,11 @@ This project adopt API first approach to define new APIs, and generate code via
 4. Expose API through [swagger-ui](https://springdoc.org/#swagger-ui-properties)
    (*check springdoc properties on application.yaml*)
 
-## Observability & monitoring
+## Caching
 
-[Prometheus](https://prometheus.io/) is an open source system that collect and store metrics from
-your applications, which will be visualized in [Grafana]().
+By default, cache is disabled, however Redis is autoconfigured and can be run with **redis** spring profile.
 
-Some metrics are enabled by default (eg, Hibernate, cache), and some Docker images are provided also.
+*Use the provided docker container for local development*
 
 # Tips
 
