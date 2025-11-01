@@ -7,4 +7,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "spring-starter-template"
-include("domain", "application")
+include("domain", "application", "perf-tests")

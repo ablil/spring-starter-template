@@ -1,0 +1,40 @@
+name: Gatling performance tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        required: true
+        description: run test against this base url
+
+permissions:
+  contents: read
+  packages: write
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  default:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v5
+
+      - name: setup java
+        uses: actions/setup-java@v5.0.0
+        with:
+          java-version-file: .java-version
+          distribution: temurin
+          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          build-scan-publish: true
+          build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
+          build-scan-terms-of-use-agree: "yes"
+
+      - name: Run Gatling tests
+        run: ./gradlew perf-tests:gatlingRun --simulation=todos.TodosSimulation -DbaseUrl=${{ github.event.inputs.base_url }}
