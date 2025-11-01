@@ -31,6 +31,36 @@ By default, cache is disabled, however Redis is autoconfigured and can be run wi
 
 *Use the provided docker container for local development*
 
+## Performance tests
+
+A separate module *perf-tests* has some dummy performance tests with Gatling. There are multiple way to run them:
+
+**Locally**
+```shell
+./gradlew perf-tests:gatlingRung
+```
+
+**Jar file**
+
+You can build jar file `./gradlew perf-tests:gatlingJar`, then run it elsewhere
+```shell
+java --add-opens java.base/java.lang=ALL-UNNAMED \
+  -jar perf-tests/build/libs/gatling-performance-analysis.jar \
+   -s todos.TodosSimulations -rf /tmp/gatling-results \
+   -DbaseUrl=http://localhost:8080
+```
+**Docker image**
+
+You can build a Docker image, and run it also elsewhere (e.g, cloud run jobs) `./gradlew perf-tests:jibDockerBuild`
+
+```shell
+docker run
+```
+
+**Github workflow**
+
+A Github workflow is configured to be triggered manually, and it expect a base url to run against it the tests (e.g, http://myremotesystem.com)
+
 # Tips
 
 Extract all environment variable defined in `application.yaml`
