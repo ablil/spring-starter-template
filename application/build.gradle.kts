@@ -75,7 +75,8 @@ tasks.withType<com.google.cloud.tools.jib.gradle.JibTask>().configureEach {
 
 jib {
     to {
-        image = project.findProperty("jib.image") as? String ?: throw GradleException("missing project property jib.image")
+        image = project.findProperty("jib.image") as? String
+            ?: throw GradleException("missing project property jib.image")
     }
 
     container {
