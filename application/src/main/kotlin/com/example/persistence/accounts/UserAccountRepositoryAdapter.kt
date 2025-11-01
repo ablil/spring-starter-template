@@ -1,4 +1,4 @@
-package com.example.infra.accounts
+package com.example.persistence.accounts
 
 import com.example.domain.accounts.AccountStatus
 import com.example.domain.accounts.Token

@@ -1,4 +1,4 @@
-package com.example.infra
+package com.example.persistence
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing

@@ -1,6 +1,6 @@
 ---
 servers:
-- url: "http://localhost:8080"
+- url: "/"
 openapi: "3.0.4"
 paths:
   /api/v1/signup:
