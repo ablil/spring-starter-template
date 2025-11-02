@@ -5,6 +5,8 @@ import com.example.domain.accounts.AccountStatus
 import com.example.domain.accounts.UserAccount
 import com.example.domain.accounts.UserInfo
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import java.time.Instant
@@ -17,7 +19,7 @@ class UserAccountEntity(
     val password: String,
     val firstName: String?,
     val lastName: String?,
-    val status: AccountStatus,
+    @Enumerated(EnumType.STRING) val status: AccountStatus,
     val activationKey: String?,
     val resetKey: String?,
     val resetRequestedAt: Instant?,
