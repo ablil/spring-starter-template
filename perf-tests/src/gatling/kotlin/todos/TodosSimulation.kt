@@ -20,17 +20,19 @@ class TodosSimulation : Simulation() {
         .userAgentHeader("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36")
 
 
-    val myscenario = scenario("Todo").exec(
-        login,
-        pause(1),
-        createTodo,
-        pause(1),
-        editTodo,
-        pause(1),
-        listTodos,
-        pause(1),
-        deleteTodo
-    )
+    val myscenario = scenario("Todo")
+        .exec(login)
+        .exitHereIfFailed()
+        .exec(
+            pause(1),
+            createTodo,
+            pause(1),
+            editTodo,
+            pause(1),
+            listTodos,
+            pause(1),
+            deleteTodo
+        )
 
     init {
         val type = System.getProperty("type", "soak")
