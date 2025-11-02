@@ -6,9 +6,27 @@ on:
       base_url:
         required: true
         description: run test against this base url
+      type:
+        required: true
+        description: test type to run
+        type: choice
+        options:
+          - ramp
+          - constantPerSec
+          - stressPeak
+          - incrementPerSec
+      users:
+        required: false
+        description: number of virtual users
+        default: 10
+      seconds:
+        required: false
+        default: 10
+        description: test duration in seconds
+
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 defaults:
@@ -37,4 +55,26 @@ jobs:
           build-scan-terms-of-use-agree: "yes"
 
       - name: Run Gatling tests
-        run: ./gradlew perf-tests:gatlingRun --simulation=todos.TodosSimulation -DbaseUrl=${{ github.event.inputs.base_url }}
+        run: ./gradlew perf-tests:gatlingRun --simulation=todos.TodosSimulation -DbaseUrl=${{ inputs.base_url }} -Dseconds=${{ inputs.seconds }} -Dusers=${{ inputs.users }} -Dtype=${{ inputs.type }}
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gatling-report
+          path: perf-tests/build/reports/gatling/*
+
+      - name: Find latest Gatling report
+        if: always()
+        id: find_report
+        run: |
+          LATEST_REPORT=$(ls -td perf-tests/build/reports/gatling/*/ | head -1)
+          echo "Latest report folder: $LATEST_REPORT"
+          echo "report_path=$LATEST_REPORT" >> $GITHUB_OUTPUT
+
+      - name: Deploy Gatling report to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ steps.find_report.outputs.report_path }}
