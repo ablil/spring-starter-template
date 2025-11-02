@@ -1,0 +1,14 @@
+[
+  {
+    "_class": "com.example.persistence.accounts.UserAccountEntity",
+    "username": "johndoe",
+    "email": "johndoe@example.com",
+    "password": "{bcrypt}$2a$10$qRDcIPES/RN/bSKf9cySC.SX6ZzG3iPyNOM1FxWaUf1TuEMuUOm2C",
+    "firstName": "John",
+    "lastName": "Doe",
+    "status": "ACTIVE",
+    "activationKey": null,
+    "resetKey": null,
+    "resetRequestAt": null
+  }
+]
