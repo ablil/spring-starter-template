@@ -1,6 +1,8 @@
 package com.example.domain.accounts
 
+import java.time.Duration
 import java.time.Instant
+import org.apache.commons.lang3.RandomStringUtils
 import org.slf4j.LoggerFactory
 
 class AccountService(val repository: UserAccountRepository, val passwordEncoder: PasswordEncoder) {
@@ -20,9 +22,8 @@ class AccountService(val repository: UserAccountRepository, val passwordEncoder:
                         AccountDetails(
                             password = passwordEncoder.encode(request.rawPassword),
                             status = AccountStatus.INACTIVE,
-                            resetKey = null,
-                            resetRequestedAt = null,
-                            activationKey = "random", // TODO: set random token
+                            activationKey = RandomStringUtils.secure().nextAlphabetic(10),
+                            passwordReset = null,
                         ),
                 )
             )
@@ -61,21 +62,26 @@ class AccountService(val repository: UserAccountRepository, val passwordEncoder:
                     account =
                         userAccount.account.copy(
                             status = AccountStatus.INACTIVE,
-                            resetKey = "random", // TODO: generate token
-                            resetRequestedAt = Instant.now(),
+                            passwordReset =
+                                PasswordResetDTO(
+                                    RandomStringUtils.secure().nextAlphabetic(10),
+                                    Instant.now().plus(Duration.ofHours(1)),
+                                ),
                         )
                 )
             )
         logger.info("requested password reset for {}", identifier)
         // TODO: emit an event to send email or another approach instead of event
-        return Token(requireNotNull(updated.account.resetKey))
+        return Token(requireNotNull(updated.account.passwordReset?.key))
     }
 
     fun resetPassword(token: Token, rawPassword: String) {
         val userAccount =
             repository.findByResetPasswordToken(token) ?: throw InvalidToken("invalid token")
 
-        // TODO: check if key is expired
+        if (userAccount.account.passwordReset?.dueTo?.isBefore(Instant.now()) == true) {
+            throw IllegalArgumentException("reset key expired")
+        }
 
         if (passwordEncoder.match(rawPassword, userAccount.account.password)) {
             throw InvalidPassword("can NOT use the same old password")
@@ -87,7 +93,7 @@ class AccountService(val repository: UserAccountRepository, val passwordEncoder:
                     userAccount.account.copy(
                         password = passwordEncoder.encode(rawPassword),
                         status = AccountStatus.ACTIVE,
-                        resetKey = null,
+                        passwordReset = null,
                     )
             )
         )

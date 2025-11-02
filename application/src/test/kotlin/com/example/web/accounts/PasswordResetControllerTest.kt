@@ -1,14 +1,14 @@
 package com.example.web.accounts
 
 import com.example.domain.accounts.AccountStatus
+import com.example.domain.accounts.PasswordResetDTO
 import com.example.domain.accounts.UserAccountRepository
 import com.example.domain.accounts.UsernameOrEmail
 import com.example.web.accounts.SignInControllerTest.Companion.johnDoe
 import com.fasterxml.jackson.databind.ObjectMapper
+import java.time.Duration
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.within
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -53,9 +53,8 @@ class PasswordResetControllerTest {
 
         val user = usersRepository.findByIdentifier(UsernameOrEmail("johndoe"))
 
-        assertThat(user?.account?.resetKey).`as`("check reset key").isNotEmpty
-        assertThat(user?.account?.resetRequestedAt)
-            .isCloseTo(Instant.now(), within(10L, ChronoUnit.SECONDS))
+        assertThat(user?.account?.passwordReset?.key).`as`("check reset key").isNotEmpty
+        assertThat(user?.account?.passwordReset?.dueTo).isInTheFuture
     }
 
     @Test
@@ -73,7 +72,15 @@ class PasswordResetControllerTest {
 
     @Test
     fun `should reset user password given valid reset key`() {
-        usersRepository.save(johnDoe.copy(account = johnDoe.account.copy(resetKey = "mykey")))
+        usersRepository.save(
+            johnDoe.copy(
+                account =
+                    johnDoe.account.copy(
+                        passwordReset =
+                            PasswordResetDTO("mykey", Instant.now().plus(Duration.ofMinutes(5)))
+                    )
+            )
+        )
         mockMvc
             .post("/api/v1/resetpassword") {
                 contentType = MediaType.APPLICATION_JSON
@@ -90,7 +97,7 @@ class PasswordResetControllerTest {
         val user = usersRepository.findByIdentifier(UsernameOrEmail("johndoe"))
 
         with(SoftAssertions()) {
-            this.assertThat(user?.account?.resetKey).`as` { "check reset key" }.isNull()
+            this.assertThat(user?.account?.passwordReset?.key).`as` { "check reset key" }.isNull()
             this.assertThat(user?.account?.status)
                 .`as`("check account status after reset")
                 .isEqualTo(AccountStatus.ACTIVE)
@@ -100,7 +107,15 @@ class PasswordResetControllerTest {
 
     @Test
     fun `should not reset user password given same old password`() {
-        usersRepository.save(johnDoe.copy(account = johnDoe.account.copy(resetKey = "mykey")))
+        usersRepository.save(
+            johnDoe.copy(
+                account =
+                    johnDoe.account.copy(
+                        passwordReset =
+                            PasswordResetDTO("mykey", Instant.now().plus(Duration.ofMinutes(5)))
+                    )
+            )
+        )
         mockMvc
             .post("/api/v1/resetpassword") {
                 contentType = MediaType.APPLICATION_JSON
