@@ -6,6 +6,7 @@ plugins {
 version = rootProject.version
 
 dependencies {
+    implementation("org.apache.commons:commons-lang3:3.19.0")
     implementation("org.slf4j:slf4j-api:2.0.17")
     testImplementation("org.slf4j:slf4j-nop:2.0.17")
     testImplementation(platform("org.junit:junit-bom:6.0.1"))

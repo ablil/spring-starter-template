@@ -2,6 +2,7 @@ package com.example.persistence.accounts
 
 import com.example.domain.accounts.AccountDetails
 import com.example.domain.accounts.AccountStatus
+import com.example.domain.accounts.PasswordResetDTO
 import com.example.domain.accounts.UserAccount
 import com.example.domain.accounts.UserInfo
 import jakarta.persistence.Entity
@@ -22,7 +23,7 @@ class UserAccountEntity(
     @Enumerated(EnumType.STRING) val status: AccountStatus,
     val activationKey: String?,
     val resetKey: String?,
-    val resetRequestedAt: Instant?,
+    val resetDueTo: Instant?,
 ) {
     constructor(
         userAccount: UserAccount
@@ -34,8 +35,8 @@ class UserAccountEntity(
         lastName = userAccount.info.lastName,
         status = userAccount.account.status,
         activationKey = userAccount.account.activationKey,
-        resetKey = userAccount.account.resetKey,
-        resetRequestedAt = userAccount.account.resetRequestedAt,
+        resetKey = userAccount.account.passwordReset?.key,
+        resetDueTo = userAccount.account.passwordReset?.dueTo,
     )
 
     fun toUserAccount(): UserAccount {
@@ -47,9 +48,13 @@ class UserAccountEntity(
                 AccountDetails(
                     password = this.password,
                     status = this.status,
-                    resetKey = this.resetKey,
-                    resetRequestedAt = this.resetRequestedAt,
                     activationKey = this.activationKey,
+                    passwordReset =
+                        if (resetKey != null && resetDueTo != null) {
+                            PasswordResetDTO(resetKey, resetDueTo)
+                        } else {
+                            null
+                        },
                 ),
         )
     }

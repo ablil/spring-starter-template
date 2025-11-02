@@ -38,8 +38,9 @@ class SignInControllerTest {
             johnDoe.copy(
                 account =
                     johnDoe.account.copy(
-                        status = AccountStatus.ACTIVE,
                         password = "{noop}supersecurepassword",
+                        status = AccountStatus.ACTIVE,
+                        passwordReset = null,
                     )
             )
         )
@@ -93,9 +94,8 @@ class SignInControllerTest {
                     AccountDetails(
                         password = "{noop}supersecurepassword",
                         status = AccountStatus.INACTIVE,
-                        resetKey = null,
-                        resetRequestedAt = null,
                         activationKey = "dummy",
+                        passwordReset = null,
                     ),
             )
     }

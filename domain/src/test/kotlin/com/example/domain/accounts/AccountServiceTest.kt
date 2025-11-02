@@ -1,5 +1,7 @@
 package com.example.domain.accounts
 
+import java.time.Duration
+import java.time.Instant
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
@@ -156,14 +158,42 @@ class AccountServiceTest {
         whenever(repository.findByResetPasswordToken(any()))
             .thenReturn(
                 johnDoe.copy(
-                    account = johnDoe.account.copy(password = "mypassword", resetKey = "mykey")
+                    account =
+                        johnDoe.account.copy(
+                            password = "mypassword",
+                            passwordReset =
+                                PasswordResetDTO("mykey", Instant.now().plus(Duration.ofMinutes(5))),
+                        )
                 )
             )
 
         service.resetPassword(Token("mykey"), "mynewpassword")
         verify(repository)
-            .save(check { assertThat(it.account.password).isEqualTo("mynewpassword") })
-        // TODO: check reset key was emptied
+            .save(
+                check {
+                    assertThat(it.account.password).isEqualTo("mynewpassword")
+                    assertThat(it.account.passwordReset?.key).isNull()
+                    assertThat(it.account.passwordReset?.dueTo).isNull()
+                }
+            )
+    }
+
+    @Test
+    fun `should throw exception given expired reset key`() {
+        whenever(repository.findByResetPasswordToken(any()))
+            .thenReturn(
+                johnDoe.copy(
+                    account =
+                        johnDoe.account.copy(
+                            password = "mypassword",
+                            passwordReset =
+                                PasswordResetDTO("mykey", Instant.now().minus(Duration.ofHours(1))),
+                        )
+                )
+            )
+
+        assertThatThrownBy { service.resetPassword(Token("mykey"), "mynewpassword") }
+            .isInstanceOf(IllegalArgumentException::class.java)
     }
 
     companion object {
@@ -176,9 +206,8 @@ class AccountServiceTest {
                     AccountDetails(
                         password = "supersecurepassword",
                         status = AccountStatus.INACTIVE,
-                        resetKey = null,
-                        resetRequestedAt = null,
                         activationKey = "dummy",
+                        passwordReset = null,
                     ),
             )
     }
