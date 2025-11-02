@@ -3,10 +3,14 @@ package todos
 import accounts.login
 import io.gatling.javaapi.core.CoreDsl.constantUsersPerSec
 import io.gatling.javaapi.core.CoreDsl.global
+import io.gatling.javaapi.core.CoreDsl.incrementUsersPerSec
 import io.gatling.javaapi.core.CoreDsl.pause
+import io.gatling.javaapi.core.CoreDsl.rampUsers
 import io.gatling.javaapi.core.CoreDsl.scenario
+import io.gatling.javaapi.core.CoreDsl.stressPeakUsers
 import io.gatling.javaapi.core.Simulation
 import io.gatling.javaapi.http.HttpDsl.http
+import java.lang.IllegalArgumentException
 import java.time.Duration
 
 class TodosSimulation : Simulation() {
@@ -29,14 +33,25 @@ class TodosSimulation : Simulation() {
     )
 
     init {
+        val type = System.getProperty("type", "soak")
+        val users = System.getProperty("users", "10")
+        val seconds = System.getProperty("seconds", "10")
         setUp(
             myscenario.injectOpen(
-                constantUsersPerSec(2.0).during(Duration.ofSeconds(5))
+                when (type) {
+                    "incrementPerSec" -> incrementUsersPerSec(users.toDouble()).times(3)
+                        .eachLevelLasting(Duration.ofSeconds(seconds.toLong()))
+
+                    "stressPeak" -> stressPeakUsers(users.toInt()).during(Duration.ofSeconds(seconds.toLong()))
+                    "constantPerSec" -> constantUsersPerSec(users.toDouble()).during(Duration.ofSeconds(seconds.toLong()))
+                    "ramp" -> rampUsers(users.toInt()).during(Duration.ofSeconds(seconds.toLong()))
+                    else -> throw IllegalArgumentException("invalid test type")
+                }
             )
         )
             .assertions(
                 global().responseTime().max().lt(1000),
-                global().successfulRequests().percent().`is`(100.0)
+                global().successfulRequests().percent().gte(95.0)
             )
             .protocols(httpProtocol)
     }

@@ -59,7 +59,9 @@ docker run
 
 **Github workflow**
 
-A Github workflow is configured to be triggered manually, and it expect a base url to run against it the tests (e.g, http://myremotesystem.com)
+A Github workflow is configured to be triggered manually, and it expects a base url to run against (e.g., http://myremotesystem.com)
+
+By default, the latest run reports are uploaded to GitHub artifact and GitHub page, can be accessed [here](https://ablil.github.io/spring-starter-template/)
 
 # Tips
 
