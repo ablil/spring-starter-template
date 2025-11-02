@@ -25,7 +25,7 @@ interface TodoRepositoryAdapter : TodosRepository, JpaRepository<TodoEntity, Lon
     }
 
     override fun getAllByOwner(owner: String): Collection<Todo> =
-        this.findAllByOwner(owner).map { it.toTODO() }
+        this.findAllByCreatedBy(owner).map { it.toTODO() }
 
-    fun findAllByOwner(owner: String): Collection<TodoEntity>
+    fun findAllByCreatedBy(username: String): Collection<TodoEntity>
 }

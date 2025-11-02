@@ -9,7 +9,6 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 import java.time.Instant
 
-// TODO: add support of auditing fields and base entity
 @Entity
 @Table(name = "users_account")
 class UserAccountEntity(

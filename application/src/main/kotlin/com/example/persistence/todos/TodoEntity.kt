@@ -1,6 +1,7 @@
 package com.example.persistence.todos
 
 import com.example.domain.todos.Todo
+import com.example.persistence.AuditableEntity
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -15,18 +16,11 @@ class TodoEntity(
     val title: String,
     val description: String?,
     val dueTo: Instant?,
-    val owner: String,
-) {
+) : AuditableEntity() {
 
     constructor(
         todo: Todo
-    ) : this(
-        id = todo.id,
-        title = todo.title,
-        description = todo.description,
-        dueTo = todo.dueTo,
-        owner = todo.owner,
-    )
+    ) : this(id = todo.id, title = todo.title, description = todo.description, dueTo = todo.dueTo)
 
     fun toTODO(): Todo =
         Todo(
@@ -34,6 +28,6 @@ class TodoEntity(
             title = this.title,
             description = this.description ?: "",
             dueTo = this.dueTo,
-            owner = this.owner,
+            owner = this.createdBy ?: "",
         )
 }
