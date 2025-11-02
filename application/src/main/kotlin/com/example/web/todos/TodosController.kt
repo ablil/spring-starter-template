@@ -18,7 +18,8 @@ import org.springframework.web.bind.annotation.RestController
 class TodosController(val service: TodoService) {
 
     @GetMapping
-    fun getAllTodos(): Collection<Todo> = service.getUserTodos(SecurityUtils.authenticatedUser())
+    fun getAllTodos(): Collection<Todo> =
+        service.getUserTodos(SecurityUtils.authenticatedPrincipal())
 
     @PostMapping
     fun createTodo(@RequestBody dto: TodoRequest): Todo =
@@ -28,14 +29,14 @@ class TodosController(val service: TodoService) {
                 title = dto.title,
                 description = dto.description,
                 dueTo = dto.dueTo,
-                owner = SecurityUtils.authenticatedUser(),
+                owner = SecurityUtils.authenticatedPrincipal(),
             )
         )
 
     @PutMapping("/{id}")
     fun edit(@PathVariable("id") id: Long, @RequestBody dto: TodoRequest): Todo =
         service.edit(
-            Todo(id, dto.title, dto.description, dto.dueTo, SecurityUtils.authenticatedUser())
+            Todo(id, dto.title, dto.description, dto.dueTo, SecurityUtils.authenticatedPrincipal())
         )
 
     @DeleteMapping("/{id}") fun deleteTodo(@PathVariable id: Long): Unit = service.delete(id)
