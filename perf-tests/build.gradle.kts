@@ -1,6 +1,6 @@
 plugins {
     id("conventions.kotlin-jvm")
-    id("io.gatling.gradle") version "3.14.7"
+    id("io.gatling.gradle") version "3.14.9"
     id("com.google.cloud.tools.jib") version "3.5.1"
 }
 tasks.register("gatlingJar", Jar::class) {
