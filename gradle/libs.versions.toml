@@ -1,6 +1,6 @@
 [versions]
 kotlinVersion = "2.2.21"
-spring = "3.5.+"
+spring = "4.0.+"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinVersion" }
