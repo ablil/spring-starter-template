@@ -90,3 +90,9 @@ tasks.build {
         dependsOn(tasks.jib)
     }
 }
+
+tasks.bootRun {
+    if (project.hasProperty("profiles")) {
+        systemProperty("spring.profiles.active", project.findProperty("profiles") as String)
+    }
+}

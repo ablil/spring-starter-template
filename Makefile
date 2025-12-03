@@ -2,11 +2,7 @@
 
 .PHONY: assemble
 
-assemble:
-	./gradlew app:assemble -x app:jibDockerBuild
-
-help:
-	grep -E '^[a-z]+:' Makefile # display all targets
+profiles ?= default
 
 clean:
 	./gradlew clean
@@ -21,7 +17,4 @@ oas:
 	./gradlew application:openApiGenerate
 
 run:
-	./gradlew :application:bootRun
-
-psql:
-	docker exec -it spring-database psql -U postgres -d mydb
+	./gradlew :application:bootRun -Pprofiles=$(profiles)
