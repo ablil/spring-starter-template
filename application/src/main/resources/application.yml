@@ -21,6 +21,9 @@ spring:
     properties:
       hibernate:
         generate_statistics: false
+  docker:
+    compose:
+      enabled: false
 
 springdoc:
   auto-tag-classes: false

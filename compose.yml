@@ -1,15 +1,4 @@
-name: spring-starter-template
-
 services:
-  db:
-    image: postgres:17
-    container_name: spring-database
-    environment:
-      POSTGRES_PASSWORD: supersecurepassword
-      POSTGRES_DB: mydb
-    ports:
-      - 5432:5432
-
   redis:
     image: redis:7.2
     ports:
