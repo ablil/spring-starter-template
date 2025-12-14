@@ -1,10 +1,17 @@
 name: k6
 
 on:
-  pull_request:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      target_sut:
+        required: true
+        description: run test against this base url
+      type:
+        required: true
+        description: test to run
+        type: choice
+        options:
+          - smoke.js
 
 permissions:
   contents: write # permission to write to GitHub pages
@@ -28,13 +35,22 @@ jobs:
           sudo apt-get install k6
 
       - name: run k6
+        env:
+          SUT: ${{ inputs.target_sut }}
         run: |
           cd loadtest
           mkdir results
-          k6 run smoke.js
+          k6 run ${{ inputs.type }} --summary-export summary.json
+
+      - name: test summary
+        uses: ./.github/actions/k6-summary
+        with:
+          summary_file: loadtest/summary.json
+          title: "K6 summary"
 
       - name: upload test result to Github pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: loadtest/results
+

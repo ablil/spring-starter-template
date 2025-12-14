@@ -1,0 +1,31 @@
+name: k6 summary
+description: Convert a k6 JSON summary into Markdown and append it to the GitHub Job Summary
+
+inputs:
+  summary_file:
+    required: true
+    description: Path to k6 JSON summary file (e.g. loadtest/summary.json)
+  title:
+    required: false
+    default: k6 load test summary
+    description: Title used in the Markdown output
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5.6.0
+      with:
+        python-version: "3.12"
+
+    - name: Write k6 summary to GitHub step summary
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        file='${{ inputs.summary_file }}'
+        if [[ ! -f "$file" ]]; then
+          echo "k6 summary file not found: $file"
+          exit 1
+        fi
+
+        python "${{ github.action_path }}/run.py" "$file" --title '${{ inputs.title }}' >> "$GITHUB_STEP_SUMMARY"
