@@ -78,6 +78,10 @@ jib {
     to {
         image = project.findProperty("jib.image") as? String
             ?: throw GradleException("missing project property jib.image")
+
+        if (project.hasProperty("jib.tags")) {
+            tags = project.property("jib.tags").toString().split(",").toSet()
+        }
     }
 
     container {
