@@ -41,27 +41,54 @@ def parse_junit_xml(file_path):
 
 def convert_to_markdown(test_cases, title):
     """
-    Converts test case data into Markdown format using a table.
+    Converts test case data into Markdown format using a collapsible section
+    and a bullet list (instead of a Markdown table).
 
-    Args:
-        test_cases (list of dict): List of test case data.
-
-    Returns:
-        str: A string in Markdown format.
+    Notes:
+      - Messages are rendered as normal text (no <pre>) to avoid horizontal scrolling.
+      - We use simple HTML (<ul>/<li>/<details>) plus Markdown line breaks.
     """
-    #markdown = f"\n\n**{title}**\n\n"
+    # ... existing code ...
     testClass = test_cases[0]['classname']
     hasAnyFailure = any(map(lambda testcase: testcase['status'] != 'PASSED', test_cases))
-    markdown = f"<details><summary>{testClass} {'❌' if hasAnyFailure else '✅'}</summary>\n\n"
-    markdown += "| Test Name |  Time (s) | Status | Message |\n"
-    markdown += "|-----------|---------|--------|---------|\n"
 
+    total = len(test_cases)
+    passed = sum(1 for tc in test_cases if tc.get("status") == "PASSED")
+    failed = total - passed
+
+    markdown = (
+        f"<details><summary>{testClass} "
+        f"{'❌' if hasAnyFailure else '✅'} "
+        f"({passed} passed, {failed} failed)</summary>\n\n"
+    )
+
+    markdown += "<ul>\n"
     for case in test_cases:
-        message = case.get('message', '')
-        markdown += f"| {case['name']} | {case['time']} | {'✅' if case['status'] == 'PASSED' else '❌'} | {message} |\n"
+        name = case.get("name", "(unnamed test)")
+        time_s = case.get("time", "")
+        status = case.get("status", "")
+        icon = "✅" if status == "PASSED" else "❌"
+        message = (case.get("message") or "").strip()
 
-    markdown += "\n\n</details>"
+        line = f"<li><b>{icon} {name}</b>"
+        if time_s != "":
+            line += f" <i>({time_s}s)</i>"
+
+        if message:
+            # Render message as wrapped text. Use <br/> to keep intentional line breaks.
+            wrapped = message.replace("\r\n", "\n").replace("\r", "\n").replace("\n", "<br/>")
+            line += (
+                "<details><summary>message</summary>\n\n"
+                f"{wrapped}\n\n"
+                "</details>"
+            )
+
+        line += "</li>\n"
+        markdown += line
+
+    markdown += "</ul>\n\n</details>"
     return markdown
+    # ... existing code ...
 
 def convert_file(input_files, output_file):
     """

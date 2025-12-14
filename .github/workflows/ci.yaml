@@ -31,20 +31,13 @@ jobs:
           distribution: temurin
           cache: gradle
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          build-scan-publish: true
-          build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
-          build-scan-terms-of-use-agree: "yes"
-
       - name: build
         run: |
           ./gradlew build --no-daemon -Pjib.image=ghcr.io/${{ github.repository }} \
               -Pjib.tags=${{ github.ref == 'refs/heads/main' && 'latest' || format('{0},{1}', github.head_ref, github.sha) }}
 
-      - name: Upload reports to job summary
+      - name: generate summary
         if: always()
-        uses: ablil/junit5-reports-markdown-converter@main
+        uses: ./.github/actions/test-summary
         with:
-          tests_directory: app/build/test-results/test
+          tests_directory: 'application/build/test-results/test'
