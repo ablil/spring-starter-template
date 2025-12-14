@@ -2,10 +2,12 @@ name: test summary
 description: convert Junit5 reports from XML to Markdown
 
 inputs:
-  tests_directory:
+  tests_directories:
     required: false
     default: build/test-results/test
-    description: target directory where test reports are generated (xml)
+    description: |
+      One or more directories where test reports are generated (xml).
+      Accepts comma-separated and/or newline-separated values.
 
 runs:
   using: composite
@@ -16,9 +18,27 @@ runs:
     - name: convert reports to markdown
       shell: bash
       run: |
-        if [[ -d ${{ inputs.tests_directory }} ]]; then
-          python ${{ github.action_path }}/run.py ${{ inputs.tests_directory }}
-          cat output.md >> $GITHUB_STEP_SUMMARY
-        else
-          echo "${{ inputs.tests_directory }} NOT found, skipping"
+        set -euo pipefail
+
+        raw='${{ inputs.tests_directories }}'
+        # Allow comma-separated lists in addition to newline-separated.
+        raw="${raw//,/\\n}"
+
+        dirs=()
+        while IFS= read -r dir; do
+          dir="$(echo "$dir" | xargs)" # trim
+          [[ -z "$dir" ]] && continue
+          if [[ -d "$dir" ]]; then
+            dirs+=("$dir")
+          else
+            echo "$dir NOT found, skipping"
+          fi
+        done <<< "$raw"
+
+        if [[ ${#dirs[@]} -eq 0 ]]; then
+          echo "No test directories found, skipping"
+          exit 0
         fi
+
+        python "${{ github.action_path }}/run.py" --output output.md "${dirs[@]}"
+        cat output.md >> "$GITHUB_STEP_SUMMARY"
