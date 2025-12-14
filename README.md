@@ -31,6 +31,15 @@ By default, cache is disabled, however Redis is autoconfigured and can be run wi
 
 *Use the provided docker container for local development*
 
+## Load testing (k6)
+
+The k6 load test is run manually from the GitHub Actions workflow: `.github/workflows/k6.yml` (trigger: `workflow_dispatch`).
+
+results:
+- Each workflow run includes a **Markdown summary** in the run page (open the run → **Job Summary**).
+- The **latest HTML report** is always published to [GitHub Pages](https://ablil.github.io/spring-starter-template/) (each run deploys the newest `loadtest/results/` output to `gh-pages`).
+
+
 # Tips
 
 Extract all environment variable defined in `application.yaml`
