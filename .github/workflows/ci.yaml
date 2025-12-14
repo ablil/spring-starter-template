@@ -36,8 +36,8 @@ jobs:
           ./gradlew build --no-daemon -Pjib.image=ghcr.io/${{ github.repository }} \
               -Pjib.tags=${{ github.ref == 'refs/heads/main' && 'latest' || format('{0},{1}', github.head_ref, github.sha) }}
 
-      - name: generate summary
-        if: always()
-        uses: ./.github/actions/test-summary
+      - uses: ./.github/actions/test-summary
         with:
-          tests_directory: 'application/build/test-results/test'
+          tests_directories: |
+            application/build/test-results/test
+            domain/build/test-results/test
