@@ -40,7 +40,8 @@ jobs:
 
       - name: build
         run: |
-          ./gradlew build --no-daemon -Pjib.image=ghcr.io/${{ github.repository }}:${{ github.ref == 'refs/heads/main' && 'latest' || github.sha }}
+          ./gradlew build --no-daemon -Pjib.image=ghcr.io/${{ github.repository }} \
+              -Pjib.tags=${{ github.ref == 'refs/heads/main' && 'latest' || format('{0},{1}', github.head_ref, github.sha) }}
 
       - name: Upload reports to job summary
         if: always()
