@@ -1,4 +1,4 @@
-name: reports-converter
+name: test summary
 description: convert Junit5 reports from XML to Markdown
 
 inputs:
@@ -17,7 +17,7 @@ runs:
       shell: bash
       run: |
         if [[ -d ${{ inputs.tests_directory }} ]]; then
-          python ${{ github.action_path }}/converter.py ${{ inputs.tests_directory }}
+          python ${{ github.action_path }}/run.py ${{ inputs.tests_directory }}
           cat output.md >> $GITHUB_STEP_SUMMARY
         else
           echo "${{ inputs.tests_directory }} NOT found, skipping"
