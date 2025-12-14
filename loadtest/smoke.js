@@ -2,6 +2,9 @@ import http from 'k6/http';
 import {check} from 'k6';
 import {SharedArray} from 'k6/data';
 
+import { htmlReport } from 'https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js'
+import { textSummary } from 'https://jslib.k6.io/k6-summary/0.1.0/index.js'
+
 const sut = __ENV.SUT ?? 'http://localhost:8080';
 
 export const options = {
@@ -57,4 +60,11 @@ export default function () {
         }
     })
     check(res, {"todo deleted": (res) => res.status === 200})
+}
+
+export function handleSummary(data) {
+    return {
+        'results/index.html': htmlReport(data),
+        stdout: textSummary(data, { indent: ' ', enableColors: true }),
+    }
 }
