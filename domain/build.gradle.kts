@@ -1,9 +1,9 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+
 plugins {
-    id("conventions.kotlin-jvm")
-    id("conventions.spotless")
+    id("base-convention")
 }
 
-version = rootProject.version
 
 dependencies {
     implementation("org.apache.commons:commons-lang3:3.20.0")
@@ -16,4 +16,14 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.27.6")
 }
 
+
+
+tasks.test {
+    systemProperty("spring.profiles.active", "test")
+    useJUnitPlatform()
+    testLogging {
+        events("skipped", "failed")
+        exceptionFormat = TestExceptionFormat.SHORT
+    }
+}
 

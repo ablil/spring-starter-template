@@ -8,11 +8,9 @@ repositories {
 }
 
 dependencies {
-    // Make the Kotlin JVM plugin available for use inside buildSrc
-    implementation(plugin(libs.plugins.kotlin.jvm))
-    implementation("com.diffplug.spotless:com.diffplug.spotless.gradle.plugin:8.0.0")
+    implementation(plugin(libs.plugins.kotlinjvm))
+    implementation(plugin(libs.plugins.spotless))
 }
-
 
 // Helper function that transforms a Gradle Plugin alias from a
 // Version Catalog into a valid dependency notation for buildSrc

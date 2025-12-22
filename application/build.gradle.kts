@@ -1,18 +1,17 @@
 import java.time.Instant
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
-    id("conventions.kotlin-jvm")
-    id("conventions.spotless")
+    id("base-convention")
     alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.springframework.boot)
     alias(libs.plugins.springframework.dependencymanagement)
     alias(libs.plugins.kotlin.jpa)
-    id("org.openapi.generator") version "7.17.+"
-    id("com.google.cloud.tools.jib") version "3.5.1"
+    alias(libs.plugins.openapigenerator)
+    alias(libs.plugins.jib)
 }
 
 
-version = rootProject.version
 val isCI = System.getenv("CI") == "true"
 
 dependencies {
@@ -56,9 +55,6 @@ tasks.compileKotlin {
     dependsOn(tasks.openApiGenerate)
 }
 
-tasks.spotlessKotlin {
-    dependsOn(tasks.openApiGenerate)
-}
 
 // include generated code by openapi-generator as source code
 sourceSets {
@@ -101,3 +97,14 @@ tasks.bootRun {
         systemProperty("spring.profiles.active", project.findProperty("profiles") as String)
     }
 }
+
+
+tasks.test {
+    systemProperty("spring.profiles.active", "test")
+    useJUnitPlatform()
+    testLogging {
+        events("skipped", "failed")
+        exceptionFormat = TestExceptionFormat.SHORT
+    }
+}
+
