@@ -1,11 +1,9 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
-    id("org.jetbrains.kotlin.jvm")
-    id("com.diffplug.spotless")
+    id("base-convention")
 }
 
-version = rootProject.version
 
 dependencies {
     implementation("org.apache.commons:commons-lang3:3.20.0")
@@ -19,11 +17,6 @@ dependencies {
 }
 
 
-//java {
-//    toolchain {
-//        languageVersion.set(JavaLanguageVersion.of(21))
-//    }
-//}
 
 tasks.test {
     systemProperty("spring.profiles.active", "test")
@@ -33,10 +26,4 @@ tasks.test {
         exceptionFormat = TestExceptionFormat.SHORT
     }
 }
-
-//kotlin {
-//    compilerOptions {
-//        freeCompilerArgs.addAll("-Xjsr305=strict")
-//    }
-//}
 

@@ -1,38 +1,18 @@
 [versions]
-kotlinVersion = "2.2.21"
-javaVersion = "21"
-spring = "3.5.+"
+kotlin = "2.2.21"
+springboot = "3.5.+"
+spotless = "8.0.0"
+jib = "3.5.1"
+openapigenerator = "7.17.0"
 
 [plugins]
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinVersion" }
-kotlin-jpa = { id = "org.jetbrains.kotlin.plugin.jpa", version.ref = "kotlinVersion" }
-kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlinVersion" }
-springframework-boot = { id = "org.springframework.boot", version = "3.5.+" }
+kotlinjvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+jib = { id = "com.google.cloud.tools.jib", version.ref = "jib" }
+openapigenerator = { id = "org.openapi.generator", version.ref = "openapigenerator" }
+
+kotlin-jpa = { id = "org.jetbrains.kotlin.plugin.jpa", version.ref = "kotlin" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+springframework-boot = { id = "org.springframework.boot", version.ref = "springboot" }
 springframework-dependencymanagement = { id = "io.spring.dependency-management", version = "1.1.+" }
 
-[libraries]
-spring-web = { group = "org.springframework.boot", name = "spring-boot-starter-web", version.ref = "spring" }
-spring-data-jpa = { group = "org.springframework.boot", name = "spring-boot-starter-data-jpa", version.ref = "spring" }
-spring-security = { group = "org.springframework.boot", name = "spring-boot-starter-security", version.ref = "spring" }
-spring-oauth2 = { group = "org.springframework.boot", name = "spring-boot-starter-oauth2-resource-server", version.ref = "spring" }
-spring-logging = { group = "org.springframework.boot", name = "spring-boot-starter-logging", version.ref = "spring" }
-spring-mail = { group = "org.springframework.boot", name = "spring-boot-starter-mail", version.ref = "spring" }
-spring-actuator = { group = "org.springframework.boot", name = "spring-boot-starter-actuator", version.ref = "spring" }
-spring-validation = { group = "org.springframework.boot", name = "spring-boot-starter-validation", version.ref = "spring" }
-spring-cache = { group = "org.springframework.boot", name = "spring-boot-starter-cache", version.ref = "spring" }
-spring-thymeleaf = { group = "org.springframework.boot", name = "spring-boot-starter-thymeleaf", version.ref = "spring" }
-
-
-[bundles]
-spring = [
-    "spring-web",
-    "spring-data-jpa",
-    "spring-security",
-    "spring-oauth2",
-    "spring-logging",
-    "spring-mail",
-    "spring-actuator",
-    "spring-validation",
-    "spring-cache",
-    "spring-thymeleaf"
-]
