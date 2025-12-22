@@ -1,5 +1,6 @@
 [versions]
 kotlinVersion = "2.2.21"
+javaVersion = "21"
 spring = "3.5.+"
 
 [plugins]
