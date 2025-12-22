@@ -2,14 +2,14 @@ import java.time.Instant
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "2.2.0"
-    id("com.diffplug.spotless") version "8.0.0"
+    id("org.jetbrains.kotlin.jvm")
+    id("com.diffplug.spotless")
     alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.springframework.boot)
     alias(libs.plugins.springframework.dependencymanagement)
     alias(libs.plugins.kotlin.jpa)
-    id("org.openapi.generator") version "7.17.+"
-    id("com.google.cloud.tools.jib") version "3.5.1"
+    id("org.openapi.generator")
+    id("com.google.cloud.tools.jib")
 }
 
 
