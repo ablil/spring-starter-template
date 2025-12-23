@@ -7,4 +7,5 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "spring-starter-template"
+includeBuild("build-logic")
 include("domain", "application")

@@ -1,8 +1,8 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
-    kotlin("jvm")
-    id("com.diffplug.spotless")
+    id("kotlin-convention")
+    id("formatting-linting-convention")
 }
 
 dependencies {
@@ -20,11 +20,6 @@ dependencies {
 }
 
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
-    }
-}
 
 tasks.test {
     systemProperty("spring.profiles.active", "test")
@@ -35,15 +30,3 @@ tasks.test {
     }
 }
 
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict")
-    }
-}
-spotless {
-    kotlin {
-        toggleOffOn()
-        ktfmt("0.58").kotlinlangStyle()
-        targetExclude("build/generate-resources/**")
-    }
-}

@@ -2,8 +2,9 @@ import java.time.Instant
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
-    kotlin("jvm")
-    id("com.diffplug.spotless")
+    id("kotlin-convention")
+    id("formatting-linting-convention")
+//    id("com.google.cloud.tools.jib")
     id("org.jetbrains.kotlin.plugin.spring")
     id("org.springframework.boot")
     id("io.spring.dependency-management")
@@ -56,9 +57,9 @@ tasks.compileKotlin {
     dependsOn(tasks.openApiGenerate)
 }
 
-//tasks.spotlessKotlin {
-//    dependsOn(tasks.openApiGenerate)
-//}
+tasks.spotlessKotlin {
+    dependsOn(tasks.openApiGenerate)
+}
 
 // include generated code by openapi-generator as source code
 sourceSets {
@@ -101,11 +102,6 @@ tasks.bootRun {
         systemProperty("spring.profiles.active", project.findProperty("profiles") as String)
     }
 }
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
-    }
-}
 
 tasks.test {
     systemProperty("spring.profiles.active", "test")
@@ -116,15 +112,3 @@ tasks.test {
     }
 }
 
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict")
-    }
-}
-spotless {
-    kotlin {
-        toggleOffOn()
-        ktfmt("0.58").kotlinlangStyle()
-        targetExclude("build/generate-resources/**")
-    }
-}
