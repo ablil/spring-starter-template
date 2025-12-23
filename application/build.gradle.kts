@@ -1,8 +1,9 @@
 import java.time.Instant
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
-    id("conventions.kotlin-jvm")
-    id("conventions.spotless")
+    kotlin("jvm")
+    id("com.diffplug.spotless")
     alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.springframework.boot)
     alias(libs.plugins.springframework.dependencymanagement)
@@ -56,9 +57,9 @@ tasks.compileKotlin {
     dependsOn(tasks.openApiGenerate)
 }
 
-tasks.spotlessKotlin {
-    dependsOn(tasks.openApiGenerate)
-}
+//tasks.spotlessKotlin {
+//    dependsOn(tasks.openApiGenerate)
+//}
 
 // include generated code by openapi-generator as source code
 sourceSets {
@@ -99,5 +100,32 @@ tasks.build {
 tasks.bootRun {
     if (project.hasProperty("profiles")) {
         systemProperty("spring.profiles.active", project.findProperty("profiles") as String)
+    }
+}
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+tasks.test {
+    systemProperty("spring.profiles.active", "test")
+    useJUnitPlatform()
+    testLogging {
+        events("skipped", "failed")
+        exceptionFormat = TestExceptionFormat.SHORT
+    }
+}
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xjsr305=strict")
+    }
+}
+spotless {
+    kotlin {
+        toggleOffOn()
+        ktfmt("0.58").kotlinlangStyle()
+        targetExclude("build/generate-resources/**")
     }
 }

@@ -1,6 +1,8 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+
 plugins {
-    id("conventions.kotlin-jvm")
-    id("conventions.spotless")
+    kotlin("jvm")
+    id("com.diffplug.spotless")
 }
 
 version = rootProject.version
@@ -17,3 +19,30 @@ dependencies {
 }
 
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+tasks.test {
+    systemProperty("spring.profiles.active", "test")
+    useJUnitPlatform()
+    testLogging {
+        events("skipped", "failed")
+        exceptionFormat = TestExceptionFormat.SHORT
+    }
+}
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xjsr305=strict")
+    }
+}
+spotless {
+    kotlin {
+        toggleOffOn()
+        ktfmt("0.58").kotlinlangStyle()
+        targetExclude("build/generate-resources/**")
+    }
+}
